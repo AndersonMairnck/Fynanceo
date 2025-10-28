@@ -1,0 +1,332 @@
+﻿@model Fynanceo.ViewModels.ProdutoViewModel
+
+@{
+    ViewData["Title"] = "Cadastrar Produto";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-success">
+            <i class="fas fa-plus me-2"></i>@ViewData["Title"]
+        </h1>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @await Html.PartialAsync("_AlertasPartial")
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Cadastrar" method="post" id="formProduto">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Informações Básicas
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Codigo" class="form-label"></label>
+                                    <input asp-for="Codigo" class="form-control" />
+                                    <span asp-validation-for="Codigo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Categoria" class="form-label"></label>
+                                    <input asp-for="Categoria" class="form-control" list="categorias" />
+                                    <datalist id="categorias">
+                                        <option value="Bebidas"/>
+                                        <option value="Lanches"/>
+                                        <option value="Pizzas"/>
+                                        <option value="Sobremesas"/>
+                                        <option value="Acompanhamentos"/>
+                                    </datalist>
+                                    <span asp-validation-for="Categoria" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nome" class="form-label"></label>
+                            <input asp-for="Nome" class="form-control" />
+                            <span asp-validation-for="Nome" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Descricao" class="form-label"></label>
+                            <textarea asp-for="Descricao" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Descricao" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subcategoria" class="form-label"></label>
+                            <input asp-for="Subcategoria" class="form-control" />
+                            <span asp-validation-for="Subcategoria" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-dollar-sign me-2"></i>Valores e Tempos
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CustoUnitario" class="form-label"></label>
+                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control" id="custoUnitario" />
+                                    <span asp-validation-for="CustoUnitario" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ValorVenda" class="form-label"></label>
+                                    <input asp-for="ValorVenda" type="number" step="0.01" class="form-control" id="valorVenda" />
+                                    <span asp-validation-for="ValorVenda" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Margem de Lucro</label>
+                                <div class="form-control-plaintext fw-bold" id="margemLucro">R$ 0,00</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">% de Lucro</label>
+                                <div class="form-control-plaintext fw-bold" id="percentualLucro">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="TempoPreparoMinutos" class="form-label"></label>
+                                    <input asp-for="TempoPreparoMinutos" type="number" class="form-control" />
+                                    <span asp-validation-for="TempoPreparoMinutos" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="TempoExtraPico" class="form-label"></label>
+                                    <input asp-for="TempoExtraPico" type="number" class="form-control" />
+                                    <span asp-validation-for="TempoExtraPico" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredientes -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-list me-2"></i>Ingredientes
+                        </h5>
+                        
+                        <div id="ingredientes-container">
+                            @for (int i = 0; i < Model.Ingredientes.Count; i++)
+                            {
+                                <div class="ingrediente-item row mb-3">
+                                    <div class="col-md-4">
+                                        <input asp-for="Ingredientes[i].Nome" class="form-control" placeholder="Nome do ingrediente" />
+                                        <span asp-validation-for="Ingredientes[i].Nome" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <input asp-for="Ingredientes[i].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" />
+                                        <span asp-validation-for="Ingredientes[i].Quantidade" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select asp-for="Ingredientes[i].UnidadeMedida" class="form-select">
+                                            <option value="">Selecione</option>
+                                            <option value="g">Gramas (g)</option>
+                                            <option value="kg">Quilogramas (kg)</option>
+                                            <option value="ml">Mililitros (ml)</option>
+                                            <option value="L">Litros (L)</option>
+                                            <option value="un">Unidades (un)</option>
+                                            <option value="xíc">Xícaras</option>
+                                            <option value="col">Colheres</option>
+                                        </select>
+                                        <span asp-validation-for="Ingredientes[i].UnidadeMedida" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-danger btn-remover-ingrediente" @(Model.Ingredientes.Count == 1 ? "disabled" : "")>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="button" id="btn-adicionar-ingrediente" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-1"></i>Adicionar Ingrediente
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status e Tributação -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-toggle-on me-2"></i>Status
+                        </h5>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input asp-for="Disponivel" class="form-check-input" checked />
+                            <label asp-for="Disponivel" class="form-check-label"></label>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="OpcoesPersonalizacao" class="form-label"></label>
+                            <textarea asp-for="OpcoesPersonalizacao" class="form-control" rows="3" placeholder="Ex: Tamanho: P,M,G; Sabores: Calabresa, Frango..."></textarea>
+                            <span asp-validation-for="OpcoesPersonalizacao" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    @* <div class="col-md-6">
+                        <h5 class="text-success mb-3">
+                            <i class="fas fa-receipt me-2"></i>Tributação
+                        </h5> *@
+
+                      @*   <div class="mb-3">
+                            <label asp-for="CodigoNCM" class="form-label"></label>
+                            <input asp-for="CodigoNCM" class="form-control" />
+                            <span asp-validation-for="CodigoNCM" class="text-danger"></span>
+                        </div> *@
+
+                @*         <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Origem" class="form-label"></label>
+                                    <input asp-for="Origem" class="form-control" />
+                                    <span asp-validation-for="Origem" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CST" class="form-label"></label>
+                                    <input asp-for="CST" class="form-control" />
+                                    <span asp-validation-for="CST" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Aliquota" class="form-label"></label>
+                            <input asp-for="Aliquota" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Aliquota" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div> *@
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Cadastrar Produto
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calcular margem de lucro
+            function calcularMargem() {
+                const custo = parseFloat(document.getElementById('custoUnitario').value) || 0;
+                const venda = parseFloat(document.getElementById('valorVenda').value) || 0;
+                const margem = venda - custo;
+                const percentual = custo > 0 ? ((margem / custo) * 100) : 0;
+                
+                document.getElementById('margemLucro').textContent = 
+                    margem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('percentualLucro').textContent = 
+                    percentual.toFixed(2) + '%';
+                
+                // Colorir baseado no lucro
+                const margemElement = document.getElementById('margemLucro');
+                const percentualElement = document.getElementById('percentualLucro');
+                
+                if (margem > 0) {
+                    margemElement.className = 'form-control-plaintext fw-bold text-success';
+                    percentualElement.className = 'form-control-plaintext fw-bold text-success';
+                } else {
+                    margemElement.className = 'form-control-plaintext fw-bold text-danger';
+                    percentualElement.className = 'form-control-plaintext fw-bold text-danger';
+                }
+            }
+            
+            document.getElementById('custoUnitario').addEventListener('input', calcularMargem);
+            document.getElementById('valorVenda').addEventListener('input', calcularMargem);
+            
+            // Gerenciar ingredientes
+            let ingredienteIndex = @Model.Ingredientes.Count;
+            
+            document.getElementById('btn-adicionar-ingrediente').addEventListener('click', function() {
+                const container = document.getElementById('ingredientes-container');
+                const newIngrediente = document.createElement('div');
+                newIngrediente.className = 'ingrediente-item row mb-3';
+                newIngrediente.innerHTML = `
+                    <div class="col-md-4">
+                        <input name="Ingredientes[${ingredienteIndex}].Nome" class="form-control" placeholder="Nome do ingrediente" />
+                    </div>
+                    <div class="col-md-3">
+                        <input name="Ingredientes[${ingredienteIndex}].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" />
+                    </div>
+                    <div class="col-md-3">
+                        <select name="Ingredientes[${ingredienteIndex}].UnidadeMedida" class="form-select">
+                            <option value="">Selecione</option>
+                            <option value="g">Gramas (g)</option>
+                            <option value="kg">Quilogramas (kg)</option>
+                            <option value="ml">Mililitros (ml)</option>
+                            <option value="L">Litros (L)</option>
+                            <option value="un">Unidades (un)</option>
+                            <option value="xíc">Xícaras</option>
+                            <option value="col">Colheres</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger btn-remover-ingrediente">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(newIngrediente);
+                ingredienteIndex++;
+                
+                // Atualizar eventos dos botões remover
+                atualizarEventosRemover();
+            });
+            
+            function atualizarEventosRemover() {
+                document.querySelectorAll('.btn-remover-ingrediente').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const ingredienteItem = this.closest('.ingrediente-item');
+                        if (document.querySelectorAll('.ingrediente-item').length > 1) {
+                            ingredienteItem.remove();
+                        }
+                    });
+                });
+            }
+            
+            atualizarEventosRemover();
+            
+            // Calcular margem inicial
+            calcularMargem();
+        });
+    </script>
+}

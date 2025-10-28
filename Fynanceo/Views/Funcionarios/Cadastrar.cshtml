@@ -1,0 +1,173 @@
+﻿@model Fynanceo.ViewModels.FuncionarioViewModel
+
+@{
+    ViewData["Title"] = "Cadastrar Funcionário";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-info">
+            <i class="fas fa-user-plus me-2"></i>@ViewData["Title"]
+        </h1>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @await Html.PartialAsync("_AlertasPartial")
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Cadastrar" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-info mb-3">
+                            <i class="fas fa-id-card me-2"></i>Dados Pessoais
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="NomeCompleto" class="form-label"></label>
+                            <input asp-for="NomeCompleto" class="form-control" />
+                            <span asp-validation-for="NomeCompleto" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                             <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CPF" class="form-label"></label>
+                                    <input asp-for="CPF" class="form-control" data-mask="cpfcnpj" />
+                                    <span asp-validation-for="CPF" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Endereco" class="form-label"></label>
+                            <input asp-for="Endereco" class="form-control" />
+                            <span asp-validation-for="Endereco" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Telefone" class="form-label"></label>
+                                    <input asp-for="Telefone" class="form-control" data-mask="telefone" />
+                                    <span asp-validation-for="Telefone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="text-info mb-3">
+                            <i class="fas fa-briefcase me-2"></i>Dados Profissionais
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Cargo" class="form-label"></label>
+                            <select asp-for="Cargo" class="form-select">
+                                <option value="">Selecione o cargo</option>
+                                <option value="Garçom">Garçom</option>
+                                <option value="Cozinheiro">Cozinheiro</option>
+                                <option value="Caixa">Caixa</option>
+                                <option value="Gerente">Gerente</option>
+                                <option value="Atendente">Atendente</option>
+                                <option value="Auxiliar">Auxiliar</option>
+                                <option value="Entregador">Entregador</option>
+                            </select>
+                            <span asp-validation-for="Cargo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NivelPermissao" class="form-label"></label>
+                            <select asp-for="NivelPermissao" class="form-select">
+                                <option value="">Selecione o nível</option>
+                                <option value="Basico">Básico</option>
+                                <option value="Medio">Médio</option>
+                                <option value="Alto">Alto</option>
+                            </select>
+                            <span asp-validation-for="NivelPermissao" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Turno" class="form-label"></label>
+                            <select asp-for="Turno" class="form-select">
+                                <option value="">Selecione o turno</option>
+                                <option value="Manhã">Manhã</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Noite">Noite</option>
+                                <option value="Integral">Integral</option>
+                            </select>
+                            <span asp-validation-for="Turno" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DataAdmissao" class="form-label"></label>
+                            <input asp-for="DataAdmissao" type="date" class="form-control" />
+                            <span asp-validation-for="DataAdmissao" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input asp-for="Ativo" class="form-check-input" checked />
+                            <label asp-for="Ativo" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h5 class="text-info mb-3">
+                            <i class="fas fa-phone-alt me-2"></i>Contato de Emergência
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ContatoEmergencia" class="form-label"></label>
+                                    <input asp-for="ContatoEmergencia" class="form-control" />
+                                    <span asp-validation-for="ContatoEmergencia" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="TelefoneEmergencia" class="form-label"></label>
+                                    <input asp-for="TelefoneEmergencia" class="form-control" data-mask="telefone" />
+                                    <span asp-validation-for="TelefoneEmergencia" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-save me-2"></i>Cadastrar Funcionário
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    
+}

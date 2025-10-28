@@ -1,0 +1,170 @@
+﻿@model Fynanceo.Models.Cliente
+
+@{
+    ViewData["Title"] = "Detalhes do Cliente";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-primary">
+            <i class="fas fa-user me-2"></i>@ViewData["Title"]
+        </h1>
+        <div>
+            <a href="@Url.Action("Editar", new { id = Model.Id })" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-id-card me-2 text-primary"></i>Informações Pessoais
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nome Completo</label>
+                                <p class="form-control-plaintext">@Model.NomeCompleto</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">CPF/CNPJ</label>
+                                <p class="form-control-plaintext">@Model.CpfCnpj</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Telefone</label>
+                                <p class="form-control-plaintext">@Model.Telefone</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">E-mail</label>
+                                <p class="form-control-plaintext">@Model.Email</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Data de Nascimento</label>
+                                <p class="form-control-plaintext">@(Model.DataNascimento?.ToString("dd/MM/yyyy") ?? "Não informada")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Classificação</label>
+                                <p>
+                                    <span class="badge @(Model.Classificacao == "VIP" ? "bg-warning" :
+                                                                                              Model.Classificacao == "Frequente" ? "bg-info" : "bg-secondary")">
+                                        @Model.Classificacao
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Enderecos.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>Endereços Cadastrados
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var endereco in Model.Enderecos)
+                        {
+                            <div class="card mb-3 @(endereco.Principal ? "border-primary" : "")">
+                                <div class="card-body">
+                                    @if (endereco.Principal)
+                                    {
+                                        <span class="badge bg-primary mb-2">Principal</span>
+                                    }
+                                    <p class="mb-1">
+                                        <strong>@endereco.Logradouro, @endereco.Numero</strong>
+                                        @if (!string.IsNullOrEmpty(endereco.Complemento))
+                                        {
+                                            <br />
+                                
+                                            <span class="text-muted">@endereco.Complemento</span>
+                                        }
+                                    </p>
+                                    <p class="mb-1">@endereco.Bairro, @endereco.Cidade - @endereco.Estado</p>
+                                    <p class="mb-1">CEP: @endereco.Cep</p>
+                                    @if (!string.IsNullOrEmpty(endereco.Referencia))
+                                    {
+                                        <p class="mb-0 text-muted"><small>Referência: @endereco.Referencia</small></p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <p>
+                            <span class="badge @(Model.Ativo ? "bg-success" : "bg-danger")">
+                                @(Model.Ativo ? "Ativo" : "Inativo")
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Data de Cadastro</label>
+                        <p class="form-control-plaintext">@Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.JustificativaStatus))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Justificativa do Status</label>
+                            <p class="form-control-plaintext">@Model.JustificativaStatus</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Observacoes))
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-sticky-note me-2 text-primary"></i>Observações
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="form-control-plaintext">@Model.Observacoes</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
