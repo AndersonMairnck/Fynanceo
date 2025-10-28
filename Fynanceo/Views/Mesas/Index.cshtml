@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Fynanceo.Models.Mesa>
+
+@{
+    ViewData["Title"] = "Mesas Cadastradas";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-warning">
+            <i class="fas fa-chair me-2"></i>@ViewData["Title"]
+        </h1>
+        <a href="@Url.Action("Cadastrar")" class="btn btn-warning">
+            <i class="fas fa-plus me-2"></i>Nova Mesa
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @await Html.PartialAsync("_AlertasPartial")
+
+    <div class="row">
+        @foreach (var mesa in Model)
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-sm border-@(mesa.Status == "Livre" ? "success" :
+                                                                           mesa.Status == "Ocupada" ? "danger" :
+                                                                           mesa.Status == "Reservada" ? "warning" : "secondary")">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-chair fa-3x text-@(mesa.Status == "Livre" ? "success" :
+                                                                                         mesa.Status == "Ocupada" ? "danger" :
+                                                                                         mesa.Status == "Reservada" ? "warning" : "secondary")"></i>
+                    </div>
+                    <h5 class="card-title">Mesa @mesa.Numero</h5>
+                    <p class="card-text">
+                        <span class="badge bg-@(mesa.Status == "Livre" ? "success" :
+                                                                                mesa.Status == "Ocupada" ? "danger" :
+                                                                                mesa.Status == "Reservada" ? "warning" : "secondary")">
+                            @mesa.Status
+                        </span>
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>@mesa.Capacidade pessoas<br>
+                            <i class="fas fa-map-marker-alt me-1"></i>@mesa.Localizacao
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="@Url.Action("Detalhes", new { id = mesa.Id })" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="@Url.Action("Editar", new { id = mesa.Id })" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="post" action="@Url.Action("Excluir", new { id = mesa.Id })"
+                              class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta mesa?');">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+                }
+    </div>
+</div>

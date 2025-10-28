@@ -1,0 +1,110 @@
+﻿@model Fynanceo.ViewModels.MesaViewModel
+
+@{
+    ViewData["Title"] = "Cadastrar Mesa";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-warning">
+            <i class="fas fa-plus me-2"></i>@ViewData["Title"]
+        </h1>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @await Html.PartialAsync("_AlertasPartial")
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form asp-action="Cadastrar" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-warning mb-3">
+                            <i class="fas fa-chair me-2"></i>Informações da Mesa
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Numero" class="form-label"></label>
+                            <input asp-for="Numero" class="form-control" />
+                            <span asp-validation-for="Numero" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Capacidade" class="form-label"></label>
+                            <input asp-for="Capacidade" type="number" class="form-control" />
+                            <span asp-validation-for="Capacidade" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Localizacao" class="form-label"></label>
+                            <select asp-for="Localizacao" class="form-select">
+                                <option value="">Selecione a localização</option>
+                                <option value="Interna">Interna</option>
+                                <option value="Externa">Externa</option>
+                                <option value="Varanda">Varanda</option>
+                                <option value="Terraço">Terraço</option>
+                            </select>
+                            <span asp-validation-for="Localizacao" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="text-warning mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>Ambiente e Status
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Ambiente" class="form-label"></label>
+                            <input asp-for="Ambiente" class="form-control" list="ambientes" />
+                            <datalist id="ambientes">
+                                <option value="Salão Principal"/>
+                                <option value="Área VIP"/>
+                                <option value="Jardim"/>
+                                <option value="Varanda Gourmet"/>
+                                <option value="Salão de Festas"/>
+                            </datalist>
+                            <span asp-validation-for="Ambiente" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Livre">Livre</option>
+                                <option value="Ocupada">Ocupada</option>
+                                <option value="Reservada">Reservada</option>
+                                <option value="EmLimpeza">Em Limpeza</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Descricao" class="form-label"></label>
+                            <textarea asp-for="Descricao" class="form-control" rows="4" placeholder="Ex: Mesa próxima à janela, com vista para o jardim..."></textarea>
+                            <span asp-validation-for="Descricao" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Cadastrar Mesa
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    
+}

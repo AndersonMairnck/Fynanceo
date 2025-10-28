@@ -1,0 +1,221 @@
+﻿@model Fynanceo.Models.Produto
+
+@{
+    ViewData["Title"] = "Detalhes do Produto";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-success">
+            <i class="fas fa-utensils me-2"></i>@ViewData["Title"]
+        </h1>
+        <div>
+            <a href="@Url.Action("Editar", new { id = Model.Id })" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2 text-success"></i>Informações do Produto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Código</label>
+                                <p class="form-control-plaintext"><strong>@Model.Codigo</strong></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Categoria</label>
+                                <p>
+                                    <span class="badge bg-info">@Model.Categoria</span>
+                                    @if (!string.IsNullOrEmpty(Model.Subcategoria))
+                                    {
+                                        <span class="badge bg-secondary ms-1">@Model.Subcategoria</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nome</label>
+                        <p class="form-control-plaintext">@Model.Nome</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Descricao))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descrição</label>
+                            <p class="form-control-plaintext">@Model.Descricao</p>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Custo Unitário</label>
+                                <p class="form-control-plaintext">@Model.CustoUnitario.ToString("C")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Valor de Venda</label>
+                                <p class="form-control-plaintext">@Model.ValorVenda.ToString("C")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Margem de Lucro</label>
+                                <p class="form-control-plaintext fw-bold @(Model.MargemLucro > 0 ? "text-success" : "text-danger")">
+                                    @Model.MargemLucro.ToString("C")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tempo de Preparo</label>
+                                <p class="form-control-plaintext">@Model.TempoPreparoMinutos minutos</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tempo Extra para Pico</label>
+                                <p class="form-control-plaintext">@Model.TempoExtraPico minutos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Ingredientes.Any())
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list me-2 text-success"></i>Ingredientes
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Ingrediente</th>
+                                        <th>Quantidade</th>
+                                        <th>Unidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ingrediente in Model.Ingredientes)
+                                    {
+                                        <tr>
+                                            <td>@ingrediente.Nome</td>
+                                            <td>@ingrediente.Quantidade</td>
+                                            <td>@ingrediente.UnidadeMedida</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-toggle-on me-2 text-success"></i>Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Disponibilidade</label>
+                        <p>
+                            <span class="badge @(Model.Disponivel ? "bg-success" : "bg-danger")">
+                                @(Model.Disponivel ? "Disponível" : "Indisponível")
+                            </span>
+                        </p>
+                    </div>
+
+                    @* @if (!string.IsNullOrEmpty(Model.MotivoIndisponibilidade))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Motivo da Indisponibilidade</label>
+                            <p class="form-control-plaintext">@Model.MotivoIndisponibilidade</p>
+                        </div>
+                    } *@
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Data de Cadastro</label>
+                        <p class="form-control-plaintext">@Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.OpcoesPersonalizacao))
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cogs me-2 text-success"></i>Opções de Personalização
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="form-control-plaintext">@Model.OpcoesPersonalizacao</p>
+                    </div>
+                </div>
+            }
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-receipt me-2 text-success"></i>Informações Fiscais
+                    </h5>
+                </div>
+                @* <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Código NCM</label>
+                        <p class="form-control-plaintext">@(Model.CodigoNCM ?? "Não informado")</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Origem</label>
+                                <p class="form-control-plaintext">@(Model.Origem ?? "Não informada")</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">CST</label>
+                                <p class="form-control-plaintext">@(Model.CST ?? "Não informado")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Alíquota</label>
+                        <p class="form-control-plaintext">@(Model.Aliquota.ToString("F2") + "%")</p>
+                    </div>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>

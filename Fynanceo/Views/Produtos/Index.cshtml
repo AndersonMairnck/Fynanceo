@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Fynanceo.Models.Produto>
+
+@{
+    ViewData["Title"] = "Produtos Cadastrados";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-success">
+            <i class="fas fa-utensils me-2"></i>@ViewData["Title"]
+        </h1>
+        <a href="@Url.Action("Cadastrar")" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Novo Produto
+        </a>
+    </div>
+
+    <!-- Alertas -->
+    @await Html.PartialAsync("_AlertasPartial")
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="tabela-produtos">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Valor Venda</th>
+                            <th>Margem</th>
+                            <th>Tempo Prep.</th>
+                            <th>Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong>@item.Codigo</strong></td>
+                                <td>@item.Nome</td>
+                                <td>
+                                    <span class="badge bg-info">@item.Categoria</span>
+                                    @if (!string.IsNullOrEmpty(item.Subcategoria))
+                                    {
+                                        <br>
+                                
+                                        <small class="text-muted">@item.Subcategoria</small>
+                                    }
+                                </td>
+                                <td>@item.ValorVenda.ToString("C")</td>
+                                <td>
+                                    <span class="badge @(item.MargemLucro > 0 ? "bg-success" : "bg-danger")">
+                                        @item.MargemLucro.ToString("C")
+                                    </span>
+                                </td>
+                                <td>@item.TempoPreparoMinutos min</td>
+                                <td>
+                                    <span class="badge @(item.Disponivel ? "bg-success" : "bg-danger")">
+                                        @(item.Disponivel ? "Disponível" : "Indisponível")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Detalhes", new { id = item.Id })"
+                                           class="btn btn-info" title="Detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Editar", new { id = item.Id })"
+                                           class="btn btn-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="@Url.Action("Excluir", new { id = item.Id })"
+                                              class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                            <button type="submit" class="btn btn-danger" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table th {
+            border-top: none;
+            font-weight: 600;
+        }
+
+        .btn-group .btn {
+            border-radius: 0.375rem;
+            margin: 0 2px;
+        }
+
+        #tabela-produtos tbody tr:hover {
+            background-color: rgba(40, 167, 69, 0.05);
+            transition: background-color 0.2s ease;
+        }
+    </style>
+}
