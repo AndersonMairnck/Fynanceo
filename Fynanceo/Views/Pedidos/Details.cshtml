@@ -1,0 +1,418 @@
+﻿<!-- Views/Pedidos/Details.cshtml -->
+@model Fynanceo.Models.Pedido
+
+@{
+    ViewData["Title"] = $"Pedido {Model.NumeroPedido}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-file-invoice text-primary me-2"></i>Pedido: @Model.NumeroPedido
+    </h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+        @if (Model.Status != Fynanceo.Models.Enums.PedidoStatus.Fechado)
+        {
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Editar
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informações do Pedido -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Informações do Pedido</h5>
+                <div>
+                    @{
+                        var statusClass = "";
+                        var statusText = "";
+                        switch (Model.Status)
+                        {
+                            case Fynanceo.Models.Enums.PedidoStatus.Aberto:
+                                statusClass = "status-aberto";
+                                statusText = "Aberto";
+                                break;
+                            case Fynanceo.Models.Enums.PedidoStatus.EnviadoCozinha:
+                                statusClass = "status-cozinha";
+                                statusText = "Enviado à Cozinha";
+                                break;
+                            case Fynanceo.Models.Enums.PedidoStatus.EmPreparo:
+                                statusClass = "status-preparo";
+                                statusText = "Em Preparo";
+                                break;
+                            case Fynanceo.Models.Enums.PedidoStatus.Pronto:
+                                statusClass = "status-pronto";
+                                statusText = "Pronto";
+                                break;
+                            case Fynanceo.Models.Enums.PedidoStatus.Entregue:
+                                statusClass = "status-entregue";
+                                statusText = "Entregue";
+                                break;
+                            case Fynanceo.Models.Enums.PedidoStatus.Fechado:
+                                statusClass = "status-fechado";
+                                statusText = "Fechado";
+                                break;
+                        }
+                    }
+                    <span class="status-badge @statusClass">@statusText</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Número:</th>
+                                <td>@Model.NumeroPedido</td>
+                            </tr>
+                            <tr>
+                                <th>Tipo:</th>
+                                <td>
+                                    @switch (Model.TipoPedido)
+                                    {
+                                        case Fynanceo.Models.Enums.TipoPedido.Mesa:
+                                            <span class="badge bg-info">Mesa</span>
+                                            break;
+                                        case Fynanceo.Models.Enums.TipoPedido.Balcao:
+                                            <span class="badge bg-secondary">Balcão</span>
+                                            break;
+                                        case Fynanceo.Models.Enums.TipoPedido.Delivery:
+                                            <span class="badge bg-warning text-dark">Delivery</span>
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Data Abertura:</th>
+                                @* <td>@Model.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td> *@ 
+                                <td>@Model.DataAbertura.ToLocalTime()</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Cliente/Mesa:</th>
+                                <td>
+                                    @if (Model.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && Model.Mesa != null)
+                                    {
+                                        <text>Mesa @Model.Mesa.Numero - @Model.Mesa.Ambiente</text>
+                                    }
+                                    else if (Model.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery && Model.Cliente != null)
+                                    {
+                                        <text>@Model.Cliente.NomeCompleto</text>
+                                        <br>
+                                        <small class="text-muted">@Model.EnderecoEntrega?.ToString()</small>
+                                    }
+                                    else
+                                    {
+                                        <text>Balcão</text>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Atendente:</th>
+                                <td>@(Model.Funcionario?.NomeCompleto ?? "Sistema")</td>
+                            </tr>
+                            <tr>
+                                <th>Prioridade:</th>
+                                <td>
+                                    @switch (Model.Prioridade)
+                                    {
+                                        case Fynanceo.Models.Enums.PrioridadePedido.Normal:
+                                            <span class="badge bg-secondary">Normal</span>
+                                            break;
+                                        case Fynanceo.Models.Enums.PrioridadePedido.Urgente:
+                                            <span class="badge bg-danger">Urgente</span>
+                                            break;
+                                        case Fynanceo.Models.Enums.PrioridadePedido.AguardandoConfirmacao:
+                                            <span class="badge bg-warning text-dark">Aguardando</span>
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Observacoes))
+                {
+                    <div class="alert alert-info mt-3">
+                        <strong><i class="fas fa-info-circle me-2"></i>Observações:</strong>
+                        @Model.Observacoes
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Itens do Pedido -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Itens do Pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th width="100" class="text-center">Quantidade</th>
+                                <th width="120" class="text-end">Unitário</th>
+                                <th width="120" class="text-end">Total</th>
+                                <th width="100" class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Itens)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@item.Produto.Nome</strong>
+                                        @if (!string.IsNullOrEmpty(item.Observacoes))
+                                        {
+                                            <br>
+                                            <small class="text-muted"><strong>Obs:</strong> @item.Observacoes</small>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Personalizacoes))
+                                        {
+                                            <br>
+                                            <small class="text-muted"><strong>Personalizações:</strong> @item.Personalizacoes</small>
+                                        }
+                                    </td>
+                                    <td class="text-center">@item.Quantidade</td>
+                                    <td class="text-end">R$ @item.PrecoUnitario.ToString("N2")</td>
+                                    <td class="text-end">R$ @item.Total.ToString("N2")</td>
+                                    <td class="text-center">
+                                        @if (item.Entregue)
+                                        {
+                                            <span class="badge bg-success">Entregue</span>
+                                        }
+                                        else if (item.Pronto)
+                                        {
+                                            <span class="badge bg-info">Pronto</span>
+                                        }
+                                        else if (item.EmPreparo)
+                                        {
+                                            <span class="badge bg-warning text-dark">Preparo</span>
+                                        }
+                                        else if (item.EnviadoCozinha)
+                                        {
+                                            <span class="badge bg-secondary">Cozinha</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-light text-dark">Pendente</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Subtotal:</th>
+                                <th class="text-end">R$ @Model.Subtotal.ToString("N2")</th>
+                                <td></td>
+                            </tr>
+                            @if (Model.TaxaEntrega > 0)
+                            {
+                                <tr>
+                                    <th colspan="3" class="text-end">Taxa de Entrega:</th>
+                                    <th class="text-end">R$ @Model.TaxaEntrega.ToString("N2")</th>
+                                    <td></td>
+                                </tr>
+                            }
+                            <tr>
+                                <th colspan="3" class="text-end">Total:</th>
+                                <th class="text-end">R$ @Model.Total.ToString("N2")</th>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico do Pedido -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Histórico do Pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    @foreach (var historico in Model.Historico.OrderBy(h => h.DataAlteracao))
+                    {
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex">
+                                <div class="timeline-marker bg-primary rounded-circle" style="width: 12px; height: 12px; margin-top: 5px;"></div>
+                                <div class="ms-3">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>@historico.StatusNovo</strong>
+                                        <small class="text-muted">@historico.DataAlteracao.ToLocalTime()</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        De <strong>@historico.StatusAnterior</strong> para <strong>@historico.StatusNovo</strong>
+                                        por @historico.UsuarioNome
+                                    </small>
+                                    @if (!string.IsNullOrEmpty(historico.Observacao))
+                                    {
+                                        <div class="mt-1">
+                                            <small>@historico.Observacao</small>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Ações do Pedido -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Ações</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Status == Fynanceo.Models.Enums.PedidoStatus.Aberto)
+                {
+                    <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.PedidoStatus.EnviadoCozinha)
+                {
+                    <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EmPreparo')">
+                        <i class="fas fa-utensils me-2"></i>Iniciar Preparo
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.PedidoStatus.EmPreparo)
+                {
+                    <button class="btn btn-success w-100 mb-2" onclick="atualizarStatus('Pronto')">
+                        <i class="fas fa-check me-2"></i>Marcar como Pronto
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.PedidoStatus.Pronto)
+                {
+                    <button class="btn btn-info w-100 mb-2" onclick="atualizarStatus('Entregue')">
+                        <i class="fas fa-truck me-2"></i>Marcar como Entregue
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.PedidoStatus.Entregue)
+                {
+                    <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')">
+                        <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido
+                    </button>
+                }
+
+                @if (Model.Status != Fynanceo.Models.Enums.PedidoStatus.Fechado)
+                {
+                    <button class="btn btn-outline-danger w-100" onclick="atualizarStatus('Cancelado')">
+                        <i class="fas fa-times me-2"></i>Cancelar Pedido
+                    </button>
+                }
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fas fa-print me-2"></i>Imprimir Comanda
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary">
+                        <i class="fas fa-receipt me-2"></i>Gerar Conta
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações de Tempo -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Tempos</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><small>Abertura:</small></td>
+                        <td class="text-end"><small>@Model.DataAbertura.ToLocalTime()</small></td>
+                    </tr>
+                    @if (Model.DataEnvioCozinha.HasValue)
+                    {
+                        <tr>
+                            <td><small>Envio Cozinha:</small></td>
+                            <td class="text-end"><small>@Model.DataEnvioCozinha.Value.ToLocalTime()</small></td>
+                        </tr>
+                    }
+                    @if (Model.DataPreparo.HasValue)
+                    {
+                        <tr>
+                            <td><small>Início Preparo:</small></td>
+                            <td class="text-end"><small>@Model.DataPreparo.Value.ToLocalTime()</small></td>
+                        </tr>
+                    }
+                    @if (Model.DataPronto.HasValue)
+                    {
+                        <tr>
+                            <td><small>Pronto:</small></td>
+                            <td class="text-end"><small>@Model.DataPronto.Value.ToLocalTime()</small></td>
+                        </tr>
+                    }
+                    @if (Model.DataEntrega.HasValue)
+                    {
+                        <tr>
+                            <td><small>Entrega:</small></td>
+                            <td class="text-end"><small>@Model.DataEntrega.Value.ToLocalTime()</small></td>
+                        </tr>
+                    }
+                </table>
+
+                <div class="text-center mt-3">
+                    @{
+                        var tempoTotal = DateTime.Now - Model.DataAbertura.ToLocalTime();
+                        <h4 class="text-primary">@((int)tempoTotal.TotalMinutes)m</h4>
+                        <small class="text-muted">Tempo decorrido</small>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function atualizarStatus(novoStatus) {
+            if (!confirm(`Tem certeza que deseja alterar o status para "${novoStatus}"?`)) {
+                return;
+            }
+
+            $.post('@Url.Action("AtualizarStatus", new { id = Model.Id })', { novoStatus: novoStatus })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao atualizar status');
+                });
+        }
+
+        // Auto-refresh a cada 15 segundos se o pedido não estiver fechado
+        @if (Model.Status != Fynanceo.Models.Enums.PedidoStatus.Fechado)
+        {
+                <text>
+                setInterval(() => {
+                    location.reload();
+                }, 15000);
+                </text>
+        }
+    </script>
+}

@@ -1,0 +1,242 @@
+﻿<!-- Views/Pedidos/Index.cshtml -->
+@model IEnumerable<Fynanceo.Models.Pedido>
+
+@{
+    ViewData["Title"] = "Pedidos do Dia";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-shopping-cart text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Novo Pedido
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">@Model.Count(p => p.Status == Fynanceo.Models.Enums.PedidoStatus.Aberto)</h4>
+                        <small>Abertos</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">@Model.Count(p => p.Status == Fynanceo.Models.Enums.PedidoStatus.EmPreparo)</h4>
+                        <small>Em Preparo</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-utensils fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">@Model.Count(p => p.Status == Fynanceo.Models.Enums.PedidoStatus.Pronto)</h4>
+                        <small>Prontos</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">@Model.Count(p => p.Status == Fynanceo.Models.Enums.PedidoStatus.Fechado)</h4>
+                        <small>Finalizados</small>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-flag-checkered fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Todos os Pedidos de Hoje</h5>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" onclick="filterPedidos('all')">Todos</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="filterPedidos('Aberto')">Abertos</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="filterPedidos('EmPreparo')">Preparo</button>
+            <button class="btn btn-outline-success btn-sm" onclick="filterPedidos('Pronto')">Prontos</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="pedidosTable">
+                <thead>
+                    <tr>
+                        <th>Nº Pedido</th>
+                        <th>Tipo</th>
+                        <th>Cliente/Mesa</th>
+                        <th>Itens</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Tempo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pedido in Model)
+                    {
+                        <tr class="pedido-row" data-status="@pedido.Status">
+                            <td>
+                                <strong>@pedido.NumeroPedido</strong>
+                                <br>
+                                <small class="text-muted">
+                                    @pedido.DataAbertura.ToLocalTime().ToString("HH:mm")
+                                </small>
+                            </td>
+                            <td>
+                                @switch (pedido.TipoPedido)
+                                {
+                                    case Fynanceo.Models.Enums.TipoPedido.Mesa:
+                                        <span class="badge bg-info">Mesa</span>
+                                        break;
+                                    case Fynanceo.Models.Enums.TipoPedido.Balcao:
+                                        <span class="badge bg-secondary">Balcão</span>
+                                        break;
+                                    case Fynanceo.Models.Enums.TipoPedido.Delivery:
+                                        <span class="badge bg-warning text-dark">Delivery</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && pedido.Mesa != null)
+                                {
+                                    <text>Mesa @pedido.Mesa.Numero</text>
+                                }
+                                else if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery && pedido.Cliente != null)
+                                {
+                                    <text>@pedido.Cliente.NomeCompleto</text>
+                                }
+                                else
+                                {
+                                    <text>Balcão</text>
+                                }
+                            </td>
+                            <td>
+                                <small>
+                                    @pedido.Itens.Count item(s)
+                                    @if (pedido.Itens.Any())
+                                    {
+                                        <br>
+                                        <span class="text-muted">@pedido.Itens.First().Produto?.Nome</span>
+                                        @if (pedido.Itens.Count > 1)
+                                        {
+                                            <text> + @(pedido.Itens.Count - 1) outros</text>
+                                        }
+                                    }
+                                </small>
+                            </td>
+                            <td>
+                                <strong>R$ @pedido.Total.ToString("N2")</strong>
+                            </td>
+                            <td>
+                                @{
+                                    var statusClass = "";
+                                    var statusText = "";
+                                    switch (pedido.Status)
+                                    {
+                                        case Fynanceo.Models.Enums.PedidoStatus.Aberto:
+                                            statusClass = "status-aberto";
+                                            statusText = "Aberto";
+                                            break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.EnviadoCozinha:
+                                            statusClass = "status-cozinha";
+                                            statusText = "Cozinha";
+                                            break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.EmPreparo:
+                                            statusClass = "status-preparo";
+                                            statusText = "Preparo";
+                                            break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Pronto:
+                                            statusClass = "status-pronto";
+                                            statusText = "Pronto";
+                                            break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Entregue:
+                                            statusClass = "status-entregue";
+                                            statusText = "Entregue";
+                                            break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Fechado:
+                                            statusClass = "status-fechado";
+                                            statusText = "Fechado";
+                                            break;
+                                    }
+                                }
+                                <span class="status-badge @statusClass">@statusText</span>
+                            </td>
+                            <td>
+                                @{
+                                    var tempoDecorrido = DateTime.Now - pedido.DataAbertura.ToLocalTime();
+                                    <small>@((int)tempoDecorrido.TotalMinutes)m</small>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="@Url.Action("Details", new { id = pedido.Id })"
+                                       class="btn btn-outline-primary" title="Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (pedido.Status != Fynanceo.Models.Enums.PedidoStatus.Fechado)
+                                    {
+                                        <a href="@Url.Action("Edit", new { id = pedido.Id })"
+                                           class="btn btn-outline-secondary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterPedidos(status) {
+            const rows = document.querySelectorAll('.pedido-row');
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            window.location.reload();
+        }, 30000);
+    </script>
+}

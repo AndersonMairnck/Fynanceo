@@ -16,6 +16,9 @@ namespace Fynanceo.Data
         public DbSet<IngredienteProduto> IngredientesProdutos { get; set; }
         public DbSet<Mesa> Mesas { get; set; }
         public DbSet<Funcionario> Funcionarios { get; set; }
+        public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<ItemPedido> ItensPedido { get; set; }
+     public DbSet<HistoricoPedido> HistoricoPedido { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

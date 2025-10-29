@@ -1,0 +1,466 @@
+﻿<!-- Views/Pedidos/Cozinha.cshtml -->
+@{
+    ViewData["Title"] = "Painel da Cozinha";
+    var pedidosCozinha = ViewBag.PedidosCozinha as List<Fynanceo.Models.Pedido> ?? new List<Fynanceo.Models.Pedido>();
+    var pedidosPreparo = ViewBag.PedidosPreparo as List<Fynanceo.Models.Pedido> ?? new List<Fynanceo.Models.Pedido>();
+    var pedidosProntos = ViewBag.PedidosProntos as List<Fynanceo.Models.Pedido> ?? new List<Fynanceo.Models.Pedido>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-utensils text-warning me-2"></i>@ViewData["Title"]
+    </h1>
+    <div class="d-flex align-items-center">
+        <span class="me-3 text-muted" id="currentTime">
+            <i class="fas fa-clock me-1"></i> @DateTime.Now.ToString("HH:mm")
+        </span>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar para Pedidos
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Para Preparar -->
+    <div class="col-md-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-inbox me-2"></i>Para Preparar
+                    <span class="badge bg-dark ms-2">@pedidosCozinha.Count</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 600px; max-height: 600px; overflow-y: auto;">
+                @if (!pedidosCozinha.Any())
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                        <p>Nenhum pedido para preparar</p>
+                    </div>
+                }
+                else
+                {
+                    foreach (var pedido in pedidosCozinha)
+                    {
+                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">
+                                        <strong>@pedido.NumeroPedido</strong>
+                                        @if (pedido.Prioridade == Fynanceo.Models.Enums.PrioridadePedido.Urgente)
+                                        {
+                                            <span class="badge bg-danger ms-1">URGENTE</span>
+                                        }
+                                    </h6>
+                                    <small class="text-muted">@pedido.DataEnvioCozinha?.ToString("HH:mm")</small>
+                                </div>
+
+                                <div class="mb-2">
+                                    @if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && pedido.Mesa != null)
+                                    {
+                                        <span class="badge bg-info">Mesa @pedido.Mesa.Numero</span>
+                                    }
+                                    else if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery)
+                                    {
+                                        <span class="badge bg-warning text-dark">Delivery</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Balcão</span>
+                                    }
+
+                                    <small class="text-muted ms-2">
+                                        @{
+                                            var tempo = DateTime.Now - pedido.DataEnvioCozinha ?? TimeSpan.Zero;
+                                        }
+                                        @((int)tempo.TotalMinutes)m
+                                    </small>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(pedido.Observacoes))
+                                {
+                                    <div class="alert alert-warning py-2 px-3 mb-2">
+                                        <small><i class="fas fa-exclamation-circle me-1"></i> @pedido.Observacoes</small>
+                                    </div>
+                                }
+
+                                <div class="itens-pedido">
+                                    @foreach (var item in pedido.Itens.Where(i => !i.EmPreparo && !i.Pronto))
+                                    {
+                                        <div class="item-pedido border-bottom pb-2 mb-2" data-item-id="@item.Id">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <strong class="d-block">@item.Quantidade x @item.Produto.Nome</strong>
+                                                    @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                    {
+                                                        <small class="text-danger d-block"><strong>Obs:</strong> @item.Observacoes</small>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.Personalizacoes))
+                                                    {
+                                                        <small class="text-info d-block"><strong>Personalizações:</strong> @item.Personalizacoes</small>
+                                                    }
+                                                    <small class="text-muted">Tempo: @item.Produto.TempoPreparoMinutos min</small>
+                                                </div>
+                                                <button class="btn btn-sm btn-success ms-2"
+                                                        onclick="iniciarPreparoItem(@item.Id, @pedido.Id)">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-warning btn-sm" onclick="iniciarPreparoTodos(@pedido.Id)">
+                                        <i class="fas fa-play-circle me-1"></i>Iniciar Todos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Em Preparo -->
+    <div class="col-md-4">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-fire me-2"></i>Em Preparo
+                    <span class="badge bg-light text-dark ms-2">@pedidosPreparo.Count</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 600px; max-height: 600px; overflow-y: auto;">
+                @if (!pedidosPreparo.Any())
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-utensils fa-3x mb-3"></i>
+                        <p>Nenhum pedido em preparo</p>
+                    </div>
+                }
+                else
+                {
+                    foreach (var pedido in pedidosPreparo)
+                    {
+                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">
+                                        <strong>@pedido.NumeroPedido</strong>
+                                        @if (pedido.Prioridade == Fynanceo.Models.Enums.PrioridadePedido.Urgente)
+                                        {
+                                            <span class="badge bg-danger ms-1">URGENTE</span>
+                                        }
+                                    </h6>
+                                    <div class="text-end">
+                                        <small class="text-muted d-block">@pedido.DataPreparo?.ToString("HH:mm")</small>
+                                        @{
+                                            var tempoPreparo = DateTime.Now - pedido.DataPreparo ?? TimeSpan.Zero;
+                                            var tempoExcedido = tempoPreparo.TotalMinutes > 30; // 30 minutos threshold
+                                        }
+                                        <small class="@(tempoExcedido ? "text-danger" : "text-muted")">
+                                            @((int)tempoPreparo.TotalMinutes)m
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    @if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && pedido.Mesa != null)
+                                    {
+                                        <span class="badge bg-info">Mesa @pedido.Mesa.Numero</span>
+                                    }
+                                    else if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery)
+                                    {
+                                        <span class="badge bg-warning text-dark">Delivery</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Balcão</span>
+                                    }
+                                </div>
+
+                                <div class="itens-pedido">
+                                    @foreach (var item in pedido.Itens.Where(i => i.EmPreparo && !i.Pronto))
+                                    {
+                                        <div class="item-pedido border-bottom pb-2 mb-2" data-item-id="@item.Id">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <strong class="d-block">@item.Quantidade x @item.Produto.Nome</strong>
+                                                    @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                    {
+                                                        <small class="text-danger d-block"><strong>Obs:</strong> @item.Observacoes</small>
+                                                    }
+
+                                                    @{
+                                                        var tempoItem = DateTime.Now - item.DataInicioPreparo ?? TimeSpan.Zero;
+                                                        var tempoItemExcedido = tempoItem.TotalMinutes > item.Produto.TempoPreparoMinutos;
+                                                    }
+                                                    <small class="@(tempoItemExcedido ? "text-danger" : "text-muted")">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        @((int)tempoItem.TotalMinutes)m / @item.Produto.TempoPreparoMinutos m
+                                                        @if (tempoItemExcedido)
+                                                        {
+                                                            <strong> - ATRASADO!</strong>
+                                                        }
+                                                    </small>
+                                                </div>
+                                                <button class="btn btn-sm btn-success ms-2"
+                                                        onclick="marcarProntoItem(@item.Id, @pedido.Id)">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="d-grid gap-2 mt-3">
+                                    <button class="btn btn-success btn-sm" onclick="marcarProntoTodos(@pedido.Id)">
+                                        <i class="fas fa-check-circle me-1"></i>Pronto Todos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Prontos -->
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Prontos para Entrega
+                    <span class="badge bg-light text-dark ms-2">@pedidosProntos.Count</span>
+                </h5>
+            </div>
+            <div class="card-body" style="min-height: 600px; max-height: 600px; overflow-y: auto;">
+                @if (!pedidosProntos.Any())
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-thumbs-up fa-3x mb-3"></i>
+                        <p>Nenhum pedido pronto</p>
+                    </div>
+                }
+                else
+                {
+                    foreach (var pedido in pedidosProntos)
+                    {
+                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">
+                                        <strong>@pedido.NumeroPedido</strong>
+                                    </h6>
+                                    <div class="text-end">
+                                        <small class="text-muted d-block">@pedido.DataPronto?.ToString("HH:mm")</small>
+                                        @{
+                                            var tempoPronto = DateTime.Now - pedido.DataPronto ?? TimeSpan.Zero;
+                                            var tempoProntoLongo = tempoPronto.TotalMinutes > 10; // 10 minutos threshold
+                                        }
+                                        <small class="@(tempoProntoLongo ? "text-danger" : "text-muted")">
+                                            @((int)tempoPronto.TotalMinutes)m
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    @if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && pedido.Mesa != null)
+                                    {
+                                        <span class="badge bg-info">Mesa @pedido.Mesa.Numero</span>
+                                    }
+                                    else if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery)
+                                    {
+                                        <span class="badge bg-warning text-dark">Delivery</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Balcão</span>
+                                    }
+                                </div>
+
+                                <div class="itens-pedido mb-3">
+                                    @foreach (var item in pedido.Itens.Where(i => i.Pronto))
+                                    {
+                                        <div class="item-pedido border-bottom pb-2 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <strong class="d-block">@item.Quantidade x @item.Produto.Nome</strong>
+                                                    <small class="text-success">
+                                                        <i class="fas fa-check me-1"></i>PRONTO
+                                                        - @item.DataPronto?.ToString("HH:mm")
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-info btn-sm" onclick="marcarEntregue(@pedido.Id)">
+                                        <i class="fas fa-truck me-1"></i>Marcar Entregue
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Alerta -->
+<div class="modal fade" id="alertaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Alerta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="alertaMensagem">
+                <!-- Mensagem será inserida via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Atualizar relógio em tempo real
+        function atualizarRelogio() {
+            const now = new Date();
+            $('#currentTime').html(`<i class="fas fa-clock me-1"></i> ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
+        }
+        setInterval(atualizarRelogio, 60000);
+
+        // Funções para controle de itens
+        function iniciarPreparoItem(itemId, pedidoId) {
+            $.post('@Url.Action("IniciarPreparoItem", "Pedidos")', { itemId: itemId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao iniciar preparo do item');
+                });
+        }
+
+        function marcarProntoItem(itemId, pedidoId) {
+            $.post('@Url.Action("MarcarProntoItem", "Pedidos")', { itemId: itemId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao marcar item como pronto');
+                });
+        }
+
+        function iniciarPreparoTodos(pedidoId) {
+            if (!confirm('Iniciar preparo de todos os itens deste pedido?')) return;
+
+            $.post('@Url.Action("IniciarPreparoTodos", "Pedidos")', { pedidoId: pedidoId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao iniciar preparo dos itens');
+                });
+        }
+
+        function marcarProntoTodos(pedidoId) {
+            if (!confirm('Marcar todos os itens deste pedido como prontos?')) return;
+
+            $.post('@Url.Action("MarcarProntoTodos", "Pedidos")', { pedidoId: pedidoId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao marcar itens como prontos');
+                });
+        }
+
+        function marcarEntregue(pedidoId) {
+            if (!confirm('Marcar pedido como entregue?')) return;
+
+            $.post('@Url.Action("AtualizarStatus", "Pedidos")', { id: pedidoId, novoStatus: 'Entregue' })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Erro ao marcar pedido como entregue');
+                });
+        }
+
+        // Verificar alertas automaticamente
+        function verificarAlertas() {
+            $('.pedido-card').each(function() {
+                const card = $(this);
+                const tempoText = card.find('.text-danger');
+
+                if (tempoText.length > 0) {
+                    // Item atrasado - piscar alerta
+                    if (!card.hasClass('alerta-ativo')) {
+                        card.addClass('alerta-ativo');
+                        card.css('animation', 'pulse 2s infinite');
+
+                        // Mostrar modal apenas uma vez
+                        if (!card.data('alerta-mostrado')) {
+                            $('#alertaMensagem').text('Há pedidos atrasados que precisam de atenção!');
+                            $('#alertaModal').modal('show');
+                            card.data('alerta-mostrado', true);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+
+        // CSS para animação de alerta
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+                70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+            }
+            .alerta-ativo {
+                border-color: #dc3545 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Verificar alertas a cada 10 segundos
+        setInterval(verificarAlertas, 10000);
+        verificarAlertas(); // Verificar na carga inicial
+    </script>
+}
