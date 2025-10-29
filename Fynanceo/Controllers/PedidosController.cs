@@ -101,15 +101,14 @@ namespace Fynanceo.Controllers
         // GET: Pedidos/Cozinha
         public async Task<IActionResult> Cozinha()
         {
-             var pedidosCozinha = await _pedidoService.ObterPedidosPorStatus("EnviadoCozinha");
-            var pedidosPreparo = await _pedidoService.ObterPedidosPorStatus("EmPreparo");
-            var pedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto");
+            var viewModel = new CozinhaViewModel
+            {
+                PedidosCozinha = await _pedidoService.ObterPedidosPorStatus("EnviadoCozinha"),
+                PedidosPreparo = await _pedidoService.ObterPedidosPorStatus("EmPreparo"),
+                PedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto")
+            };
 
-            ViewBag.PedidosCozinha = pedidosCozinha;
-            ViewBag.PedidosPreparo = pedidosPreparo;
-            ViewBag.PedidosProntos = pedidosProntos;
-
-            return View();
+            return View(viewModel); // Agora passamos o ViewModel completo
         }
 
         // POST: Pedidos/AtualizarStatus/5
@@ -188,21 +187,36 @@ namespace Fynanceo.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> IniciarPreparoTodos(int pedidoId)
+        public async Task<IActionResult> IniciarPreparoTodos(int pedidoId)
         {
             try
             {
                 var sucesso = await _pedidoService.IniciarPreparoTodosAsync(pedidoId);
-                if (sucesso==null)
-                    return Json(new { success = false, message = "Nenhum item disponível para iniciar preparo" });
 
-                return Json(new { success = true, message = "Preparo de todos os itens iniciado" });
+                if (!sucesso)
+                {
+                    TempData["Mensagem"] = "Nenhum item disponível para iniciar preparo.";
+                    TempData["TipoMensagem"] = "erro";
+                }
+                else
+                {
+                    TempData["Mensagem"] = "Preparo de todos os itens iniciado com sucesso!";
+                    TempData["TipoMensagem"] = "sucesso";
+                }
+
+                // Redireciona para a mesma página (ou outra)
+                return RedirectToAction("Cozinha");
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                TempData["Mensagem"] = "Erro ao iniciar preparo: " + ex.Message;
+                TempData["TipoMensagem"] = "erro";
+                return RedirectToAction("Cozinha");
             }
         }
+
+
+
 
         [HttpPost]
         public async Task<JsonResult> MarcarProntoTodos(int pedidoId)
