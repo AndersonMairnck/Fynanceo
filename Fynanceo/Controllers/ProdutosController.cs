@@ -41,6 +41,7 @@ namespace Fynanceo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cadastrar(ProdutoViewModel model)
         {
+            try { 
             if (ModelState.IsValid)
             {
                 if (await _produtoService.CodigoExisteAsync(model.Codigo))
@@ -65,11 +66,31 @@ namespace Fynanceo.Controllers
                 ModelState.AddModelError("", "Erro ao cadastrar produto. Tente novamente.");
             }
 
-            // Garantir que há pelo menos um ingrediente para o template
-            if (model.Ingredientes.Count == 0)
+
+                // Se houver erros, capturar campos inválidos
+                if (!ModelState.IsValid)
+                {
+                    var camposInvalidos = ModelState
+                        .Where(ms => ms.Value.Errors.Any())
+                        .Select(ms => new { Campo = ms.Key, Erros = ms.Value.Errors.Select(e => e.ErrorMessage).ToArray() })
+                        .ToList();
+
+                    // Opcional: você pode enviar para a view via ViewBag
+                    ViewBag.CamposInvalidos = camposInvalidos;
+                }
+
+
+                // Garantir que há pelo menos um ingrediente para o template
+                if (model.Ingredientes.Count == 0)
                 model.Ingredientes.Add(new IngredienteViewModel());
 
             return View(model);
+                }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Erro ao cadastrar produto: {ex.Message}");
+                return View(model);
+            }
         }
 
         public async Task<IActionResult> Editar(int id)

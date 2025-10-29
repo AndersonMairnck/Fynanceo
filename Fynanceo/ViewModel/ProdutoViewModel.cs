@@ -57,7 +57,7 @@ namespace Fynanceo.ViewModels
         public bool Disponivel { get; set; } = true;
 
         [Display(Name = "Motivo da Indisponibilidade")]
-        public string MotivoIndisponibilidade { get; set; }
+        public string? MotivoIndisponibilidade { get; set; }
 
         
 
