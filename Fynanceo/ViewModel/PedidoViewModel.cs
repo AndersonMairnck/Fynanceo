@@ -48,8 +48,15 @@ namespace Fynanceo.ViewModels
         public decimal PrecoUnitario { get; set; }
 
         [Range(0.01, 100, ErrorMessage = "Quantidade deve ser entre 0.01 e 100")]
-        public decimal Quantidade { get; set; }
+        public int Quantidade { get; set; }
         public string? Observacoes { get; set; }
         public string? Personalizacoes { get; set; }
+    }
+
+    public class CozinhaViewModel
+    {
+        public List<Pedido> PedidosCozinha { get; set; } = new();
+        public List<Pedido> PedidosPreparo { get; set; } = new();
+        public List<Pedido> PedidosProntos { get; set; } = new();
     }
 }

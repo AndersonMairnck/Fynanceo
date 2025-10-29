@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\service\\pedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:service\\pedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\service\\pedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:service\\pedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\models\\pedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -23,28 +31,12 @@
       "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:models\\itempedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Migrations\\20251029195549_de.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20251029195549_de.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\viewmodel\\pedidoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:viewmodel\\pedidoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\details.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\controllers\\produtoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:controllers\\produtoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\viewmodel\\produtoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:viewmodel\\produtoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -54,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 168,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,91 +62,106 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Cozinha.cshtml",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml",
-              "RelativeDocumentMoniker": "Views\\Pedidos\\Cozinha.cshtml",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml",
-              "RelativeToolTip": "Views\\Pedidos\\Cozinha.cshtml",
-              "ViewState": "AgIAAJEBAAAAAAAAAAAuwMcBAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-29T13:01:58.152Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Pedido.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Pedido.cs",
-              "RelativeDocumentMoniker": "Models\\Pedido.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Pedido.cs",
-              "RelativeToolTip": "Models\\Pedido.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAUwBMAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-29T12:56:14.305Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Pedidos\\Index.cshtml",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Index.cshtml",
-              "RelativeToolTip": "Views\\Pedidos\\Index.cshtml",
-              "ViewState": "AgIAALcAAAAAAAAAAAAAAMQAAABcAAAAAAAAAA==",
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAN4BAAAAAAAAAAAjwPABAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-29T09:49:26.267Z",
+              "WhenOpened": "2025-10-29T20:40:40.727Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Pedidos\\Index.cshtml",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Index.cshtml",
+              "RelativeToolTip": "Views\\Pedidos\\Index.cshtml",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAAAHAAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-29T20:02:58.201Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Pedido.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Pedido.cs",
+              "RelativeDocumentMoniker": "Models\\Pedido.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Pedido.cs",
+              "RelativeToolTip": "Models\\Pedido.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAWwBAAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-29T19:57:25.433Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "20251029195549_de.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Migrations\\20251029195549_de.cs",
+              "RelativeDocumentMoniker": "Migrations\\20251029195549_de.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Migrations\\20251029195549_de.cs",
+              "RelativeToolTip": "Migrations\\20251029195549_de.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-29T19:55:49.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "ItemPedido.cs",
               "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\ItemPedido.cs",
               "RelativeDocumentMoniker": "Models\\ItemPedido.cs",
               "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\ItemPedido.cs",
               "RelativeToolTip": "Models\\ItemPedido.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAIAywBIAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAABEAAAAAAAAAAAAMwBgAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-29T02:30:45.378Z",
+              "WhenOpened": "2025-10-29T19:53:55.141Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ProdutoViewModel.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\ProdutoViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModel\\ProdutoViewModel.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\ProdutoViewModel.cs",
-              "RelativeToolTip": "ViewModel\\ProdutoViewModel.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAAA1wDsAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:59:45.599Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Create.cshtml",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Create.cshtml",
-              "RelativeDocumentMoniker": "Views\\Pedidos\\Create.cshtml",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Create.cshtml",
-              "RelativeToolTip": "Views\\Pedidos\\Create.cshtml",
-              "ViewState": "AgIAAF4BAAAAAAAAAAAkwGgBAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-28T19:28:12.015Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "PedidoViewModel.cs",
               "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\PedidoViewModel.cs",
               "RelativeDocumentMoniker": "ViewModel\\PedidoViewModel.cs",
               "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\PedidoViewModel.cs",
               "RelativeToolTip": "ViewModel\\PedidoViewModel.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAAQwCsAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAIwDMAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T18:56:07.164Z",
+              "WhenOpened": "2025-10-29T19:46:17.404Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Cozinha.cshtml",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml",
+              "RelativeDocumentMoniker": "Views\\Pedidos\\Cozinha.cshtml",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml*",
+              "RelativeToolTip": "Views\\Pedidos\\Cozinha.cshtml*",
+              "ViewState": "AgIAAEYBAAAAAAAAAAAuwFkBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-29T19:42:22.913Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PedidoService.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\PedidoService.cs",
+              "RelativeDocumentMoniker": "Service\\PedidoService.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\PedidoService.cs",
+              "RelativeToolTip": "Service\\PedidoService.cs",
+              "ViewState": "AgIAAFsAAAAAAAAAAAAWwG0AAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-29T19:08:41.735Z",
               "EditorCaption": ""
             },
             {
@@ -165,48 +172,9 @@
               "RelativeDocumentMoniker": "Controllers\\PedidosController.cs",
               "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\PedidosController.cs",
               "RelativeToolTip": "Controllers\\PedidosController.cs",
-              "ViewState": "AgIAAF4AAAAAAAAAAAAqwGkAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAJEAAAAAAAAAAAAjwJsAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T18:50:10.87Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PedidoService.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\PedidoService.cs",
-              "RelativeDocumentMoniker": "Service\\PedidoService.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\PedidoService.cs*",
-              "RelativeToolTip": "Service\\PedidoService.cs*",
-              "ViewState": "AgIAAKAAAAAAAAAAAAAjwKgAAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T19:07:33.05Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "ProdutosController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ProdutosController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ProdutosController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ProdutosController.cs",
-              "RelativeToolTip": "Controllers\\ProdutosController.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAkwDoAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-28T21:48:06.547Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Details.cshtml",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Details.cshtml",
-              "RelativeDocumentMoniker": "Views\\Pedidos\\Details.cshtml",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Details.cshtml",
-              "RelativeToolTip": "Views\\Pedidos\\Details.cshtml",
-              "ViewState": "AgIAABMBAAAAAAAAAAAjwB0BAABXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-10-28T19:32:33.918Z",
+              "WhenOpened": "2025-10-29T19:08:41.751Z",
               "EditorCaption": ""
             }
           ]
