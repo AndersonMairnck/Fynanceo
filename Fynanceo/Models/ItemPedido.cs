@@ -1,4 +1,5 @@
 ﻿// Models/ItemPedido.cs
+using Fynanceo.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -35,9 +36,8 @@ namespace Fynanceo.Models
         public string? Personalizacoes { get; set; }
 
         // Status do item
-        public bool EnviadoCozinha { get; set; } = false;
-        public bool EmPreparo { get; set; } = false;
-        public bool Pronto { get; set; } = false;
+        [Required(ErrorMessage = "Status é obrigatório")]
+        public PedidoStatus Status { get; set; } = PedidoStatus.Aberto;
         public bool Entregue { get; set; } = false;
 
         public DateTime? DataEnvioCozinha { get; set; }

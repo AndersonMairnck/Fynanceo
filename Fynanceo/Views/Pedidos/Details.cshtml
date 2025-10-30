@@ -189,25 +189,26 @@
                                     <td class="text-end">R$ @item.PrecoUnitario.ToString("N2")</td>
                                     <td class="text-end">R$ @item.Total.ToString("N2")</td>
                                     <td class="text-center">
-                                        @if (item.Entregue)
+                                        @switch (item.Status)
                                         {
-                                            <span class="badge bg-success">Entregue</span>
-                                        }
-                                        else if (item.Pronto)
-                                        {
-                                            <span class="badge bg-info">Pronto</span>
-                                        }
-                                        else if (item.EmPreparo)
-                                        {
-                                            <span class="badge bg-warning text-dark">Preparo</span>
-                                        }
-                                        else if (item.EnviadoCozinha)
-                                        {
-                                            <span class="badge bg-secondary">Cozinha</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-light text-dark">Pendente</span>
+                                        case Fynanceo.Models.Enums.PedidoStatus.EnviadoCozinha:
+                                        <span class="badge bg-secondary">Cozinha</span>;
+                                        break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.EmPreparo:
+                                        <span class="badge bg-warning text-dark">Preparo</span>;
+                                        break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Pronto:
+                                        <span class="badge bg-info">Pronto</span>;
+                                        break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Entregue:
+                                        <span class="badge bg-success">Entregue</span>;
+                                        break;
+                                        case Fynanceo.Models.Enums.PedidoStatus.Cancelado:
+                                        <span class="badge bg-danger">Cancelado</span>;
+                                        break;
+                                        default:
+                                        <span class="badge bg-light text-dark">Pendente</span>;
+                                        break;
                                         }
                                     </td>
                                 </tr>

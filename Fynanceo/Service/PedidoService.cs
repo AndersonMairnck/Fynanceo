@@ -108,84 +108,93 @@ namespace Fynanceo.Services
 
         public async Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus, string usuario)
         {
-            // Inicia uma transação no banco — tudo dentro dela só será confirmado no Commit()
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // Busca o pedido no banco de dados
+                // 🔹 Busca o pedido no banco de dados
                 var pedido = await _context.Pedidos.FindAsync(pedidoId);
                 if (pedido == null)
-                    throw new ArgumentException("Pedido não encontrado");
+                    throw new ArgumentException("Pedido não encontrado.");
 
-                // Guarda o status anterior para registrar no histórico
+                // 🔹 Guarda o status anterior para histórico
                 var statusAnterior = pedido.Status.ToString();
 
-                // Tenta converter o novoStatus (string) para o enum PedidoStatus
+                // 🔹 Converte string para enum PedidoStatus
                 if (Enum.TryParse<PedidoStatus>(novoStatus, out var status))
                 {
                     pedido.Status = status;
 
-                    // Atualiza campos de data conforme o novo status
+                    // 🔹 Busca todos os itens do pedido (para sincronizar o status)
+                    var itens = await _context.ItensPedido
+                        .Where(i => i.PedidoId == pedidoId)
+                        .ToListAsync();
+
+                    // 🔹 Atualiza campos conforme o novo status
                     switch (status)
                     {
                         case PedidoStatus.EnviadoCozinha:
                             pedido.DataEnvioCozinha = DateTime.UtcNow;
 
-                            // 🔹 Atualiza todos os itens do pedido
-                            var itens = await _context.ItensPedido
-                                .Where(i => i.PedidoId == pedidoId)
-                                .ToListAsync();
-
                             foreach (var item in itens)
                             {
-                                item.EnviadoCozinha = true;
+                                item.Status = PedidoStatus.EnviadoCozinha;
                                 item.DataEnvioCozinha = DateTime.UtcNow;
                             }
-
-                            // Marca os itens para atualização
-                            _context.ItensPedido.UpdateRange(itens);
                             break;
 
                         case PedidoStatus.EmPreparo:
-                            pedido.DataPreparo = DateTime.Now;
+                            pedido.DataPreparo = DateTime.UtcNow;
+
+                            foreach (var item in itens.Where(i => i.Status != PedidoStatus.Pronto))
+                            {
+                                item.Status = PedidoStatus.EmPreparo;
+                                item.DataInicioPreparo = DateTime.UtcNow;
+                            }
                             break;
 
                         case PedidoStatus.Pronto:
-                            pedido.DataPronto = DateTime.Now;
+                            pedido.DataPronto = DateTime.UtcNow;
+
+                            foreach (var item in itens)
+                            {
+                                item.Status = PedidoStatus.Pronto;
+                                item.DataPronto = DateTime.UtcNow;
+                            }
                             break;
 
                         case PedidoStatus.Entregue:
-                            pedido.DataEntrega = DateTime.Now;
+                            pedido.DataEntrega = DateTime.UtcNow;
                             break;
 
                         case PedidoStatus.Fechado:
-                            pedido.DataFechamento = DateTime.Now;
+                            pedido.DataFechamento = DateTime.UtcNow;
                             break;
                     }
 
-                    // 🔸 Salva todas as alterações (pedido + itens)
+                    // 🔹 Atualiza os itens no contexto
+                    _context.ItensPedido.UpdateRange(itens);
+
+                    // 🔹 Salva todas as alterações (pedido + itens)
                     await _context.SaveChangesAsync();
 
-                    // 🔸 Registra o histórico de alteração
+                    // 🔹 Registra histórico
                     await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario);
 
-                    // 🔸 Confirma a transação — grava tudo de uma vez
+                    // 🔹 Confirma a transação
                     await transaction.CommitAsync();
                 }
 
-                // Retorna o pedido completo e atualizado
+                // 🔹 Retorna o pedido completo e atualizado
                 return await ObterPedidoCompleto(pedidoId);
             }
             catch (Exception ex)
             {
-                // Se ocorrer erro, desfaz tudo que foi feito até aqui
                 await transaction.RollbackAsync();
-
-                // Lança uma nova exceção explicando o que deu errado
                 throw new Exception($"Falha ao atualizar o status do pedido {pedidoId}: {ex.Message}", ex);
             }
         }
+
 
         public async Task<Pedido> ObterPedidoCompleto(int pedidoId)
         {
@@ -201,51 +210,20 @@ namespace Fynanceo.Services
 
         public async Task<List<Pedido>> ObterPedidosPorStatus(string status)
         {
-            //if (Enum.TryParse<PedidoStatus>(status, out var statusEnum))
-            //{
-            //    return await _context.Pedidos
-            //        .Include(p => p.Itens)
-            //            .ThenInclude(i => i.Produto)
-            //        .Include(p => p.Mesa)
-            //        .Where(p => p.Status == statusEnum)
-            //        .OrderByDescending(p => p.DataAbertura)
-            //        .ToListAsync();
-            //}
 
 
-            var query = _context.Pedidos
-        .Include(p => p.Itens)
-            .ThenInclude(i => i.Produto)
-        .Include(p => p.Mesa)
-        .AsQueryable();
-
-            switch (status)
+            if (Enum.TryParse<PedidoStatus>(status, out var statusEnum))
             {
-                case "EnviadoCozinha":
-                    // Itens que foram enviados, mas ainda não estão em preparo nem prontos
-                    query = query.Where(p => p.Itens.Any(i =>
-                        i.EnviadoCozinha && !i.EmPreparo && !i.Pronto));
-                    break;
-
-                case "EmPreparo":
-                    // Itens que já estão em preparo, mas ainda não prontos
-                    query = query.Where(p => p.Itens.Any(i =>
-                        i.EnviadoCozinha && i.EmPreparo && !i.Pronto));
-                    break;
-
-                case "Pronto":
-                    // Itens que estão totalmente prontos
-                    query = query.Where(p => p.Itens.Any(i =>
-                        i.EnviadoCozinha && i.EmPreparo && i.Pronto));
-                    break;
-
-                default:
-                    return new List<Pedido>();
+                return await _context.Pedidos
+                    .Include(p => p.Itens)
+                        .ThenInclude(i => i.Produto)
+                    .Include(p => p.Mesa)
+                    .Where(p => p.Itens.Any(i => i.Status == statusEnum))
+                    .OrderByDescending(p => p.DataAbertura)
+                    .ToListAsync();
             }
 
-            return await query
-                .OrderByDescending(p => p.DataAbertura)
-                .ToListAsync();
+            return new List<Pedido>();
         }
 
         public async Task<List<Pedido>> ObterPedidosDoDia()
@@ -323,36 +301,36 @@ namespace Fynanceo.Services
         // 🔹 Iniciar preparo de um item específico
         public async Task<ItemPedido?> IniciarPreparoItemAsync(int itemId)
         {
-            // 1️⃣ Busca o item do pedido
+            // 1️⃣ Busca o item do pedido no banco
             var item = await _context.ItensPedido.FindAsync(itemId);
             if (item == null)
                 return null;
 
-            // Evita reprocessar item já em preparo
-            if (item.EmPreparo)
-                throw new InvalidOperationException("O item já está em preparo.");
+            // 2️⃣ Impede reprocessar item já em preparo ou pronto
+            if (item.Status == PedidoStatus.EmPreparo || item.Status == PedidoStatus.Pronto)
+                throw new InvalidOperationException("O item já está em preparo ou pronto.");
 
-            // 2️⃣ Atualiza o estado do item
-            item.EmPreparo = true;
-            item.EnviadoCozinha = true;
+            // 3️⃣ Atualiza o status do item
+            item.Status = PedidoStatus.EmPreparo;
             item.DataInicioPreparo = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            // 3️⃣ Verifica se ainda existem outros itens do mesmo pedido não enviados
-            // 3️⃣ Verifica se ainda existem outros itens do mesmo pedido não enviados
-            bool existeOutroNaoEnviado = await _context.ItensPedido
-                .AnyAsync(i => i.PedidoId == item.PedidoId && i.EmPreparo == false);
+            // 4️⃣ Verifica se todos os itens do pedido já estão em preparo
+            bool todosEmPreparo = await _context.ItensPedido
+                .Where(i => i.PedidoId == item.PedidoId)
+                .AllAsync(i => i.Status == PedidoStatus.EmPreparo || i.Status == PedidoStatus.Pronto);
 
-            // 4️⃣ Se não existir, muda o status do pedido para "Em Preparo"
-            if (!existeOutroNaoEnviado)
+            // 5️⃣ Se todos estão em preparo ou prontos, atualiza o status do pedido
+            if (todosEmPreparo)
             {
                 var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
                 if (pedido != null)
                 {
-                    pedido.Status = PedidoStatus.EmPreparo; // Ajuste conforme seu enum
-                    pedido.DataPreparo = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
+                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //pedido.Status = PedidoStatus.EmPreparo; // Enum do pedido
+                    //pedido.DataPreparo = DateTime.UtcNow;
+                    //await _context.SaveChangesAsync();
                 }
             }
 
@@ -366,50 +344,60 @@ namespace Fynanceo.Services
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
         {
+            // 1️⃣ Busca o item do pedido
             var item = await _context.ItensPedido.FindAsync(itemId);
             if (item == null)
                 return null;
 
-            item.Pronto = true;
-            item.EmPreparo = false;
-            item.DataPronto = DateTime.Now;
+            // 2️⃣ Impede marcar como pronto se já estiver pronto
+            if (item.Status == PedidoStatus.Pronto)
+                throw new InvalidOperationException("O item já está marcado como pronto.");
 
-            // Atualiza o status do pedido, se todos os itens estiverem prontos
-            var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
-            if (pedido != null)
+            // 3️⃣ Atualiza o status e a data
+            item.Status = PedidoStatus.Pronto;
+            item.DataPronto = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // 4️⃣ Verifica se todos os itens do mesmo pedido estão prontos
+            bool todosProntos = await _context.ItensPedido
+                .Where(i => i.PedidoId == item.PedidoId)
+                .AllAsync(i => i.Status == PedidoStatus.Pronto);
+
+            // 5️⃣ Se todos estiverem prontos, atualiza o status do pedido
+            if (todosProntos)
             {
-                var itensPendentes = await _context.ItensPedido
-                    .Where(i => i.PedidoId == item.PedidoId && !i.Pronto)
-                    .AnyAsync();
-
-                if (!itensPendentes)
+                var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
+                if (pedido != null)
                 {
-                    pedido.Status = PedidoStatus.Pronto;
-                    pedido.DataPronto = DateTime.Now;
+                    AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema").Wait();
+
+                    //pedido.Status = PedidoStatus.Pronto;  // Enum do pedido
+                    //pedido.DataPronto = DateTime.UtcNow;
+                    //await _context.SaveChangesAsync();
                 }
             }
 
-            await _context.SaveChangesAsync();
             return item;
         }
 
         // 🔹 Iniciar preparo de todos os itens de um pedido
 
-        /// <summary>
+
         /// Inicia o preparo de todos os itens de um pedido e atualiza o status do pedido.
         /// </summary>
-        /// <param name="pedidoId">ID do pedido</param>
-        /// <returns>Retorna true se algum item foi iniciado, false se não houver itens disponíveis</returns>
+        // <returns>Retorna true se algum item foi iniciado, false se não houver itens disponíveis</returns>
         public async Task<bool> IniciarPreparoTodosAsync(int pedidoId)
         {
-            // 🔹 Inicia uma transação para garantir que a atualização de itens e do pedido seja atômica
+
+            // 🔹 Inicia uma transação para garantir atomicidade
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 // 🔹 Busca todos os itens do pedido que ainda não estão em preparo nem prontos
                 var itens = await _context.ItensPedido
-                    .Where(i => i.PedidoId == pedidoId && !i.EmPreparo && !i.Pronto)
+                    .Where(i => i.PedidoId == pedidoId && i.Status == PedidoStatus.EnviadoCozinha)
                     .ToListAsync();
 
                 // 🔹 Se não houver itens disponíveis, retorna false
@@ -419,22 +407,22 @@ namespace Fynanceo.Services
                 // 🔹 Atualiza cada item para indicar que está em preparo
                 foreach (var item in itens)
                 {
-                    item.EmPreparo = true;                     // Marca como em preparo
-                    item.EnviadoCozinha = true;                // Marca como enviado para a cozinha
-                    item.DataInicioPreparo = DateTime.UtcNow;     // Registra o horário de início do preparo
+                    item.Status = PedidoStatus.EmPreparo;
+                    item.DataInicioPreparo = DateTime.UtcNow;
 
-                    // 🔹 Se ainda não tiver data de envio para cozinha, define agora
+                    // Se ainda não tiver data de envio para cozinha, define agora
                     item.DataEnvioCozinha ??= DateTime.UtcNow;
                 }
 
                 // 🔹 Busca o pedido correspondente
                 var pedido = await _context.Pedidos.FindAsync(pedidoId);
 
-                // 🔹 Atualiza o status do pedido se ainda estiver "EnviadoCozinha"
+                // 🔹 Atualiza o status do pedido, se aplicável
                 if (pedido != null && pedido.Status == PedidoStatus.EnviadoCozinha)
                 {
-                    pedido.Status = PedidoStatus.EmPreparo;     // Atualiza o status do pedido
-                    pedido.DataPreparo = DateTime.UtcNow;          // Registra a data/hora de início do preparo do pedido
+                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //pedido.Status = PedidoStatus.EmPreparo;
+                    //pedido.DataPreparo = DateTime.UtcNow;
                 }
 
                 // 🔹 Persiste todas as alterações no banco
@@ -443,14 +431,67 @@ namespace Fynanceo.Services
                 // 🔹 Confirma a transação
                 await transaction.CommitAsync();
 
-                // 🔹 Retorna true indicando que os itens foram iniciados
                 return true;
             }
             catch (Exception)
             {
-                // 🔹 Em caso de erro, desfaz todas as alterações da transação
+                // 🔹 Em caso de erro, desfaz a transação
                 await transaction.RollbackAsync();
-                throw; // Propaga a exceção para o controller tratar
+                throw;
+            }
+        }
+
+        public async Task<bool> EntregaTodosCozinha(int pedidoId)
+        {
+
+            // 🔹 Inicia uma transação para garantir atomicidade
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 🔹 Busca todos os itens do pedido que ainda não estão em preparo nem prontos
+                var itens = await _context.ItensPedido
+                    .Where(i => i.PedidoId == pedidoId && i.Status == PedidoStatus.Pronto)
+                    .ToListAsync();
+
+                // 🔹 Se não houver itens disponíveis, retorna false
+                if (!itens.Any())
+                    return false;
+
+                // 🔹 Atualiza cada item para indicar que está entregue
+                foreach (var item in itens)
+                {
+                    item.Status = PedidoStatus.Entregue;
+                    item.DataEntrega = DateTime.UtcNow;
+
+                    // Se ainda não tiver data de envio para cozinha, define agora
+                    item.DataEnvioCozinha ??= DateTime.UtcNow;
+                }
+
+                // 🔹 Busca o pedido correspondente
+                var pedido = await _context.Pedidos.FindAsync(pedidoId);
+
+                // 🔹 Atualiza o status do pedido, se aplicável
+                if (pedido != null && pedido.Status == PedidoStatus.Pronto)
+                {
+                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //pedido.Status = PedidoStatus.EmPreparo;
+                    //pedido.DataPreparo = DateTime.UtcNow;
+                }
+
+                // 🔹 Persiste todas as alterações no banco
+                await _context.SaveChangesAsync();
+
+                // 🔹 Confirma a transação
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                // 🔹 Em caso de erro, desfaz a transação
+                await transaction.RollbackAsync();
+                throw;
             }
         }
 
@@ -459,31 +500,98 @@ namespace Fynanceo.Services
         // 🔹 Marcar todos os itens como prontos e atualizar o status do pedido
         public async Task<bool> MarcarProntoTodosAsync(int pedidoId)
         {
-            var itens = await _context.ItensPedido
-                .Where(i => i.PedidoId == pedidoId && !i.Pronto)
-                .ToListAsync();
 
-            if (!itens.Any())
-                return false;
+            // 🔹 Inicia uma transação para garantir atomicidade
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            foreach (var item in itens)
+            try
             {
-                item.Pronto = true;
-                item.EmPreparo = false;
-                item.DataPronto = DateTime.Now;
-            }
+                // Busca todos os itens do pedido que ainda não estão prontos
+                var itens = await _context.ItensPedido
+                    .Where(i => i.PedidoId == pedidoId && i.Status != PedidoStatus.Pronto)
+                    .ToListAsync();
 
-            var pedido = await _context.Pedidos.FindAsync(pedidoId);
-            if (pedido != null)
-            {
-                pedido.Status = PedidoStatus.Pronto;
-                pedido.DataPronto = DateTime.Now;
+                // Se não houver itens pendentes, retorna falso
+                if (!itens.Any())
+                    return false;
+
+                // Atualiza cada item para o status "Pronto"
+                foreach (var item in itens)
+                {
+                    item.Status = PedidoStatus.Pronto;
+                    item.DataPronto = DateTime.UtcNow;
+
+
+
+                }
+
+                // Busca o pedido correspondente
+                var pedido = await _context.Pedidos.FindAsync(pedidoId);
+
+                // 🔹 Atualiza o status do pedido, se aplicável
+                if (pedido != null && pedido.Status == PedidoStatus.EmPreparo)
+                {
+                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //pedido.Status = PedidoStatus.EmPreparo;
+                    //pedido.DataPreparo = DateTime.UtcNow;
+                }
+
+                // Salva todas as alterações
+                await _context.SaveChangesAsync();
+
+                // 🔹 Confirma a transação
+                await transaction.CommitAsync();
+
+                return true;
             }
+            catch (Exception)
+            {
+                // 🔹 Em caso de erro, desfaz a transação
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<ItemPedido?> EntregueIndividualCozinha(int itemId)
+        {
+            // 1️⃣ Busca o item do pedido no banco
+            var item = await _context.ItensPedido.FindAsync(itemId);
+            if (item == null)
+                return null;
+
+            // 2️⃣ Impede reprocessar item já em preparo ou pronto
+            if (item.Status == PedidoStatus.Pronto || item.Status == PedidoStatus.Entregue)
+                throw new InvalidOperationException("O item já está em preparo ou entregue.");
+
+            // 3️⃣ Atualiza o status do item
+            item.Status = PedidoStatus.Entregue;
+            item.DataEntrega = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            return true;
+
+            // 4️⃣ Verifica se todos os itens do pedido já estão em preparo
+            bool todosEmPreparo = await _context.ItensPedido
+                .Where(i => i.PedidoId == item.PedidoId)
+                .AllAsync(i => i.Status == PedidoStatus.Pronto || i.Status == PedidoStatus.Entregue);
+
+            // 5️⃣ Se todos estão em entregue ou prontos, atualiza o status do pedido
+            if (todosEmPreparo)
+            {
+                var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
+                if (pedido != null)
+                {
+                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //pedido.Status = PedidoStatus.EmPreparo; // Enum do pedido
+                    //pedido.DataPreparo = DateTime.UtcNow;
+                    //await _context.SaveChangesAsync();
+                }
+            }
+
+            return item;
         }
+
     }
+
 
 
 
