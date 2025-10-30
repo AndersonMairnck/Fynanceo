@@ -153,19 +153,27 @@ namespace Fynanceo.Controllers
 
         // No PedidosController.cs
         [HttpPost]
-        public async Task<JsonResult> IniciarPreparoItem(int itemId)
+     
+        public async Task<IActionResult> IniciarPreparoItem(int itemId)
         {
+            if (itemId <= 0)
+                return BadRequest(new { success = false, message = "ID do item inválido." });
+
             try
             {
                 var item = await _pedidoService.IniciarPreparoItemAsync(itemId);
                 if (item == null)
-                    return Json(new { success = false, message = "Item não encontrado" });
+                    return NotFound(new { success = false, message = "Item não encontrado." });
 
-                return Json(new { success = true, message = "Preparo iniciado", item });
+               // return Ok(new { success = true, message = "Preparo iniciado com sucesso.", data = item });
+                return Ok(ApiResponse<ItemPedido>.Ok("Preparo iniciado", item));
+
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                // Logar exceção internamente
+                // _logger.LogError(ex, "Erro ao iniciar preparo do item {ItemId}", itemId);
+                return StatusCode(500, new { success = false, message = "Erro interno ao iniciar preparo do item." });
             }
         }
 

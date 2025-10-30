@@ -13,7 +13,7 @@
     </h1>
     <div class="d-flex align-items-center">
         <span class="me-3 text-muted" id="currentTime">
-            <i class="fas fa-clock me-1"></i> @DateTime.Now.ToString("HH:mm")
+            <i class="fas fa-clock me-1"></i> @DateTime.UtcNow.ToLocalTime().ToString("HH:mm")
         </span>
         <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Voltar para Pedidos
@@ -156,9 +156,9 @@
                                         }
                                     </h6>
                                     <div class="text-end">
-                                        <small class="text-muted d-block">@pedido.DataPreparo?.ToString("HH:mm")</small>
+                                        <small class="text-muted d-block">@pedido.DataPreparo?.ToLocalTime().ToString("HH:mm")</small>
                                         @{
-                                            var tempoPreparo = DateTime.Now - pedido.DataPreparo ?? TimeSpan.Zero;
+                                            var tempoPreparo = DateTime.UtcNow - pedido.DataPreparo ?? TimeSpan.Zero;
                                             var tempoExcedido = tempoPreparo.TotalMinutes > 30; // 30 minutos threshold
                                         }
                                         <small class="@(tempoExcedido ? "text-danger" : "text-muted")">
@@ -195,7 +195,7 @@
                                                     }
 
                                                     @{
-                                                        var tempoItem = DateTime.Now - item.DataInicioPreparo ?? TimeSpan.Zero;
+                                                        var tempoItem = DateTime.UtcNow - item.DataInicioPreparo ?? TimeSpan.Zero;
                                                         var tempoItemExcedido = tempoItem.TotalMinutes > item.Produto.TempoPreparoMinutos;
                                                     }
                                                     <small class="@(tempoItemExcedido ? "text-danger" : "text-muted")">
@@ -257,9 +257,9 @@
                                         <strong>@pedido.NumeroPedido</strong>
                                     </h6>
                                     <div class="text-end">
-                                        <small class="text-muted d-block">@pedido.DataPronto?.ToString("HH:mm")</small>
+                                        <small class="text-muted d-block">@pedido.DataPronto?.ToLocalTime().ToString("HH:mm")</small>
                                         @{
-                                            var tempoPronto = DateTime.Now - pedido.DataPronto ?? TimeSpan.Zero;
+                                            var tempoPronto = DateTime.UtcNow - pedido.DataPronto ?? TimeSpan.Zero;
                                             var tempoProntoLongo = tempoPronto.TotalMinutes > 10; // 10 minutos threshold
                                         }
                                         <small class="@(tempoProntoLongo ? "text-danger" : "text-muted")">
