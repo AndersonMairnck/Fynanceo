@@ -201,18 +201,51 @@ namespace Fynanceo.Services
 
         public async Task<List<Pedido>> ObterPedidosPorStatus(string status)
         {
-            if (Enum.TryParse<PedidoStatus>(status, out var statusEnum))
+            //if (Enum.TryParse<PedidoStatus>(status, out var statusEnum))
+            //{
+            //    return await _context.Pedidos
+            //        .Include(p => p.Itens)
+            //            .ThenInclude(i => i.Produto)
+            //        .Include(p => p.Mesa)
+            //        .Where(p => p.Status == statusEnum)
+            //        .OrderByDescending(p => p.DataAbertura)
+            //        .ToListAsync();
+            //}
+
+
+            var query = _context.Pedidos
+        .Include(p => p.Itens)
+            .ThenInclude(i => i.Produto)
+        .Include(p => p.Mesa)
+        .AsQueryable();
+
+            switch (status)
             {
-                return await _context.Pedidos
-                    .Include(p => p.Itens)
-                        .ThenInclude(i => i.Produto)
-                    .Include(p => p.Mesa)
-                    .Where(p => p.Status == statusEnum)
-                    .OrderByDescending(p => p.DataAbertura)
-                    .ToListAsync();
+                case "EnviadoCozinha":
+                    // Itens que foram enviados, mas ainda não estão em preparo nem prontos
+                    query = query.Where(p => p.Itens.Any(i =>
+                        i.EnviadoCozinha && !i.EmPreparo && !i.Pronto));
+                    break;
+
+                case "EmPreparo":
+                    // Itens que já estão em preparo, mas ainda não prontos
+                    query = query.Where(p => p.Itens.Any(i =>
+                        i.EnviadoCozinha && i.EmPreparo && !i.Pronto));
+                    break;
+
+                case "Pronto":
+                    // Itens que estão totalmente prontos
+                    query = query.Where(p => p.Itens.Any(i =>
+                        i.EnviadoCozinha && i.EmPreparo && i.Pronto));
+                    break;
+
+                default:
+                    return new List<Pedido>();
             }
 
-            return new List<Pedido>();
+            return await query
+                .OrderByDescending(p => p.DataAbertura)
+                .ToListAsync();
         }
 
         public async Task<List<Pedido>> ObterPedidosDoDia()
@@ -290,17 +323,45 @@ namespace Fynanceo.Services
         // 🔹 Iniciar preparo de um item específico
         public async Task<ItemPedido?> IniciarPreparoItemAsync(int itemId)
         {
+            // 1️⃣ Busca o item do pedido
             var item = await _context.ItensPedido.FindAsync(itemId);
             if (item == null)
                 return null;
 
+            // Evita reprocessar item já em preparo
+            if (item.EmPreparo)
+                throw new InvalidOperationException("O item já está em preparo.");
+
+            // 2️⃣ Atualiza o estado do item
             item.EmPreparo = true;
             item.EnviadoCozinha = true;
-            item.DataInicioPreparo = DateTime.Now;
+            item.DataInicioPreparo = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // 3️⃣ Verifica se ainda existem outros itens do mesmo pedido não enviados
+            // 3️⃣ Verifica se ainda existem outros itens do mesmo pedido não enviados
+            bool existeOutroNaoEnviado = await _context.ItensPedido
+                .AnyAsync(i => i.PedidoId == item.PedidoId && i.EmPreparo == false);
+
+            // 4️⃣ Se não existir, muda o status do pedido para "Em Preparo"
+            if (!existeOutroNaoEnviado)
+            {
+                var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
+                if (pedido != null)
+                {
+                    pedido.Status = PedidoStatus.EmPreparo; // Ajuste conforme seu enum
+                    pedido.DataPreparo = DateTime.UtcNow;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return item;
         }
+
+
+
+
 
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
