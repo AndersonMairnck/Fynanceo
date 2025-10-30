@@ -19,6 +19,8 @@ namespace Fynanceo.Services
         Task<ItemPedido> MarcarProntoItemAsync(int itemPedidoId);
         Task<bool> IniciarPreparoTodosAsync(int itemPedidoId);
         Task<bool> MarcarProntoTodosAsync(int itemPedidoId);
+        Task<ItemPedido> EntregueIndividualCozinha(int pedidoId);
+        Task<bool> EntregaTodosCozinha(int pedidoId);
 
 
     }

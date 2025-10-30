@@ -180,6 +180,9 @@ namespace Fynanceo.Controllers
         [HttpPost]
         public async Task<JsonResult> MarcarProntoItem(int itemId)
         {
+
+
+
             try
             {
                 var item = await _pedidoService.MarcarProntoItemAsync(itemId);
@@ -201,25 +204,12 @@ namespace Fynanceo.Controllers
             {
                 var sucesso = await _pedidoService.IniciarPreparoTodosAsync(pedidoId);
 
-                if (!sucesso)
-                {
-                    TempData["Mensagem"] = "Nenhum item disponível para iniciar preparo.";
-                    TempData["TipoMensagem"] = "erro";
-                }
-                else
-                {
-                    TempData["Mensagem"] = "Preparo de todos os itens iniciado com sucesso!";
-                    TempData["TipoMensagem"] = "sucesso";
-                }
 
-                // Redireciona para a mesma página (ou outra)
-                return RedirectToAction("Cozinha");
+                return Json(new { success = true, message = "Preparo iniciado com sucesso!" });
             }
             catch (Exception ex)
             {
-                TempData["Mensagem"] = "Erro ao iniciar preparo: " + ex.Message;
-                TempData["TipoMensagem"] = "erro";
-                return RedirectToAction("Cozinha");
+                return Json(new { success = false, message = "Erro ao iniciar preparo: " + ex.Message });
             }
         }
 
@@ -242,5 +232,49 @@ namespace Fynanceo.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpPost]
+
+        public async Task<IActionResult> IntregaIndividualCozinha(int itemId)
+        {
+            if (itemId <= 0)
+                return BadRequest(new { success = false, message = "ID do item inválido." });
+
+            try
+            {
+                var item = await _pedidoService.EntregueIndividualCozinha(itemId);
+                if (item == null)
+                    return NotFound(new { success = false, message = "Item não encontrado." });
+
+                // return Ok(new { success = true, message = "Preparo iniciado com sucesso.", data = item });
+                return Ok(ApiResponse<ItemPedido>.Ok("Preparo iniciado", item));
+
+            }
+            catch (Exception ex)
+            {
+                // Logar exceção internamente
+                // _logger.LogError(ex, "Erro ao iniciar preparo do item {ItemId}", itemId);
+                return StatusCode(500, new { success = false, message = "Erro interno ao iniciar preparo do item." });
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> EntregaTodosCozinha(int pedidoId)
+        {
+            try
+            {
+                var sucesso = await _pedidoService.EntregaTodosCozinha(pedidoId);
+
+
+                return Json(new { success = true, message = "entrega iniciado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Erro ao iniciar preparo: " + ex.Message });
+            }
+        }
+
+       
+
+
     }
 }
