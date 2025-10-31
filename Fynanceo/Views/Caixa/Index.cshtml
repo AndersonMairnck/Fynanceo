@@ -1,0 +1,161 @@
+﻿<!-- Views/Caixa/Index.cshtml -->
+@model IEnumerable<Fynanceo.Models.Caixa>
+
+@{
+    ViewData["Title"] = "Histórico de Caixas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-cash-register text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        @{
+            var caixaAberto = Model.FirstOrDefault(c => !c.Fechado);
+            if (caixaAberto == null)
+            {
+                <a href="@Url.Action("Abrir")" class="btn btn-primary">
+                    <i class="fas fa-lock-open me-2"></i>Abrir Caixa
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Details", new { id = caixaAberto.Id })" class="btn btn-success">
+                    <i class="fas fa-eye me-2"></i>Caixa Aberto
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row">
+            <div class="col-md-4">
+                <label class="form-label">Data Início</label>
+                <input type="date" class="form-control" name="dataInicio"
+                       value="@DateTime.Today.AddDays(-30).ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Data Fim</label>
+                <input type="date" class="form-control" name="dataFim"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i>Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Todos os Caixas</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Saldo Inicial</th>
+                        <th>Entradas</th>
+                        <th>Saídas</th>
+                        <th>Saldo Final</th>
+                        <th>Status</th>
+                        <th>Usuário</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var caixa in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@caixa.DataAbertura.ToString("dd/MM/yyyy")</strong>
+                            </td>
+                            <td>
+                                @caixa.DataAbertura.ToString("HH:mm")
+                                @if (caixa.DataFechamento.HasValue)
+                                {
+                                    <br>
+                                    <small class="text-muted">@caixa.DataFechamento.Value.ToString("HH:mm")</small>
+                                }
+                            </td>
+                            <td>R$ @caixa.SaldoInicial.ToString("N2")</td>
+                            <td class="text-success">R$ @caixa.TotalEntradas.ToString("N2")</td>
+                            <td class="text-danger">R$ @caixa.TotalSaidas.ToString("N2")</td>
+                            <td>
+                                <strong class="@(caixa.SaldoFinal >= 0 ? "text-success" : "text-danger")">
+                                    R$ @caixa.SaldoFinal.ToString("N2")
+                                </strong>
+                            </td>
+                            <td>
+                                @if (caixa.Fechado)
+                                {
+                                    <span class="badge bg-secondary">Fechado</span>
+                                    @if (caixa.Diferenca != 0)
+                                    {
+                                        <br>
+                                        <small class="@(caixa.Diferenca > 0 ? "text-success" : "text-danger")">
+                                            @(caixa.Diferenca > 0 ? "+" : "")R$ @Math.Abs(caixa.Diferenca).ToString("N2")
+                                        </small>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">Aberto</span>
+                                }
+                            </td>
+                            <td>
+                                <small>@caixa.UsuarioAberturaNome</small>
+                                @if (caixa.UsuarioFechamentoNome != null)
+                                {
+                                    <br>
+                                    <small class="text-muted">@caixa.UsuarioFechamentoNome</small>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="@Url.Action("Details", new { id = caixa.Id })"
+                                       class="btn btn-outline-primary" title="Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (!caixa.Fechado)
+                                    {
+                                        <a href="@Url.Action("Fechar", new { id = caixa.Id })"
+                                           class="btn btn-outline-danger" title="Fechar Caixa">
+                                            <i class="fas fa-lock"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-cash-register fa-3x mb-3"></i>
+        <h5>Nenhum caixa encontrado</h5>
+        <p class="mb-0">Não há registros de caixa no período selecionado.</p>
+        <a href="@Url.Action("Abrir")" class="btn btn-primary mt-3">
+            <i class="fas fa-lock-open me-2"></i>Abrir Primeiro Caixa
+        </a>
+    </div>
+}

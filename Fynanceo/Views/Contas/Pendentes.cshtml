@@ -1,0 +1,224 @@
+﻿<!-- Views/Contas/Pendentes.cshtml -->
+@model IEnumerable<Fynanceo.Models.Conta>
+
+@{
+    ViewData["Title"] = "Contas Pendentes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-clock text-warning me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-list me-2"></i>Todas as Contas
+        </a>
+        <a href="@Url.Action("Atrasadas")" class="btn btn-outline-danger me-2">
+            <i class="fas fa-exclamation-triangle me-2"></i>Atrasadas
+        </a>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Conta
+        </a>
+    </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.Count()</h3>
+                <small>Total Pendentes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.Count(c => c.DataVencimento < DateTime.Today)</h3>
+                <small>Atrasadas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5 class="mb-0">
+                    R$ @Model.Where(c => c.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada).Sum(c => c.Valor).ToString("N2")
+                </h5>
+                <small>A Receber</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body text-center">
+                <h5 class="mb-0">
+                    R$ @Model.Where(c => c.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida).Sum(c => c.Valor).ToString("N2")
+                </h5>
+                <small>A Pagar</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Contas Pendentes de Pagamento/Recebimento</h5>
+        <span class="badge bg-warning">@Model.Count() pendentes</span>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="row">
+                @foreach (var conta in Model.OrderBy(c => c.DataVencimento))
+                {
+                    var isAtrasada = conta.DataVencimento < DateTime.Today;
+                    var diasAtraso = isAtrasada ? (DateTime.Today - conta.DataVencimento).Days : 0;
+                    var diasParaVencer = !isAtrasada ? (conta.DataVencimento - DateTime.Today).Days : 0;
+                    var isProxima = !isAtrasada && diasParaVencer <= 3;
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 @(isAtrasada ? "border-danger" : isProxima ? "border-warning" : "border-primary")">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    @conta.Descricao
+                                    @if (isAtrasada)
+                                    {
+                                        <span class="badge bg-danger ms-2">ATRASADA</span>
+                                    }
+                                    else if (isProxima)
+                                    {
+                                        <span class="badge bg-warning ms-2">PRÓXIMA</span>
+                                    }
+                                </h6>
+                                <span class="badge @(conta.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "bg-success" : "bg-danger")">
+                                    @conta.Tipo
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <!-- Informações Básicas -->
+                                <div class="mb-3">
+                                    @if (conta.Fornecedor != null)
+                                    {
+                                        <p class="mb-1">
+                                            <strong>Fornecedor:</strong> @conta.Fornecedor.Nome
+                                        </p>
+                                    }
+                                    <p class="mb-1">
+                                        <strong>Vencimento:</strong>
+                                        <span class="@(isAtrasada ? "text-danger" : "")">
+                                            @conta.DataVencimento.ToString("dd/MM/yyyy")
+                                        </span>
+                                    </p>
+                                    @if (conta.ParcelaAtual.HasValue && conta.TotalParcelas.HasValue)
+                                    {
+                                        <p class="mb-1">
+                                            <strong>Parcela:</strong> @conta.ParcelaAtual/@conta.TotalParcelas
+                                        </p>
+                                    }
+                                </div>
+
+                                <!-- Valor -->
+                                <div class="mb-3 text-center">
+                                    <h4 class="@(conta.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "text-success" : "text-danger")">
+                                        R$ @conta.Valor.ToString("N2")
+                                    </h4>
+                                    <small class="text-muted">
+                                        @if (isAtrasada)
+                                        {
+                                            <span class="text-danger">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                @diasAtraso dias atrasado
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Vence em @diasParaVencer dias
+                                            </span>
+                                        }
+                                    </small>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(conta.Observacoes))
+                                {
+                                    <div class="alert alert-info py-2 px-3 mb-3">
+                                        <small>
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            @conta.Observacoes
+                                        </small>
+                                    </div>
+                                }
+
+                                <!-- Ações -->
+                                <div class="d-grid gap-2">
+                                    @if (conta.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida)
+                                    {
+                                        <a href="@Url.Action("Pagar", new { id = conta.Id })"
+                                           class="btn btn-success btn-sm">
+                                            <i class="fas fa-check me-1"></i>Pagar Conta
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("Pagar", new { id = conta.Id })"
+                                           class="btn btn-info btn-sm">
+                                            <i class="fas fa-check me-1"></i>Receber Conta
+                                        </a>
+                                    }
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("Details", new { id = conta.Id })"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                onclick="cancelarConta(@conta.Id)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                <h5>Nenhuma conta pendente!</h5>
+                <p class="mb-0">Todas as contas estão em dia.</p>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Nova Conta
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function cancelarConta(contaId) {
+            if (!confirm('Tem certeza que deseja cancelar esta conta?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("Cancelar", "Contas")?id=${contaId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+    </script>
+}

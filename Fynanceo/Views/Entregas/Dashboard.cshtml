@@ -1,0 +1,308 @@
+﻿<!-- Views/Entregas/Dashboard.cshtml -->
+@model Fynanceo.ViewModels.DashboardDeliveryViewModel
+
+@{
+    ViewData["Title"] = "Dashboard Delivery";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-motorcycle text-warning me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Mapa")" class="btn btn-outline-primary me-2">
+            <i class="fas fa-map me-2"></i>Ver Mapa
+        </a>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Entrega
+        </a>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.TotalEntregasHoje</h3>
+                <small>Total Hoje</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.EntregasPendentes</h3>
+                <small>Pendentes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.EntregasEmAndamento</h3>
+                <small>Em Andamento</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.EntregadoresDisponiveis</h3>
+                <small>Entregadores</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card bg-dark text-white">
+            <div class="card-body text-center">
+                <h5 class="mb-0">R$ @Model.FaturamentoDelivery.ToString("N2")</h5>
+                <small>Faturamento</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center">
+                <h5 class="mb-0">
+                    @if (Model.EntregasUrgentes != null)
+                    {
+                        @Model.EntregasUrgentes.Count
+                    }
+                    else
+                    {
+                        @:0
+                    }
+                </h5>
+                <small>Urgentes</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Entregas Recentes -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Entregas Recentes</h5>
+                <a href="@Url.Action("Index")" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.EntregasRecentes != null && Model.EntregasRecentes.Any())
+                {
+                    foreach (var entrega in Model.EntregasRecentes)
+                    {
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <strong>@entrega.Pedido?.NumeroPedido</strong>
+                                        <span class="badge @GetStatusBadgeClass(entrega.Status) ms-2">
+                                            @entrega.Status
+                                        </span>
+                                    </h6>
+                                    <small class="text-muted">
+                                        @entrega.EnderecoCompleto
+                                    </small>
+                                    <br>
+                                    <small>
+                                        <i class="fas fa-clock me-1"></i>
+                                        @entrega.DataCriacao.ToString("HH:mm")
+                                        @if (entrega.Entregador != null)
+                                        {
+                                            <span class="ms-2">
+                                                <i class="fas fa-user me-1"></i>@entrega.Entregador.Nome
+                                            </span>
+                                        }
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">R$ @entrega.TaxaEntrega.ToString("N2")</small>
+                                    <a href="@Url.Action("Details", new { id = entrega.Id })" class="btn btn-sm btn-outline-primary mt-1">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-3"></i>
+                        <p>Nenhuma entrega hoje</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Entregadores Ativos -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Entregadores</h5>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.EntregadoresAtivos != null && Model.EntregadoresAtivos.Any())
+                {
+                    foreach (var entregador in Model.EntregadoresAtivos)
+                    {
+                        <div class="border-bottom pb-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">@entregador.Nome</h6>
+                                    <small class="text-muted">
+                                        <i class="fas @GetVeiculoIcon(entregador.TipoVeiculo) me-1"></i>
+                                        @entregador.TipoVeiculo
+                                        @if (!string.IsNullOrEmpty(entregador.Placa))
+                                        {
+                                            <span class="ms-2">@entregador.Placa</span>
+                                        }
+                                    </small>
+                                    <br>
+                                    <span class="badge @GetEntregadorStatusBadgeClass(entregador.Status)">
+                                        @entregador.Status
+                                    </span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">@entregador.TotalEntregas ent.</small>
+                                    <small class="text-warning">
+                                        <i class="fas fa-star"></i> @entregador.AvaliacaoMedia.ToString("N1")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-users fa-2x mb-3"></i>
+                        <p>Nenhum entregador</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Entregas Urgentes -->
+    <div class="col-md-3">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Entregas Urgentes</h5>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                @if (Model.EntregasUrgentes != null && Model.EntregasUrgentes.Any())
+                {
+                    foreach (var entrega in Model.EntregasUrgentes)
+                    {
+                        <div class="border-bottom pb-2 mb-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 text-danger">@entrega.Pedido?.NumeroPedido</h6>
+                                    <small class="text-muted">
+                                        @entrega.EnderecoCompleto
+                                    </small>
+                                    <br>
+                                    <small class="text-danger">
+                                        <i class="fas fa-clock me-1"></i>
+                                        @{
+                                            var tempoEspera = DateTime.Now - entrega.DataCriacao;
+                                        }
+                                        @((int)tempoEspera.TotalMinutes)m esperando
+                                    </small>
+                                </div>
+                                <a href="@Url.Action("Details", new { id = entrega.Id })" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-bolt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-check-circle fa-2x mb-3"></i>
+                        <p>Nenhuma entrega urgente</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="@Url.Action("Pendentes")" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-clock me-2"></i>Entregas Pendentes
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="@Url.Action("EmAndamento")" class="btn btn-outline-info w-100">
+                            <i class="fas fa-truck me-2"></i>Em Andamento
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="@Url.Action("Index", "Entregadores")" class="btn btn-outline-success w-100">
+                            <i class="fas fa-users me-2"></i>Gerenciar Entregadores
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="@Url.Action("Mapa")" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-map-marked-alt me-2"></i>Ver Mapa
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(Fynanceo.Models.Enums.StatusEntrega status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "bg-info text-white",
+            Fynanceo.Models.Enums.StatusEntrega.EmRota => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Entregue => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Cancelada => "bg-danger text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Problema => "bg-dark text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    public string GetEntregadorStatusBadgeClass(Fynanceo.Models.Enums.StatusEntregador status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntregador.Disponivel => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Entregando => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Ausente => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntregador.Bloqueado => "bg-danger text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+}

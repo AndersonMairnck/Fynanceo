@@ -15,7 +15,7 @@ namespace Fynanceo.Models
         public string Nome { get; set; }
 
         [StringLength(500)]
-        public string Descricao { get; set; }
+        public string? Descricao { get; set; }
 
         [Required]
         public string Categoria { get; set; }
@@ -38,18 +38,12 @@ namespace Fynanceo.Models
         public string OpcoesPersonalizacao { get; set; } // JSON com opções de tamanho, sabores, etc.
         
         public bool Disponivel { get; set; } = true;
-       // public string MotivoIndisponibilidade { get; set; }
 
-        //// Tributação
-        //public string CodigoNCM { get; set; }
-        //public string Origem { get; set; }
-        //public string CST { get; set; }
-        //public decimal Aliquota { get; set; }
 
         public DateTime DataCadastro { get; set; } = DateTime.Now;
 
         // Navegação
-        public virtual ICollection<IngredienteProduto> Ingredientes { get; set; } = new List<IngredienteProduto>();
+        public virtual ICollection<IngredienteProduto>? Ingredientes { get; set; } = new List<IngredienteProduto>();
     }
 
     public class IngredienteProduto
@@ -63,10 +57,15 @@ namespace Fynanceo.Models
         [Range(0.001, double.MaxValue)]
         public decimal Quantidade { get; set; }
 
-        [Required]
-        public string UnidadeMedida { get; set; } // g, kg, ml, L, un
+       [Required]
+        public string? UnidadeMedida { get; set; } // g, kg, ml, L, un
 
         public int ProdutoId { get; set; }
         public virtual Produto Produto { get; set; }
+
+        /// <summary>
+        /// foi colocado para null  no banco so para nao ficar obrigando depois tem que ajustar
+        /// </summary>
+        public Estoque Estoque { get; set; } 
     }
 }

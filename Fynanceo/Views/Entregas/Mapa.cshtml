@@ -1,0 +1,254 @@
+﻿<!-- Views/Entregas/Mapa.cshtml -->
+@{
+    ViewData["Title"] = "Mapa de Entregas";
+    var entregas = ViewBag.Entregas as List<Fynanceo.Models.Entrega> ?? new List<Fynanceo.Models.Entrega>();
+    var entregadores = ViewBag.Entregadores as List<Fynanceo.Models.Entregador> ?? new List<Fynanceo.Models.Entregador>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-map-marked-alt text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-outline-primary">
+            <i class="fas fa-list me-2"></i>Lista de Entregas
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Mapa de Entregas em Tempo Real</h5>
+                <div class="d-flex align-items-center">
+                    <span class="badge bg-success me-2">
+                        <i class="fas fa-truck"></i> @entregadores.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando)
+                    </span>
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-clock"></i> @entregas.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
+                    </span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 600px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <!-- Legenda -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Legenda</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="legend-marker bg-warning me-2" style="width: 16px; height: 16px; border-radius: 50%;"></div>
+                        <small>Entregas Pendentes</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="legend-marker bg-primary me-2" style="width: 16px; height: 16px; border-radius: 50%;"></div>
+                        <small>Entregas em Andamento</small>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="legend-marker bg-success me-2" style="width: 16px; height: 16px; border-radius: 50%;"></div>
+                        <small>Entregas Concluídas</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="legend-marker bg-danger me-2" style="width: 16px; height: 16px; border-radius: 50%;"></div>
+                        <small>Entregadores</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entregas Pendentes -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Entregas Pendentes</h5>
+            </div>
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                @if (entregas.Any(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador))
+                {
+                    foreach (var entrega in entregas.Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador))
+                    {
+                        <div class="border-bottom pb-2 mb-2">
+                            <small>
+                                <strong>@entrega.Pedido?.NumeroPedido</strong>
+                                <br>
+                                <span class="text-muted">@entrega.EnderecoCompleto</span>
+                            </small>
+                            <br>
+                            <a href="@Url.Action("Details", new { id = entrega.Id })" class="btn btn-sm btn-outline-primary mt-1">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small">Nenhuma entrega pendente</p>
+                }
+            </div>
+        </div>
+
+        <!-- Entregadores Ativos -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Entregadores Online</h5>
+            </div>
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                @if (entregadores.Any(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando))
+                {
+                    foreach (var entregador in entregadores.Where(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando))
+                    {
+                        <div class="border-bottom pb-2 mb-2">
+                            <small>
+                                <strong>@entregador.Nome</strong>
+                                <br>
+                                <span class="text-muted">
+                                    <i class="fas @GetVeiculoIcon(entregador.TipoVeiculo) me-1"></i>
+                                    @entregador.TipoVeiculo
+                                </span>
+                                @if (entregador.UltimaAtualizacao.HasValue)
+                                {
+                                    var tempo = DateTime.Now - entregador.UltimaAtualizacao.Value;
+                                    <br>
+                                    <span class="text-success">
+                                        <i class="fas fa-circle" style="font-size: 0.6em;"></i>
+                                        Online (@((int)tempo.TotalMinutes)m)
+                                    </span>
+                                }
+                            </small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted small">Nenhum entregador online</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Inicializar mapa
+        const map = L.map('map').setView([-23.5505, -46.6333], 12); // Coordenadas de São Paulo
+
+        // Adicionar tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Marcadores para entregas
+        @foreach (var entrega in entregas)
+        {
+                if (entrega.Latitude.HasValue && entrega.Longitude.HasValue)
+                {
+                        var markerColor = entrega.Status switch
+                        {
+                                Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "orange",
+                                Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "blue",
+                                Fynanceo.Models.Enums.StatusEntrega.EmRota => "purple",
+                                Fynanceo.Models.Enums.StatusEntrega.Entregue => "green",
+                                Fynanceo.Models.Enums.StatusEntrega.Cancelada => "red",
+                                Fynanceo.Models.Enums.StatusEntrega.Problema => "black",
+                                _ => "gray"
+                        };
+
+                        <text>
+                        L.circleMarker([@entrega.Latitude.Value.ToString().Replace(",", "."), @entrega.Longitude.Value.ToString().Replace(",", ".")], {
+                            color: '@markerColor',
+                            fillColor: '@markerColor',
+                            fillOpacity: 0.7,
+                            radius: 8
+                        }).addTo(map).bindPopup(`
+                            <div>
+                                <strong>Entrega: @entrega.Pedido?.NumeroPedido</strong><br>
+                                <strong>Status:</strong> @entrega.Status<br>
+                                <strong>Endereço:</strong> @entrega.EnderecoCompleto<br>
+                                @if (entrega.Entregador != null)
+                                {
+                                        <text><strong>Entregador:</strong> @entrega.Entregador.Nome<br></text>
+                                }
+                                <a href="@Url.Action("Details", new { id = entrega.Id })" class="btn btn-sm btn-primary mt-2">Ver Detalhes</a>
+                            </div>
+                        `);
+                        </text>
+                }
+        }
+
+        // Marcadores para entregadores
+        @foreach (var entregador in entregadores)
+        {
+                if (entregador.Latitude.HasValue && entregador.Longitude.HasValue)
+                {
+                        <text>
+                        L.marker([@entregador.Latitude.Value.ToString().Replace(",", "."), @entregador.Longitude.Value.ToString().Replace(",", ".")], {
+                            icon: L.divIcon({
+                                className: 'entregador-marker',
+                                html: '<div style="background-color: red; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                                iconSize: [16, 16]
+                            })
+                        }).addTo(map).bindPopup(`
+                            <div>
+                                <strong>Entregador: @entregador.Nome</strong><br>
+                                <strong>Status:</strong> @entregador.Status<br>
+                                <strong>Veículo:</strong> @entregador.TipoVeiculo<br>
+                                <strong>Telefone:</strong> @entregador.Telefone<br>
+                                <a href="@Url.Action("Details", "Entregadores", new { id = entregador.Id })" class="btn btn-sm btn-primary mt-2">Ver Perfil</a>
+                            </div>
+                        `);
+                        </text>
+                }
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+
+        // Ajustar mapa para mostrar todos os marcadores
+        setTimeout(() => {
+            map.fitBounds(map.getBounds(), { padding: [20, 20] });
+        }, 1000);
+    </script>
+
+    <style>
+        .entregador-marker {
+            background: transparent;
+            border: none;
+        }
+
+        .legend-marker {
+            min-width: 16px;
+            min-height: 16px;
+        }
+    </style>
+}
+
+@functions {
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+}

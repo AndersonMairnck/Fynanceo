@@ -1,0 +1,385 @@
+﻿@model Fynanceo.ViewModels.MovimentacaoEstoqueViewModel
+@{
+    ViewData["Title"] = "Nova Movimentação de Estoque";
+    ViewData["ActivePage"] = "estoque-movimentacoes";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exchange-alt me-2"></i>Nova Movimentação de Estoque
+        </h1>
+        <div>
+            <a href="@Url.Action("Movimentacoes")" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Dados da Movimentação</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="NovaMovimentacao" method="post" id="movimentacaoForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Tipo" class="form-label">Tipo de Movimentação *</label>
+                                    <select asp-for="Tipo" class="form-select" id="tipoMovimentacao" required>
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="0">Entrada</option>
+                                        <option value="1">Saída</option>
+                                        <option value="2">Ajuste</option>
+                                        <option value="3">Perda</option>
+                                        <option value="4">Transferência</option>
+                                    </select>
+                                    <span asp-validation-for="Tipo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EstoqueId" class="form-label">Produto *</label>
+                                    <select asp-for="EstoqueId" class="form-select" id="produtoSelect" required>
+                                        <option value="">Selecione o produto</option>
+                                        @if (Model.Produtos != null)
+                                        {
+                                            @foreach (var produto in Model.Produtos)
+                                            {
+                                                <option value="@produto.Id"
+                                                        data-unidade="@produto.UnidadeMedida"
+                                                        data-custo="@produto.CustoUnitario"
+                                                        data-estoque="@produto.EstoqueAtual">
+                                                    @produto.Nome - Estoque: @produto.EstoqueAtual @produto.UnidadeMedida
+                                                </option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="EstoqueId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Quantidade" class="form-label">Quantidade *</label>
+                                    <input asp-for="Quantidade" type="number" step="0.001" class="form-control"
+                                           id="quantidade" required min="0.001">
+                                    <small class="form-text text-muted" id="unidadeText"></small>
+                                    <span asp-validation-for="Quantidade" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CustoUnitario" class="form-label">Custo Unitário (R$) *</label>
+                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control"
+                                           id="custoUnitario" required min="0">
+                                    <span asp-validation-for="CustoUnitario" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Valor Total</label>
+                                    <input type="text" class="form-control" id="valorTotal" readonly
+                                           value="R$ 0,00" style="background-color: #f8f9fa;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FornecedorId" class="form-label">Fornecedor</label>
+                                    <select asp-for="FornecedorId" class="form-select" id="fornecedorSelect">
+                                        <option value="">Selecione o fornecedor</option>
+                                        @if (Model.Fornecedores != null)
+                                        {
+                                            @foreach (var fornecedor in Model.Fornecedores)
+                                            {
+                                                <option value="@fornecedor.Id">@fornecedor.Nome</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="FornecedorId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="PedidoId" class="form-label">Nº do Pedido</label>
+                                    <input asp-for="PedidoId" type="number" class="form-control"
+                                           placeholder="Opcional para saídas">
+                                    <span asp-validation-for="PedidoId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Documento" class="form-label">Documento</label>
+                                    <input asp-for="Documento" type="text" class="form-control"
+                                           placeholder="Ex: NF 12345, Ajuste, etc.">
+                                    <span asp-validation-for="Documento" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Observacao" class="form-label">Observações</label>
+                                    <textarea asp-for="Observacao" class="form-control" rows="2"
+                                              placeholder="Informações adicionais sobre a movimentação"></textarea>
+                                    <span asp-validation-for="Observacao" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alertas de Validação -->
+                        <div id="alertContainer"></div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary me-2" id="btnSalvar">
+                                <i class="fas fa-save me-2"></i>Registrar Movimentação
+                            </button>
+                            <a href="@Url.Action("Movimentacoes")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Resumo do Produto Selecionado -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-2"></i>Resumo do Produto
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="resumoProduto" class="text-center text-muted">
+                        <i class="fas fa-box-open fa-2x mb-3"></i>
+                        <p>Selecione um produto para ver as informações</p>
+                    </div>
+                    <div id="detalhesProduto" style="display: none;">
+                        <div class="mb-3">
+                            <strong>Nome:</strong> <span id="resumoNome"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Estoque Atual:</strong>
+                            <span id="resumoEstoque" class="badge bg-success"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Estoque Mínimo:</strong>
+                            <span id="resumoMinimo"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Unidade:</strong>
+                            <span id="resumoUnidade"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Custo Atual:</strong>
+                            <span id="resumoCusto"></span>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <strong>Estoque Após Movimentação:</strong>
+                            <span id="estoqueFinal" class="badge bg-primary"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ajuda Rápida -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-question-circle me-2"></i>Ajuda Rápida
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Entrada:</strong> Adiciona produtos ao estoque (compra, doação, etc.)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Saída:</strong> Remove produtos do estoque (venda, uso interno)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Ajuste:</strong> Corrige divergências no estoque físico vs sistema
+                    </div>
+                    <div class="mb-3">
+                        <strong>Perda:</strong> Registra produtos danificados, vencidos ou extraviados
+                    </div>
+                    <div class="mb-3">
+                        <strong>Transferência:</strong> Movimentação entre setores ou filiais
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Elementos do DOM
+            const produtoSelect = $('#produtoSelect');
+            const tipoMovimentacao = $('#tipoMovimentacao');
+            const quantidade = $('#quantidade');
+            const custoUnitario = $('#custoUnitario');
+            const valorTotal = $('#valorTotal');
+            const unidadeText = $('#unidadeText');
+            const resumoProduto = $('#resumoProduto');
+            const detalhesProduto = $('#detalhesProduto');
+            const btnSalvar = $('#btnSalvar');
+
+            // Atualizar resumo quando produto é selecionado
+            produtoSelect.on('change', function() {
+                const selectedOption = $(this).find('option:selected');
+                const unidade = selectedOption.data('unidade');
+                const custo = selectedOption.data('custo');
+                const estoqueAtual = selectedOption.data('estoque');
+                const produtoNome = selectedOption.text().split(' - ')[0];
+
+                if (selectedOption.val()) {
+                    // Mostrar detalhes do produto
+                    resumoProduto.hide();
+                    detalhesProduto.show();
+
+                    $('#resumoNome').text(produtoNome);
+                    $('#resumoEstoque').text(estoqueAtual + ' ' + unidade);
+                    $('#resumoMinimo').text(selectedOption.data('minimo') || 'N/A');
+                    $('#resumoUnidade').text(unidade);
+                    $('#resumoCusto').text('R$ ' + parseFloat(custo).toFixed(2));
+
+                    unidadeText.text('Unidade: ' + unidade);
+
+                    // Preencher custo unitário automaticamente para entradas
+                    if (tipoMovimentacao.val() === '0') { // Entrada
+                        custoUnitario.val(parseFloat(custo).toFixed(2));
+                    }
+
+                    atualizarEstoqueFinal();
+                } else {
+                    // Esconder detalhes
+                    resumoProduto.show();
+                    detalhesProduto.hide();
+                    unidadeText.text('');
+                }
+            });
+
+            // Calcular valor total
+            function calcularValorTotal() {
+                const qtd = parseFloat(quantidade.val()) || 0;
+                const custo = parseFloat(custoUnitario.val()) || 0;
+                const total = qtd * custo;
+
+                valorTotal.val('R$ ' + total.toFixed(2));
+                atualizarEstoqueFinal();
+            }
+
+            // Atualizar estoque final
+            function atualizarEstoqueFinal() {
+                const selectedOption = produtoSelect.find('option:selected');
+                const estoqueAtual = parseFloat(selectedOption.data('estoque')) || 0;
+                const qtd = parseFloat(quantidade.val()) || 0;
+                const tipo = tipoMovimentacao.val();
+
+                let estoqueFinal = estoqueAtual;
+
+                if (tipo === '0') { // Entrada
+                    estoqueFinal = estoqueAtual + qtd;
+                } else if (['1', '3'].includes(tipo)) { // Saída ou Perda
+                    estoqueFinal = estoqueAtual - qtd;
+                } else if (tipo === '2') { // Ajuste
+                    // Para ajuste, consideramos que quantidade positiva aumenta, negativa diminui
+                    estoqueFinal = estoqueAtual + qtd;
+                }
+
+                const unidade = selectedOption.data('unidade') || '';
+                $('#estoqueFinal').text(estoqueFinal.toFixed(2) + ' ' + unidade);
+
+                // Validar estoque negativo
+                if (estoqueFinal < 0) {
+                    $('#estoqueFinal').removeClass('bg-primary').addClass('bg-danger');
+                    mostrarAlerta('Estoque ficará negativo após esta movimentação!', 'danger');
+                    btnSalvar.prop('disabled', true);
+                } else {
+                    $('#estoqueFinal').removeClass('bg-danger').addClass('bg-primary');
+                    btnSalvar.prop('disabled', false);
+                }
+            }
+
+            // Mostrar alerta
+            function mostrarAlerta(mensagem, tipo) {
+                const alertContainer = $('#alertContainer');
+                alertContainer.html(`
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>${mensagem}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `);
+            }
+
+            // Event listeners
+            quantidade.on('input', function() {
+                calcularValorTotal();
+                atualizarEstoqueFinal();
+            });
+
+            custoUnitario.on('input', calcularValorTotal);
+            tipoMovimentacao.on('change', atualizarEstoqueFinal);
+
+            // Validação do formulário
+            $('#movimentacaoForm').on('submit', function(e) {
+                const tipo = tipoMovimentacao.val();
+                const produto = produtoSelect.val();
+                const qtd = parseFloat(quantidade.val());
+
+                if (!tipo) {
+                    e.preventDefault();
+                    mostrarAlerta('Selecione o tipo de movimentação!', 'warning');
+                    return false;
+                }
+
+                if (!produto) {
+                    e.preventDefault();
+                    mostrarAlerta('Selecione um produto!', 'warning');
+                    return false;
+                }
+
+                if (!qtd || qtd <= 0) {
+                    e.preventDefault();
+                    mostrarAlerta('Informe uma quantidade válida!', 'warning');
+                    return false;
+                }
+
+                // Validação adicional para saídas
+                if (['1', '3'].includes(tipo)) { // Saída ou Perda
+                    const estoqueAtual = parseFloat(produtoSelect.find('option:selected').data('estoque')) || 0;
+                    if (qtd > estoqueAtual) {
+                        e.preventDefault();
+                        mostrarAlerta(`Quantidade insuficiente em estoque! Disponível: ${estoqueAtual}`, 'danger');
+                        return false;
+                    }
+                }
+
+                // Mostrar loading no botão
+                btnSalvar.html('<i class="fas fa-spinner fa-spin me-2"></i>Processando...');
+                btnSalvar.prop('disabled', true);
+            });
+
+            // Preencher automaticamente se veio com produtoId na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const produtoId = urlParams.get('produtoId');
+            if (produtoId) {
+                produtoSelect.val(produtoId).trigger('change');
+            }
+        });
+    </script>
+}

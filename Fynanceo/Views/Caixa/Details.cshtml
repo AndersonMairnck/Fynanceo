@@ -1,0 +1,516 @@
+﻿<!-- Views/Caixa/Details.cshtml -->
+@model Fynanceo.Models.Caixa
+
+@{
+    ViewData["Title"] = $"Caixa #{Model.Id}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-cash-register text-primary me-2"></i>Caixa: @Model.DataAbertura.ToString("dd/MM/yyyy")
+    </h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+        @if (!Model.Fechado)
+        {
+            <a href="@Url.Action("Fechar", new { id = Model.Id })" class="btn btn-danger">
+                <i class="fas fa-lock me-2"></i>Fechar Caixa
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Informações do Caixa -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações do Caixa</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="50%">Status:</th>
+                        <td>
+                            @if (Model.Fechado)
+                            {
+                                <span class="badge bg-secondary">Fechado</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Aberto</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Abertura:</th>
+                        <td>@Model.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                    @if (Model.Fechado)
+                    {
+                        <tr>
+                            <th>Fechamento:</th>
+                            <td>@Model.DataFechamento?.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th>Saldo Inicial:</th>
+                        <td>R$ @Model.SaldoInicial.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <th>Total Entradas:</th>
+                        <td class="text-success">R$ @Model.TotalEntradas.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <th>Total Saídas:</th>
+                        <td class="text-danger">R$ @Model.TotalSaidas.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <th><strong>Saldo Final:</strong></th>
+                        <td>
+                            <strong class="@(Model.SaldoFinal >= 0 ? "text-success" : "text-danger")">
+                                R$ @Model.SaldoFinal.ToString("N2")
+                            </strong>
+                        </td>
+                    </tr>
+                    @if (Model.Fechado)
+                    {
+                        <tr>
+                            <th>Saldo Físico:</th>
+                            <td>R$ @Model.SaldoFisico.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <th>Diferença:</th>
+                            <td class="@(Model.Diferenca == 0 ? "text-success" : "text-danger")">
+                                R$ @Model.Diferenca.ToString("N2")
+                                @if (Model.Diferenca != 0)
+                                {
+                                    <br>
+                                    <small>
+                                        (@(Model.Diferenca > 0 ? "Sobra" : "Falta"))
+                                    </small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+
+                @if (!string.IsNullOrEmpty(Model.Observacoes))
+                {
+                    <div class="alert alert-info mt-3">
+                        <strong>Observações:</strong>
+                        <br>
+                        @Model.Observacoes
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        @if (!Model.Fechado)
+        {
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ações Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#entradaModal">
+                            <i class="fas fa-plus-circle me-2"></i>Nova Entrada
+                        </button>
+                        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#saidaModal">
+                            <i class="fas fa-minus-circle me-2"></i>Nova Saída
+                        </button>
+                        <button class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#sangriaModal">
+                            <i class="fas fa-hand-holding-usd me-2"></i>Sangria
+                        </button>
+                        <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#suprimentoModal">
+                            <i class="fas fa-money-bill-wave me-2"></i>Suprimento
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        <!-- Movimentações -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Movimentações</h5>
+                <span class="badge bg-primary">@Model.Movimentacoes.Count movimentações</span>
+            </div>
+            <div class="card-body">
+                @if (Model.Movimentacoes.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Tipo</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Forma Pag.</th>
+                                    <th>Valor</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mov in Model.Movimentacoes.OrderByDescending(m => m.DataMovimentacao))
+                                {
+                                    <tr>
+                                        <td>@mov.DataMovimentacao.ToString("dd/MM HH:mm")</td>
+                                        <td>
+                                            <span class="badge @(mov.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "bg-success" : "bg-danger")">
+                                                @mov.Tipo
+                                            </span>
+                                            @if (mov.IsSangria == true)
+                                            {
+                                                <br>
+                                                <small class="text-warning">Sangria</small>
+                                            }
+                                            @if (mov.IsSuprimento == true)
+                                            {
+                                                <br>
+                                                <small class="text-info">Suprimento</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            @mov.Descricao
+                                            @if (!string.IsNullOrEmpty(mov.Observacoes))
+                                            {
+                                                <br>
+                                                <small class="text-muted">@mov.Observacoes</small>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small>@mov.Categoria</small>
+                                        </td>
+                                        <td>
+                                            <small>@mov.FormaPagamento</small>
+                                        </td>
+                                        <td>
+                                            <strong class="@(mov.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "text-success" : "text-danger")">
+                                                R$ @mov.Valor.ToString("N2")
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            <small>@mov.UsuarioNome</small>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-light">
+                                    <td colspan="5" class="text-end"><strong>Totais:</strong></td>
+                                    <td class="text-success"><strong>R$ @Model.TotalEntradas.ToString("N2")</strong></td>
+                                    <td class="text-danger"><strong>R$ @Model.TotalSaidas.ToString("N2")</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-exchange-alt fa-2x mb-3"></i>
+                        <p>Nenhuma movimentação registrada</p>
+                        @if (!Model.Fechado)
+                        {
+                            <p class="small">Use os botões ao lado para adicionar movimentações</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Resumo por Categoria -->
+        @if (Model.Movimentacoes.Any())
+        {
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumo por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success">Entradas</h6>
+                            @foreach (var grupo in Model.Movimentacoes
+                                                    .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada)
+                                                    .GroupBy(m => m.Categoria)
+                                                    .OrderByDescending(g => g.Sum(m => m.Valor)))
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small>@grupo.Key</small>
+                                    <strong class="text-success">R$ @grupo.Sum(m => m.Valor).ToString("N2")</strong>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger">Saídas</h6>
+                            @foreach (var grupo in Model.Movimentacoes
+                                                    .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida)
+                                                    .GroupBy(m => m.Categoria)
+                                                    .OrderByDescending(g => g.Sum(m => m.Valor)))
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small>@grupo.Key</small>
+                                    <strong class="text-danger">R$ @grupo.Sum(m => m.Valor).ToString("N2")</strong>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modais para Movimentações -->
+@if (!Model.Fechado)
+{
+    <!-- Modal Entrada -->
+    <div class="modal fade" id="entradaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Entrada</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEntrada">
+                        <input type="hidden" name="Tipo" value="1">
+                        <div class="mb-3">
+                            <label class="form-label">Valor *</label>
+                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Forma de Pagamento *</label>
+                            <select class="form-select" name="FormaPagamento" required>
+                                <option value="1">Dinheiro</option>
+                                <option value="2">Cartão Crédito</option>
+                                <option value="3">Cartão Débito</option>
+                                <option value="4">PIX</option>
+                                <option value="7">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoria *</label>
+                            <select class="form-select" name="Categoria" required>
+                                <option value="1">Venda</option>
+                                <option value="2">Taxa de Entrega</option>
+                                <option value="11">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição *</label>
+                            <input type="text" class="form-control" name="Descricao" required
+                                   placeholder="Descrição da entrada...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="Observacoes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="adicionarMovimentacao('entrada')">
+                        <i class="fas fa-check me-2"></i>Adicionar Entrada
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Saída -->
+    <div class="modal fade" id="saidaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Saída</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSaida">
+                        <input type="hidden" name="Tipo" value="2">
+                        <div class="mb-3">
+                            <label class="form-label">Valor *</label>
+                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Forma de Pagamento *</label>
+                            <select class="form-select" name="FormaPagamento" required>
+                                <option value="1">Dinheiro</option>
+                                <option value="2">Cartão Crédito</option>
+                                <option value="3">Cartão Débito</option>
+                                <option value="4">PIX</option>
+                                <option value="7">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoria *</label>
+                            <select class="form-select" name="Categoria" required>
+                                <option value="3">Comissão Entregador</option>
+                                <option value="4">Fornecedor</option>
+                                <option value="5">Salário</option>
+                                <option value="6">Aluguel</option>
+                                <option value="7">Luz</option>
+                                <option value="8">Água</option>
+                                <option value="9">Internet</option>
+                                <option value="10">Manutenção</option>
+                                <option value="11">Outros</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição *</label>
+                            <input type="text" class="form-control" name="Descricao" required
+                                   placeholder="Descrição da saída...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" name="Observacoes" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="adicionarMovimentacao('saida')">
+                        <i class="fas fa-check me-2"></i>Adicionar Saída
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sangria -->
+    <div class="modal fade" id="sangriaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sangria do Caixa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSangria">
+                        <input type="hidden" name="Tipo" value="2">
+                        <input type="hidden" name="IsSangria" value="true">
+                        <input type="hidden" name="FormaPagamento" value="1">
+                        <input type="hidden" name="Categoria" value="11">
+                        <div class="mb-3">
+                            <label class="form-label">Valor da Sangria *</label>
+                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição *</label>
+                            <input type="text" class="form-control" name="Descricao" required
+                                   value="Sangria do Caixa">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Motivo</label>
+                            <textarea class="form-control" name="Observacoes" rows="2"
+                                  placeholder="Motivo da sangria..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" onclick="adicionarMovimentacao('sangria')">
+                        <i class="fas fa-hand-holding-usd me-2"></i>Realizar Sangria
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Suprimento -->
+    <div class="modal fade" id="suprimentoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Suprimento do Caixa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formSuprimento">
+                        <input type="hidden" name="Tipo" value="1">
+                        <input type="hidden" name="IsSuprimento" value="true">
+                        <input type="hidden" name="FormaPagamento" value="1">
+                        <input type="hidden" name="Categoria" value="11">
+                        <div class="mb-3">
+                            <label class="form-label">Valor do Suprimento *</label>
+                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição *</label>
+                            <input type="text" class="form-control" name="Descricao" required
+                                   value="Suprimento do Caixa">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Motivo</label>
+                            <textarea class="form-control" name="Observacoes" rows="2"
+                                  placeholder="Motivo do suprimento..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info" onclick="adicionarMovimentacao('suprimento')">
+                        <i class="fas fa-money-bill-wave me-2"></i>Adicionar Suprimento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        async function adicionarMovimentacao(tipo) {
+            let formData;
+
+            switch(tipo) {
+                case 'entrada':
+                    formData = new FormData(document.getElementById('formEntrada'));
+                    break;
+                case 'saida':
+                    formData = new FormData(document.getElementById('formSaida'));
+                    break;
+                case 'sangria':
+                    formData = new FormData(document.getElementById('formSangria'));
+                    break;
+                case 'suprimento':
+                    formData = new FormData(document.getElementById('formSuprimento'));
+                    break;
+            }
+
+            const response = await fetch('@Url.Action("AdicionarMovimentacao", "Caixa")', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Fechar modal e recarregar página
+                $('.modal').modal('hide');
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Auto-refresh a cada 30 segundos se o caixa estiver aberto
+        @if (!Model.Fechado)
+        {
+                <text>
+                setInterval(() => {
+                    location.reload();
+                }, 30000);
+                </text>
+        }
+    </script>
+}

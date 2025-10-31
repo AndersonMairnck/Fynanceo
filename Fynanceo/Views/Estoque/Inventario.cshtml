@@ -1,0 +1,385 @@
+﻿@model IEnumerable<Fynanceo.Models.Inventario>
+@{
+    ViewData["Title"] = "Controle de Inventário";
+    ViewData["ActivePage"] = "estoque-inventario";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-check me-2"></i>Controle de Inventário
+        </h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-outline-primary me-2">
+                <i class="fas fa-box me-2"></i>Produtos
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoInventarioModal">
+                <i class="fas fa-plus me-2"></i>Novo Inventário
+            </button>
+        </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total de Inventários
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count()</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Em Andamento
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Count(i => i.Status == StatusInventario.Aberto || i.Status == StatusInventario.EmAndamento)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sync-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Concluídos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Count(i => i.Status == StatusInventario.Concluido)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Itens Conferidos (Total)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.Sum(i => i.Itens?.Count(ii => ii.Conferido) ?? 0)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Inventários -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Inventários Realizados</h6>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>Filtrar
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="@Url.Action("Inventario")">Todos</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("Inventario", new { status = StatusInventario.Aberto })">Abertos</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("Inventario", new { status = StatusInventario.EmAndamento })">Em Andamento</a></li>
+                    <li><a class="dropdown-item" href="@Url.Action("Inventario", new { status = StatusInventario.Concluido })">Concluídos</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-4">
+                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Nenhum inventário encontrado</h5>
+                    <p class="text-muted">Comece criando seu primeiro inventário para conferir o estoque.</p>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#novoInventarioModal">
+                        <i class="fas fa-plus me-2"></i>Criar Primeiro Inventário
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Data Abertura</th>
+                                <th>Data Fechamento</th>
+                                <th>Itens Conferidos</th>
+                                <th>Diferenças</th>
+                                <th>Valor Diferença</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var inventario in Model)
+                            {
+                                var itensConferidos = inventario.Itens?.Count(ii => ii.Conferido) ?? 0;
+                                var totalItens = inventario.Itens?.Count ?? 0;
+                                var itensComDiferenca = inventario.Itens?.Count(ii => ii.Conferido && ii.Diferenca != 0) ?? 0;
+                                var valorTotalDiferenca = inventario.Itens?.Where(ii => ii.Conferido).Sum(ii => ii.CustoTotalDiferenca) ?? 0;
+
+                                <tr>
+                                    <td>
+                                        <strong>@inventario.Descricao</strong>
+                                        @if (!string.IsNullOrEmpty(inventario.Observacao))
+                                        {
+                                            <br>
+                                
+                                            <small class="text-muted">@inventario.Observacao</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetStatusInventarioBadgeClass(inventario.Status)">
+                                            @inventario.Status
+                                        </span>
+                                    </td>
+                                    <td>@inventario.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (inventario.DataFechamento.HasValue)
+                                        {
+                                            @inventario.DataFechamento.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            @{
+                                                var percentual = totalItens > 0 ? (itensConferidos * 100) / totalItens : 0;
+                                                var progressClass = percentual == 100 ? "bg-success" : percentual > 0 ? "bg-warning" : "bg-secondary";
+                                            }
+                                            <div class="progress-bar @progressClass" role="progressbar"
+                                                 style="width: @percentual%;"
+                                                 aria-valuenow="@percentual" aria-valuemin="0" aria-valuemax="100">
+                                                @itensConferidos/@totalItens
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (itensComDiferenca > 0)
+                                        {
+                                            <span class="badge bg-danger">@itensComDiferenca itens</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Sem diferenças</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (valorTotalDiferenca != 0)
+                                        {
+                                            <span class="@(valorTotalDiferenca > 0 ? "text-success" : "text-danger")">
+                                                @Math.Abs(valorTotalDiferenca).ToString("C")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="@Url.Action("DetalhesInventario", new { id = inventario.Id })"
+                                               class="btn btn-outline-primary" title="Detalhes">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if (inventario.Status == StatusInventario.Aberto || inventario.Status == StatusInventario.EmAndamento)
+                                            {
+                                                <a href="@Url.Action("EditarInventario", new { id = inventario.Id })"
+                                                   class="btn btn-outline-warning" title="Continuar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-success"
+                                                        onclick="fecharInventario(@inventario.Id)" title="Fechar">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            }
+                                            @if (inventario.Status == StatusInventario.Aberto)
+                                            {
+                                                <button type="button" class="btn btn-outline-danger"
+                                                        onclick="cancelarInventario(@inventario.Id)" title="Cancelar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Inventário -->
+<div class="modal fade" id="novoInventarioModal" tabindex="-1" aria-labelledby="novoInventarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="novoInventarioModalLabel">
+                    <i class="fas fa-plus me-2"></i>Novo Inventário
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CriarInventario" method="post" id="formNovoInventario">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="descricao" class="form-label">Descrição *</label>
+                                <input type="text" class="form-control" id="descricao" name="descricao"
+                                       placeholder="Ex: Inventário Mensal - Janeiro 2024" required>
+                                <small class="form-text text-muted">Descreva o propósito deste inventário</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label for="observacao" class="form-label">Observações</label>
+                                <textarea class="form-control" id="observacao" name="observacao" rows="3"
+                                          placeholder="Informações adicionais sobre o inventário..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="incluirTodosProdutos" name="incluirTodosProdutos" checked>
+                                <label class="form-check-label" for="incluirTodosProdutos">
+                                    Incluir todos os produtos ativos
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="gerarAjustesAutomaticos" name="gerarAjustesAutomaticos" checked>
+                                <label class="form-check-label" for="gerarAjustesAutomaticos">
+                                    Gerar ajustes automáticos ao fechar
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Criar Inventário
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                },
+                order: [[2, 'desc']],
+                pageLength: 25,
+                responsive: true
+            });
+
+            // Formulário novo inventário
+            $('#formNovoInventario').on('submit', function(e) {
+                const descricao = $('#descricao').val().trim();
+                if (!descricao) {
+                    e.preventDefault();
+                    alert('Por favor, informe uma descrição para o inventário.');
+                    $('#descricao').focus();
+                    return false;
+                }
+
+                // Mostrar loading
+                $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin me-2"></i>Criando...');
+                $(this).find('button[type="submit"]').prop('disabled', true);
+            });
+        });
+
+        function fecharInventario(id) {
+            if (confirm('Tem certeza que deseja fechar este inventário?\n\nApós o fechamento, serão gerados ajustes automáticos no estoque baseados nas diferenças encontradas.')) {
+                window.location.href = `@Url.Action("FecharInventario")/${id}`;
+            }
+        }
+
+        function cancelarInventario(id) {
+            if (confirm('Tem certeza que deseja cancelar este inventário?\n\nTodos os dados de conferência serão perdidos.')) {
+                window.location.href = `@Url.Action("CancelarInventario")/${id}`;
+            }
+        }
+
+        // Auto-refresh para inventários em andamento
+        function verificarInventariosAtivos() {
+            const hasActiveInventories = @Model.Any(i => i.Status == StatusInventario.Aberto || i.Status == StatusInventario.EmAndamento).ToString().ToLower();
+            if (hasActiveInventories) {
+                setTimeout(function() {
+                    location.reload();
+                }, 30000); // 30 segundos
+            }
+        }
+
+        // Iniciar auto-refresh
+        verificarInventariosAtivos();
+    </script>
+}
+
+@functions {
+    public string GetStatusInventarioBadgeClass(StatusInventario status)
+    {
+        return status switch
+        {
+            StatusInventario.Aberto => "bg-warning text-dark",
+            StatusInventario.EmAndamento => "bg-info",
+            StatusInventario.Concluido => "bg-success",
+            StatusInventario.Cancelado => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

@@ -17,7 +17,7 @@ namespace Fynanceo.ViewModels
 
         [StringLength(500, ErrorMessage = "Descrição não pode exceder 500 caracteres")]
         [Display(Name = "Descrição")]
-        public string Descricao { get; set; }
+        public string? Descricao { get; set; }
 
         [Required(ErrorMessage = "Categoria é obrigatória")]
         [Display(Name = "Categoria")]
@@ -64,23 +64,23 @@ namespace Fynanceo.ViewModels
 
 
         // Lista de ingredientes para a view
-        public List<IngredienteViewModel> Ingredientes { get; set; } = new List<IngredienteViewModel>();
+        public List<IngredienteViewModel>? Ingredientes { get; set; } = new List<IngredienteViewModel>();
     }
 
     public class IngredienteViewModel
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Nome do ingrediente é obrigatório")]
+       // [Required(ErrorMessage = "Nome do ingrediente é obrigatório")]
         [Display(Name = "Nome do Ingrediente")]
         public string Nome { get; set; }
 
-        [Required(ErrorMessage = "Quantidade é obrigatória")]
+     //   [Required(ErrorMessage = "Quantidade é obrigatória")]
         [Range(0.001, double.MaxValue, ErrorMessage = "Quantidade deve ser maior que zero")]
         [Display(Name = "Quantidade")]
         public decimal Quantidade { get; set; }
 
-        [Required(ErrorMessage = "Unidade de medida é obrigatória")]
+      //  [Required(ErrorMessage = "Unidade de medida é obrigatória")]
         [Display(Name = "Unidade de Medida")]
         public string UnidadeMedida { get; set; }
     }

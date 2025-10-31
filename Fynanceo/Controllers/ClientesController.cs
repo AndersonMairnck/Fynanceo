@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Services;
 using Fynanceo.ViewModels;
-
+using Fynanceo.Utils;
 namespace Fynanceo.Controllers
 {
     public class ClientesController : Controller
@@ -44,6 +44,7 @@ namespace Fynanceo.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.CpfCnpj = StringUtils.RemoverCaracteresEspeciais(model.CpfCnpj);  
                 if (await _clienteService.CpfCnpjExisteAsync(model.CpfCnpj))
                 {
                     ModelState.AddModelError("CpfCnpj", "CPF/CNPJ já cadastrado.");

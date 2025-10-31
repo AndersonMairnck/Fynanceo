@@ -1,0 +1,123 @@
+﻿<!-- Views/Entregadores/Create.cshtml -->
+@model Fynanceo.ViewModels.EntregadorViewModel
+
+@{
+    ViewData["Title"] = "Novo Entregador";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-user-plus text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações do Entregador</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Nome" class="form-label">Nome Completo *</label>
+                                <input asp-for="Nome" class="form-control" placeholder="Digite o nome completo">
+                                <span asp-validation-for="Nome" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Telefone" class="form-label">Telefone *</label>
+                                <input asp-for="Telefone" class="form-control" placeholder="(11) 99999-9999">
+                                <span asp-validation-for="Telefone" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TipoVeiculo" class="form-label">Tipo de Veículo *</label>
+                                <select asp-for="TipoVeiculo" class="form-select">
+                                    <option value="">Selecione...</option>
+                                    <option value="1">Moto</option>
+                                    <option value="2">Carro</option>
+                                    <option value="3">Bicicleta</option>
+                                    <option value="4">Outro</option>
+                                </select>
+                                <span asp-validation-for="TipoVeiculo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Placa" class="form-label">Placa do Veículo</label>
+                                <input asp-for="Placa" class="form-control" placeholder="ABC-1234">
+                                <span asp-validation-for="Placa" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ModeloVeiculo" class="form-label">Modelo do Veículo</label>
+                                <input asp-for="ModeloVeiculo" class="form-control" placeholder="Ex: Honda CG 160">
+                                <span asp-validation-for="ModeloVeiculo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="CorVeiculo" class="form-label">Cor do Veículo</label>
+                                <input asp-for="CorVeiculo" class="form-control" placeholder="Ex: Vermelho">
+                                <span asp-validation-for="CorVeiculo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Observacoes" class="form-label">Observações</label>
+                        <textarea asp-for="Observacoes" class="form-control" rows="3" placeholder="Observações sobre o entregador..."></textarea>
+                        <span asp-validation-for="Observacoes" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="Ativo" class="form-check-input">
+                        <label asp-for="Ativo" class="form-check-label">Entregador ativo</label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>Cadastrar Entregador
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Máscara para telefone
+        $('#Telefone').inputmask('(99) 99999-9999');
+
+        // Máscara para placa (Brasil)
+        $('#Placa').inputmask('aaa-9{0,4}', {
+            placeholder: "___-____",
+            definitions: {
+                'a': {
+                    validator: "[A-Za-z]",
+                    cardinality: 1
+                }
+            }
+        });
+    </script>
+}
