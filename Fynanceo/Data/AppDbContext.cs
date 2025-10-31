@@ -19,6 +19,30 @@ namespace Fynanceo.Data
         public DbSet<Pedido> Pedidos { get; set; }
         public DbSet<ItemPedido> ItensPedido { get; set; }
      public DbSet<HistoricoPedido> HistoricoPedido { get; set; }
+        public DbSet<Entregador> Entregadores { get; set; }
+        public DbSet<Entrega> Entregas { get; set; }
+        public DbSet<HistoricoEntrega> HistoricoEntregas { get; set; }
+        public DbSet<ConfiguracaoDelivery> ConfiguracoesDelivery { get; set; }
+        public DbSet<Conta> Contas { get; set; }
+        public DbSet<Caixa> Caixas { get; set; }
+        public DbSet<Fornecedor> Fornecedores { get; set; }
+        public DbSet<MovimentacaoCaixa> MovimentacoesCaixa { get; set; }
+        public DbSet<MovimentacaoConta> MovimentacaoContas { get; set; }
+
+        // Módulo Estoque
+        public DbSet<Estoque> Estoques { get; set; }
+        public DbSet<MovimentacaoEstoque> MovimentacoesEstoque { get; set; }
+        public DbSet<CategoriaEstoque> CategoriasEstoque { get; set; }
+        public DbSet<Inventario> Inventarios { get; set; }
+        public DbSet<ItemInventario> ItensInventario { get; set; }
+        public DbSet<ProdutoIngrediente> ProdutoIngredientes { get; set; }
+   
+
+        // Configurações existentes dos outros módulos...
+
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -80,7 +104,64 @@ namespace Fynanceo.Data
                 .HasIndex(f => f.CPF)
                 .IsUnique();
 
-            base.OnModelCreating(modelBuilder);
+
+
+             base.OnModelCreating(modelBuilder);
+
+
+
+         
+
+            // Configurações do Módulo Estoque
+            modelBuilder.Entity<Estoque>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Nome).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Codigo).HasMaxLength(20);
+                entity.Property(e => e.Descricao).HasMaxLength(500);
+                entity.Property(e => e.EstoqueAtual).HasColumnType("decimal(18,3)");
+                entity.Property(e => e.EstoqueMinimo).HasColumnType("decimal(18,3)");
+                entity.Property(e => e.EstoqueMaximo).HasColumnType("decimal(18,3)");
+                entity.Property(e => e.CustoUnitario).HasColumnType("decimal(18,2)");
+
+                // Relacionamentos
+                entity.HasOne(e => e.CategoriaEstoque)
+                      .WithMany(c => c.Estoques)
+                      .HasForeignKey(e => e.CategoriaEstoqueId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Fornecedor)
+                      .WithMany()
+                      .HasForeignKey(e => e.FornecedorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<MovimentacaoEstoque>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Quantidade).HasColumnType("decimal(18,3)");
+                entity.Property(e => e.CustoUnitario).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.CustoTotal).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Documento).HasMaxLength(50);
+                entity.Property(e => e.Observacao).HasMaxLength(500);
+                entity.Property(e => e.Usuario).HasMaxLength(100);
+
+                // Relacionamentos
+                entity.HasOne(e => e.Estoque)
+                      .WithMany(e => e.Movimentacoes)
+                      .HasForeignKey(e => e.EstoqueId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Fornecedor)
+                      .WithMany()
+                      .HasForeignKey(e => e.FornecedorId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Pedido)
+                      .WithMany()
+                      .HasForeignKey(e => e.PedidoId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

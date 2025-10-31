@@ -1,0 +1,389 @@
+﻿<!-- Views/Entregadores/Details.cshtml -->
+@model Fynanceo.Models.Entregador
+
+@{
+    ViewData["Title"] = $"Entregador: {Model.Nome}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-user text-primary me-2"></i>@Model.Nome
+    </h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+        <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <!-- Informações Pessoais -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informações Pessoais</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="40%">Nome:</th>
+                        <td>@Model.Nome</td>
+                    </tr>
+                    <tr>
+                        <th>Telefone:</th>
+                        <td>@Model.Telefone</td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+                            @if (!Model.Ativo)
+                            {
+                                <span class="badge bg-danger ms-1">Inativo</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Veículo:</th>
+                        <td>
+                            <i class="fas @GetVeiculoIcon(Model.TipoVeiculo) me-1"></i>
+                            @Model.TipoVeiculo
+                        </td>
+                    </tr>
+                    @if (!string.IsNullOrEmpty(Model.Placa))
+                    {
+                        <tr>
+                            <th>Placa:</th>
+                            <td>@Model.Placa</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ModeloVeiculo))
+                    {
+                        <tr>
+                            <th>Modelo:</th>
+                            <td>@Model.ModeloVeiculo</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.CorVeiculo))
+                    {
+                        <tr>
+                            <th>Cor:</th>
+                            <td>@Model.CorVeiculo</td>
+                        </tr>
+                    }
+                </table>
+
+                @if (!string.IsNullOrEmpty(Model.Observacoes))
+                {
+                    <div class="alert alert-info mt-3">
+                        <strong>Observações:</strong>
+                        <br>
+                        @Model.Observacoes
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Estatísticas</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="text-primary">@Model.TotalEntregas</h3>
+                        <small class="text-muted">Total Entregas</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-success">R$ @Model.ComissaoTotal.ToString("N2")</h3>
+                        <small class="text-muted">Comissão Total</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <h5 class="text-warning">
+                        <i class="fas fa-star"></i> @Model.AvaliacaoMedia.ToString("N1")
+                    </h5>
+                    <small class="text-muted">Avaliação Média</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Ações</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (Model.Status == Fynanceo.Models.Enums.StatusEntregador.Disponivel)
+                    {
+                        <button class="btn btn-outline-warning" onclick="atualizarStatus('Ausente')">
+                            <i class="fas fa-clock me-2"></i>Marcar como Ausente
+                        </button>
+                    }
+                    else if (Model.Status == Fynanceo.Models.Enums.StatusEntregador.Ausente)
+                    {
+                        <button class="btn btn-outline-success" onclick="atualizarStatus('Disponivel')">
+                            <i class="fas fa-check me-2"></i>Marcar como Disponível
+                        </button>
+                    }
+
+                    @if (Model.Status == Fynanceo.Models.Enums.StatusEntregador.Bloqueado)
+                    {
+                        <button class="btn btn-outline-success" onclick="atualizarStatus('Disponivel')">
+                            <i class="fas fa-lock-open me-2"></i>Desbloquear
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-danger" onclick="atualizarStatus('Bloqueado')">
+                            <i class="fas fa-ban me-2"></i>Bloquear
+                        </button>
+                    }
+
+                    @if (Model.Ativo)
+                    {
+                        <button class="btn btn-outline-secondary" onclick="toggleAtivo(false)">
+                            <i class="fas fa-times me-2"></i>Desativar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-outline-success" onclick="toggleAtivo(true)">
+                            <i class="fas fa-check me-2"></i>Ativar
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Entregas Recentes -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Entregas Recentes</h5>
+                <span class="badge bg-primary">@Model.Entregas.Count entregas</span>
+            </div>
+            <div class="card-body">
+                @if (Model.Entregas.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Data</th>
+                                    <th>Endereço</th>
+                                    <th>Status</th>
+                                    <th>Comissão</th>
+                                    <th>Avaliação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entrega in Model.Entregas.OrderByDescending(e => e.DataCriacao).Take(10))
+                                {
+                                    <tr>
+                                        <td>
+                                            <a href="@Url.Action("Details", "Entregas", new { id = entrega.Id })"
+                                               class="text-decoration-none">
+                                                @entrega.Pedido?.NumeroPedido
+                                            </a>
+                                        </td>
+                                        <td>@entrega.DataCriacao.ToString("dd/MM HH:mm")</td>
+                                        <td>
+                                            <small>@entrega.EnderecoCompleto</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge @GetEntregaStatusBadgeClass(entrega.Status)">
+                                                @entrega.Status
+                                            </span>
+                                        </td>
+                                        <td>R$ @entrega.ComissaoEntregador.ToString("N2")</td>
+                                        <td>
+                                            @if (entrega.Avaliacao.HasValue)
+                                            {
+                                                <span class="text-warning">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        <i class="fas fa-star @(i <= entrega.Avaliacao.Value ? "text-warning" : "text-muted")" style="font-size: 0.8em;"></i>
+                                                    }
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-2x mb-3"></i>
+                        <p>Nenhuma entrega realizada</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Performance -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h5 class="text-primary">
+                            @Model.Entregas.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.Entregue)
+                        </h5>
+                        <small class="text-muted">Entregues</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="text-warning">
+                            @Model.Entregas.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+                        </h5>
+                        <small class="text-muted">Canceladas</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="text-info">
+                            @{
+                                var entregasComProblema = Model.Entregas.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.Problema);
+                            }
+                            @entregasComProblema
+                        </h5>
+                        <small class="text-muted">Com Problema</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="text-success">
+                            @{
+                                var taxaSucesso = Model.TotalEntregas > 0 ?
+                                (Model.Entregas.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.Entregue) * 100.0 / Model.TotalEntregas).ToString("N1") : "0";
+                            }
+                            @taxaSucesso%
+                        </h5>
+                        <small class="text-muted">Taxa de Sucesso</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Localização (se disponível) -->
+        @if (Model.Latitude.HasValue && Model.Longitude.HasValue)
+        {
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Última Localização</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-map-marker-alt me-2"></i>
+                        <strong>Última atualização:</strong>
+                        @Model.UltimaAtualizacao?.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                    <div id="map" style="height: 200px; background-color: #f8f9fa; border-radius: 8px;"
+                         class="d-flex align-items-center justify-content-center">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-map me-2"></i>
+                            Mapa da localização
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function atualizarStatus(novoStatus) {
+            if (!confirm(`Alterar status para "${novoStatus}"?`)) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregadores")?id=@Model.Id&novoStatus=${novoStatus}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        async function toggleAtivo(ativo) {
+            const acao = ativo ? "ativar" : "desativar";
+            if (!confirm(`Tem certeza que deseja ${acao} este entregador?`)) {
+                return;
+            }
+
+            // Aqui você implementaria a chamada para ativar/desativar o entregador
+            alert(`Funcionalidade de ${acao} entregador será implementada`);
+        }
+
+        // Auto-refresh a cada 30 segundos se o entregador estiver ativo
+        @if (Model.Ativo && Model.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando)
+        {
+                <text>
+                setInterval(() => {
+                    location.reload();
+                }, 30000);
+                </text>
+        }
+    </script>
+}
+
+@functions {
+    public string GetStatusBadgeClass(Fynanceo.Models.Enums.StatusEntregador status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntregador.Disponivel => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Entregando => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Ausente => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntregador.Bloqueado => "bg-danger text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    public string GetEntregaStatusBadgeClass(Fynanceo.Models.Enums.StatusEntrega status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "bg-info text-white",
+            Fynanceo.Models.Enums.StatusEntrega.EmRota => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Entregue => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Cancelada => "bg-danger text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Problema => "bg-dark text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+}

@@ -1,0 +1,377 @@
+﻿<!-- Views/Entregas/Pendentes.cshtml -->
+@model IEnumerable<Fynanceo.Models.Entrega>
+
+@{
+    ViewData["Title"] = "Entregas Pendentes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-clock text-warning me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="@Url.Action("Index")" class="btn btn-outline-primary me-2">
+            <i class="fas fa-list me-2"></i>Todas as Entregas
+        </a>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Entrega
+        </a>
+    </div>
+</div>
+
+<!-- Estatísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.Count()</h3>
+                <small>Total Pendentes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => (DateTime.Now - e.DataCriacao).TotalMinutes > 30)
+                </h3>
+                <small>Urgentes (+30min)</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => (DateTime.Now - e.DataCriacao).TotalMinutes <= 10)
+                </h3>
+                <small>Recentes (-10min)</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => !string.IsNullOrEmpty(e.Instrucoes))
+                </h3>
+                <small>Com Instruções</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Entregas Aguardando Entregadores</h5>
+        <span class="badge bg-warning">@Model.Count() pendentes</span>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="row">
+                @foreach (var entrega in Model.OrderBy(e => e.DataCriacao))
+                {
+                    var tempoEspera = DateTime.Now - entrega.DataCriacao;
+                    var isUrgente = tempoEspera.TotalMinutes > 30;
+                    var isRecente = tempoEspera.TotalMinutes <= 10;
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 @(isUrgente ? "border-danger" : isRecente ? "border-success" : "border-warning")">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <strong>@entrega.Pedido?.NumeroPedido</strong>
+                                    @if (isUrgente)
+                                    {
+                                        <span class="badge bg-danger ms-2">URGENTE</span>
+                                    }
+                                    else if (isRecente)
+                                    {
+                                        <span class="badge bg-success ms-2">NOVO</span>
+                                    }
+                                </h6>
+                                <small class="text-muted">@entrega.DataCriacao.ToString("HH:mm")</small>
+                            </div>
+                            <div class="card-body">
+                                <!-- Informações do Cliente -->
+                                <div class="mb-3">
+                                    <h6 class="text-primary">@entrega.Pedido?.Cliente?.NomeCompleto</h6>
+                                    <p class="mb-1 text-muted">
+                                        <i class="fas fa-phone me-1"></i>@entrega.Pedido?.Cliente?.Telefone
+                                    </p>
+                                </div>
+
+                                <!-- Endereço -->
+                                <div class="mb-3">
+                                    <strong>Endereço:</strong>
+                                    <p class="mb-1">@entrega.EnderecoCompleto</p>
+                                    @if (!string.IsNullOrEmpty(entrega.Complemento))
+                                    {
+                                        <small class="text-muted">
+                                            <strong>Complemento:</strong> @entrega.Complemento
+                                        </small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(entrega.Referencia))
+                                    {
+                                        <br>
+                                        <small class="text-muted">
+                                            <strong>Referência:</strong> @entrega.Referencia
+                                        </small>
+                                    }
+                                </div>
+
+                                <!-- Informações do Pedido -->
+                                <div class="mb-3">
+                                    <strong>Pedido:</strong>
+                                    <div class="mt-1">
+                                        @foreach (var item in entrega.Pedido?.Itens.Take(3) ?? new List<Fynanceo.Models.ItemPedido>())
+                                        {
+                                            <small class="d-block text-muted">
+                                                • @item.Quantidade x @item.Produto?.Nome
+                                                @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                {
+                                                    <span class="text-danger">(@item.Observacoes)</span>
+                                                }
+                                            </small>
+                                        }
+                                        @if ((entrega.Pedido?.Itens.Count ?? 0) > 3)
+                                        {
+                                            <small class="text-muted">
+                                                • +@((entrega.Pedido?.Itens.Count ?? 0) - 3) outros itens
+                                            </small>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(entrega.Instrucoes))
+                                {
+                                    <div class="alert alert-warning py-2 px-3 mb-3">
+                                        <small>
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            <strong>Instruções:</strong> @entrega.Instrucoes
+                                        </small>
+                                    </div>
+                                }
+
+                                <!-- Tempo de Espera -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <strong class="@(isUrgente ? "text-danger" : "text-warning")">
+                                            <i class="fas fa-clock me-1"></i>
+                                            @((int)tempoEspera.TotalMinutes) minutos
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">em espera</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <strong class="text-success">R$ @entrega.TaxaEntrega.ToString("N2")</strong>
+                                        <br>
+                                        <small class="text-muted">taxa de entrega</small>
+                                    </div>
+                                </div>
+
+                                <!-- Ações -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success btn-sm"
+                                            onclick="atribuirEntregador(@entrega.Id)">
+                                        <i class="fas fa-user-plus me-1"></i>Atribuir Entregador
+                                    </button>
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("Details", new { id = entrega.Id })"
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Detalhes
+                                        </a>
+                                        <button class="btn btn-outline-info btn-sm"
+                                                onclick="atualizarStatus(@entrega.Id, 'SaiuParaEntrega')">
+                                            <i class="fas fa-paper-plane me-1"></i>Enviar
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                onclick="cancelarEntrega(@entrega.Id)">
+                                            <i class="fas fa-times me-1"></i>Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                <h5>Nenhuma entrega pendente!</h5>
+                <p class="mb-0">Todas as entregas foram atribuídas aos entregadores.</p>
+                <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Criar Nova Entrega
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Atribuir Entregador -->
+<div class="modal fade" id="atribuirModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atribuir Entregador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="entregaId">
+                <div class="mb-3">
+                    <label class="form-label">Selecionar Entregador</label>
+                    <select class="form-select" id="entregadorSelect">
+                        <option value="">Selecione um entregador...</option>
+                    </select>
+                </div>
+                <div id="entregadoresDisponiveis" class="mt-3">
+                    <!-- Lista de entregadores será carregada aqui -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarAtribuicao()">Atribuir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Atribuir entregador
+        async function atribuirEntregador(entregaId) {
+            $('#entregaId').val(entregaId);
+
+            // Carregar entregadores disponíveis
+            const response = await fetch('@Url.Action("ObterEntregadoresDisponiveis", "Entregas")');
+            const entregadores = await response.json();
+
+            const select = $('#entregadorSelect');
+            select.empty().append('<option value="">Selecione um entregador...</option>');
+
+            // Lista de entregadores
+            const lista = $('#entregadoresDisponiveis');
+            lista.empty();
+
+            if (entregadores.length === 0) {
+                lista.html(`
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Nenhum entregador disponível no momento.
+                    </div>
+                `);
+            } else {
+                lista.html(`
+                    <h6>Entregadores Disponíveis:</h6>
+                    <div class="list-group">
+                        ${entregadores.map(entregador => `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${entregador.nome}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            ${entregador.telefone} - ${entregador.tipoVeiculo}
+                                            ${entregador.placa ? ` - ${entregador.placa}` : ''}
+                                        </small>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-success"
+                                            onclick="selecionarEntregador(${entregador.id}, '${entregador.nome}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `);
+            }
+
+            $('#atribuirModal').modal('show');
+        }
+
+        function selecionarEntregador(entregadorId, entregadorNome) {
+            $('#entregadorSelect').val(entregadorId);
+        }
+
+        async function confirmarAtribuicao() {
+            const entregaId = $('#entregaId').val();
+            const entregadorId = $('#entregadorSelect').val();
+
+            if (!entregadorId) {
+                alert('Selecione um entregador');
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtribuirEntregador", "Entregas")?id=${entregaId}&entregadorId=${entregadorId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                $('#atribuirModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Atualizar status
+        async function atualizarStatus(entregaId, status) {
+            if (!confirm('Tem certeza que deseja enviar esta entrega?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=${status}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Cancelar entrega
+        async function cancelarEntrega(entregaId) {
+            if (!confirm('Tem certeza que deseja cancelar esta entrega?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=Cancelada`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+}

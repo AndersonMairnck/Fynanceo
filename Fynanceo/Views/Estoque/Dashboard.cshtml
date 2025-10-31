@@ -1,0 +1,257 @@
+﻿@model Fynanceo.ViewModels.DashboardEstoqueViewModel
+
+@{
+    ViewData["Title"] = "Dashboard de Estoque";
+    ViewData["ActivePage"] = "estoque-dashboard";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard de Estoque</h1>
+        <div>
+            <a href="@Url.Action("NovaMovimentacao")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nova Movimentação
+            </a>
+            <a href="@Url.Action("Create")" class="btn btn-success">
+                <i class="fas fa-box me-2"></i>Novo Produto
+            </a>
+        </div>
+    </div>
+
+    <!-- Métricas -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total de Produtos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalProdutos</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Estoque Mínimo
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ProdutosEstoqueMinimo</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Estoque Zero
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ProdutosEstoqueZero</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Valor Total em Estoque
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.ValorTotalEstoque.ToString("C")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos e Alertas -->
+    <div class="row">
+        <!-- Gráfico Valor por Categoria -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Valor do Estoque por Categoria</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="categoriaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas de Estoque -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">Alertas de Estoque Baixo</h6>
+                    <a href="@Url.Action("Alertas")" class="btn btn-sm btn-outline-warning">Ver Todos</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.ProdutosBaixoEstoque.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Mínimo</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var produto in Model.ProdutosBaixoEstoque.Take(5))
+                                    {
+                                        <tr>
+                                            <td>@produto.Nome</td>
+                                            <td>
+                                                <span class="badge bg-warning text-dark">@produto.EstoqueAtual @produto.UnidadeMedida</span>
+                                            </td>
+                                            <td>@produto.EstoqueMinimo</td>
+                                            <td>
+                                                @if (produto.EstoqueAtual == 0)
+                                                {
+                                                    <span class="badge bg-danger">ESGOTADO</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">BAIXO</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <p>Nenhum alerta de estoque baixo</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Movimentações -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Últimas Movimentações</h6>
+                    <a href="@Url.Action("Movimentacoes")" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Produto</th>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Documento</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mov in Model.UltimasMovimentacoes)
+                                {
+                                    <tr>
+                                        <td>@mov.DataMovimentacao.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@mov.Estoque.Nome</td>
+                                        <td>
+                                            <span class="badge @GetBadgeClass(mov.Tipo)">
+                                                @mov.Tipo
+                                            </span>
+                                        </td>
+                                        <td>@mov.Quantidade @mov.Estoque.UnidadeMedida</td>
+                                        <td>@mov.Documento</td>
+                                        <td>@mov.Usuario</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de Pizza - Valor por Categoria
+        var categoriaCtx = document.getElementById('categoriaChart').getContext('2d');
+        var categoriaChart = new Chart(categoriaCtx, {
+            type: 'pie',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.ValorPorCategoria.Keys)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(Model.ValorPorCategoria.Values)),
+                    backgroundColor: [
+                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e',
+                        '#e74a3b', '#858796', '#5a5c69', '#2e59d9'
+                    ]
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+}
+
+@functions {
+    public string GetBadgeClass(TipoMovimentacaoEstoque tipo)
+    {
+        return tipo switch
+        {
+            TipoMovimentacaoEstoque.Entrada => "bg-success",
+            TipoMovimentacaoEstoque.Saida => "bg-danger",
+            TipoMovimentacaoEstoque.Ajuste => "bg-warning text-dark",
+            TipoMovimentacaoEstoque.Perda => "bg-dark",
+            TipoMovimentacaoEstoque.Transferencia => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+}

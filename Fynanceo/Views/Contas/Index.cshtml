@@ -1,0 +1,268 @@
+﻿<!-- Views/Contas/Index.cshtml -->
+@model IEnumerable<Fynanceo.Models.Conta>
+
+@{
+    ViewData["Title"] = "Todas as Contas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-file-invoice-dollar text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Dashboard", "Caixa")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="@Url.Action("Create")" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nova Conta
+        </a>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter" onchange="filterContas()">
+                    <option value="all">Todos os Status</option>
+                    <option value="Pendente">Pendentes</option>
+                    <option value="Paga">Pagas</option>
+                    <option value="Atrasada">Atrasadas</option>
+                    <option value="Cancelada">Canceladas</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="tipoFilter" onchange="filterContas()">
+                    <option value="all">Todos os Tipos</option>
+                    <option value="Entrada">Entradas</option>
+                    <option value="Saida">Saídas</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="searchFilter" placeholder="Buscar por descrição..." onkeyup="filterContas()">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+                    <i class="fas fa-redo me-2"></i>Limpar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Todas as Contas</h5>
+        <div class="btn-group">
+            <a href="@Url.Action("Pendentes")" class="btn btn-outline-warning btn-sm">
+                <i class="fas fa-clock me-1"></i>Pendentes
+            </a>
+            <a href="@Url.Action("Atrasadas")" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-exclamation-triangle me-1"></i>Atrasadas
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Fornecedor</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var conta in Model)
+                    {
+                        var isAtrasada = conta.Status == Fynanceo.Models.Enums.StatusConta.Pendente && conta.DataVencimento < DateTime.Today;
+
+                        <tr class="conta-row"
+                            data-status="@conta.Status"
+                            data-tipo="@conta.Tipo"
+                            data-descricao="@conta.Descricao.ToLower()">
+                            <td>
+                                <strong>@conta.Descricao</strong>
+                                @if (conta.ParcelaAtual.HasValue && conta.TotalParcelas.HasValue)
+                                {
+                                    <br>
+                                    <small class="text-muted">
+                                        Parcela @conta.ParcelaAtual/@conta.TotalParcelas
+                                    </small>
+                                }
+                                @if (!string.IsNullOrEmpty(conta.Observacoes))
+                                {
+                                    <br>
+                                    <small class="text-muted">@conta.Observacoes</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(conta.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "bg-success" : "bg-danger")">
+                                    @conta.Tipo
+                                </span>
+                            </td>
+                            <td>
+                                @if (conta.Fornecedor != null)
+                                {
+                                    <text>@conta.Fornecedor.Nome</text>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="@(isAtrasada ? "text-danger" : "")">
+                                    @conta.DataVencimento.ToString("dd/MM/yyyy")
+                                </span>
+                                @if (isAtrasada)
+                                {
+                                    var diasAtraso = (DateTime.Today - conta.DataVencimento).Days;
+                                    <br>
+                                    <small class="text-danger">
+                                        @diasAtraso dias atrasado
+                                    </small>
+                                }
+                            </td>
+                            <td>
+                                <strong class="@(conta.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada ? "text-success" : "text-danger")">
+                                    R$ @conta.Valor.ToString("N2")
+                                </strong>
+                                @if (conta.ValorPago > 0)
+                                {
+                                    <br>
+                                    <small class="text-muted">
+                                        Pago: R$ @conta.ValorPago.ToString("N2")
+                                    </small>
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    var statusClass = "";
+                                    var statusText = "";
+                                    switch (conta.Status)
+                                    {
+                                        case Fynanceo.Models.Enums.StatusConta.Pendente:
+                                            statusClass = isAtrasada ? "bg-danger" : "bg-warning text-dark";
+                                            statusText = isAtrasada ? "Atrasada" : "Pendente";
+                                            break;
+                                        case Fynanceo.Models.Enums.StatusConta.Paga:
+                                            statusClass = "bg-success";
+                                            statusText = "Paga";
+                                            break;
+                                        case Fynanceo.Models.Enums.StatusConta.Cancelada:
+                                            statusClass = "bg-secondary";
+                                            statusText = "Cancelada";
+                                            break;
+                                    }
+                                }
+                                <span class="badge @statusClass">@statusText</span>
+                            </td>
+                            <td>
+                                @if (conta.DataPagamento.HasValue)
+                                {
+                                    <text>@conta.DataPagamento.Value.ToString("dd/MM/yyyy")</text>
+                                    <br>
+                                    <small class="text-muted">@conta.FormaPagamento</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="@Url.Action("Details", new { id = conta.Id })"
+                                       class="btn btn-outline-primary" title="Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (conta.Status == Fynanceo.Models.Enums.StatusConta.Pendente)
+                                    {
+                                        <a href="@Url.Action("Pagar", new { id = conta.Id })"
+                                           class="btn btn-outline-success" title="Pagar">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                        <button class="btn btn-outline-danger"
+                                                title="Cancelar"
+                                                onclick="cancelarConta(@conta.Id)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-file-invoice-dollar fa-3x mb-3"></i>
+        <h5>Nenhuma conta encontrada</h5>
+        <p class="mb-0">Não há contas cadastradas no sistema.</p>
+        <a href="@Url.Action("Create")" class="btn btn-primary mt-3">
+            <i class="fas fa-plus me-2"></i>Criar Primeira Conta
+        </a>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function filterContas() {
+            const status = $('#statusFilter').val();
+            const tipo = $('#tipoFilter').val();
+            const search = $('#searchFilter').val().toLowerCase();
+
+            $('.conta-row').each(function() {
+                const row = $(this);
+                const rowStatus = row.data('status');
+                const rowTipo = row.data('tipo');
+                const rowDescricao = row.data('descricao');
+
+                const statusMatch = status === 'all' || rowStatus === status;
+                const tipoMatch = tipo === 'all' || rowTipo === tipo;
+                const searchMatch = rowDescricao.includes(search);
+
+                row.toggle(statusMatch && tipoMatch && searchMatch);
+            });
+        }
+
+        function resetFilters() {
+            $('#statusFilter').val('all');
+            $('#tipoFilter').val('all');
+            $('#searchFilter').val('');
+            filterContas();
+        }
+
+        async function cancelarConta(contaId) {
+            if (!confirm('Tem certeza que deseja cancelar esta conta?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("Cancelar", "Contas")?id=${contaId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+    </script>
+}

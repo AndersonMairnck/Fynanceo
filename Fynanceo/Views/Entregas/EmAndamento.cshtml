@@ -1,0 +1,417 @@
+﻿<!-- Views/Entregas/EmAndamento.cshtml -->
+@model IEnumerable<Fynanceo.Models.Entrega>
+
+@{
+    ViewData["Title"] = "Entregas em Andamento";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-truck-moving text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <div>
+        <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="@Url.Action("Pendentes")" class="btn btn-outline-warning me-2">
+            <i class="fas fa-clock me-2"></i>Pendentes
+        </a>
+        <a href="@Url.Action("Mapa")" class="btn btn-outline-info">
+            <i class="fas fa-map me-2"></i>Ver Mapa
+        </a>
+    </div>
+</div>
+
+<!-- Estatísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">@Model.Count()</h3>
+                <small>Total em Andamento</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                </h3>
+                <small>Saiu para Entrega</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+                </h3>
+                <small>Em Rota</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-0">
+                    @Model.Count(e => e.DataPrevisao.HasValue && e.DataPrevisao < DateTime.Now)
+                </h3>
+                <small>Atrasadas</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Entregas em Andamento</h5>
+        <span class="badge bg-primary">@Model.Count() ativas</span>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Entregador</th>
+                            <th>Cliente</th>
+                            <th>Status</th>
+                            <th>Tempo</th>
+                            <th>Previsão</th>
+                            <th>Localização</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entrega in Model.OrderBy(e => e.DataSaiuEntrega))
+                        {
+                            var tempoEntrega = DateTime.Now - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
+                            var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.Now;
+                            var tempoAtraso = entrega.DataPrevisao.HasValue ?
+                            (DateTime.Now - entrega.DataPrevisao.Value).TotalMinutes : 0;
+
+                            <tr class="@(isAtrasada ? "table-warning" : "")">
+                                <td>
+                                    <strong>@entrega.Pedido?.NumeroPedido</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        @entrega.DataSaiuEntrega?.ToString("HH:mm")
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (entrega.Entregador != null)
+                                    {
+                                        <strong>@entrega.Entregador.Nome</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas @GetVeiculoIcon(entrega.Entregador.TipoVeiculo) me-1"></i>
+                                            @entrega.Entregador.TipoVeiculo
+                                            <br>
+                                            @entrega.Entregador.Telefone
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Não atribuído</span>
+                                    }
+                                </td>
+                                <td>
+                                    <strong>@entrega.Pedido?.Cliente?.NomeCompleto</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-phone me-1"></i>@entrega.Pedido?.Cliente?.Telefone
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        @entrega.EnderecoCompleto
+                                    </small>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = "";
+                                        var statusText = "";
+                                        switch (entrega.Status)
+                                        {
+                                            case Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega:
+                                                statusClass = "bg-info text-white";
+                                                statusText = "Saiu";
+                                                break;
+                                            case Fynanceo.Models.Enums.StatusEntrega.EmRota:
+                                                statusClass = "bg-primary text-white";
+                                                statusText = "Em Rota";
+                                                break;
+                                        }
+                                    }
+                                    <span class="badge @statusClass">@statusText</span>
+                                    @if (isAtrasada)
+                                    {
+                                        <br>
+                                        <small class="text-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            Atraso: @((int)tempoAtraso)m
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    <strong class="@(isAtrasada ? "text-danger" : "text-primary")">
+                                        @((int)tempoEntrega.TotalMinutes)m
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">de viagem</small>
+                                </td>
+                                <td>
+                                    @if (entrega.DataPrevisao.HasValue)
+                                    {
+                                        <strong>@entrega.DataPrevisao.Value.ToString("HH:mm")</strong>
+                                        <br>
+                                        <small class="text-muted">previsão</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (entrega.Entregador?.Latitude.HasValue == true && entrega.Entregador.Longitude.HasValue == true)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Online
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">
+                                            @entrega.Entregador.UltimaAtualizacao?.ToString("HH:mm")
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-map-marker-alt me-1"></i>Offline
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = entrega.Id })"
+                                           class="btn btn-outline-primary" title="Detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                                        {
+                                            <button class="btn btn-outline-info"
+                                                    title="Marcar em Rota"
+                                                    onclick="atualizarStatus(@entrega.Id, 'EmRota')">
+                                                <i class="fas fa-road"></i>
+                                            </button>
+                                        }
+                                        else if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+                                        {
+                                            <button class="btn btn-outline-success"
+                                                    title="Marcar Entregue"
+                                                    onclick="marcarEntregue(@entrega.Id)">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                        <button class="btn btn-outline-warning"
+                                                title="Reportar Problema"
+                                                onclick="reportarProblema(@entrega.Id)">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Cards para Visualização Mobile -->
+            <div class="d-md-none">
+                @foreach (var entrega in Model.OrderBy(e => e.DataSaiuEntrega))
+                {
+                    var tempoEntrega = DateTime.Now - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
+                    var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.Now;
+
+                    <div class="card mb-3 @(isAtrasada ? "border-warning" : "border-primary")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title mb-0">
+                                    <strong>@entrega.Pedido?.NumeroPedido</strong>
+                                    @if (isAtrasada)
+                                    {
+                                        <span class="badge bg-danger ms-1">ATRASADA</span>
+                                    }
+                                </h6>
+                                <span class="badge @(entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ? "bg-info" : "bg-primary")">
+                                    @entrega.Status
+                                </span>
+                            </div>
+
+                            <div class="mb-2">
+                                <strong>Entregador:</strong>
+                                <br>
+                                <span class="text-muted">
+                                    @entrega.Entregador?.Nome
+                                    <br>
+                                    <small>
+                                        <i class="fas @GetVeiculoIcon(entrega.Entregador?.TipoVeiculo ?? Fynanceo.Models.Enums.TipoVeiculo.Moto) me-1"></i>
+                                        @entrega.Entregador?.TipoVeiculo
+                                    </small>
+                                </span>
+                            </div>
+
+                            <div class="mb-2">
+                                <strong>Cliente:</strong>
+                                <br>
+                                <span class="text-muted">@entrega.Pedido?.Cliente?.NomeCompleto</span>
+                                <br>
+                                <small class="text-muted">@entrega.EnderecoCompleto</small>
+                            </div>
+
+                            <div class="row text-center mb-3">
+                                <div class="col-6">
+                                    <strong class="@(isAtrasada ? "text-danger" : "text-primary")">
+                                        @((int)tempoEntrega.TotalMinutes)m
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">tempo</small>
+                                </div>
+                                <div class="col-6">
+                                    <strong>
+                                        @entrega.DataPrevisao?.ToString("HH:mm")
+                                    </strong>
+                                    <br>
+                                    <small class="text-muted">previsão</small>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <div class="btn-group">
+                                    <a href="@Url.Action("Details", new { id = entrega.Id })"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                                    {
+                                        <button class="btn btn-outline-info btn-sm"
+                                                onclick="atualizarStatus(@entrega.Id, 'EmRota')">
+                                            <i class="fas fa-road"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-success btn-sm"
+                                                onclick="marcarEntregue(@entrega.Id)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-truck fa-3x mb-3"></i>
+                <h5>Nenhuma entrega em andamento!</h5>
+                <p class="mb-0">Todas as entregas foram finalizadas ou estão aguardando.</p>
+                <a href="@Url.Action("Pendentes")" class="btn btn-primary mt-3">
+                    <i class="fas fa-clock me-2"></i>Ver Entregas Pendentes
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Atualizar status para Em Rota
+        async function atualizarStatus(entregaId, status) {
+            if (!confirm('Marcar entrega como Em Rota?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=${status}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Marcar como entregue
+        async function marcarEntregue(entregaId) {
+            if (!confirm('Marcar entrega como entregue?')) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=Entregue`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Reportar problema
+        async function reportarProblema(entregaId) {
+            const problema = prompt('Descreva o problema encontrado:');
+            if (problema) {
+                const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=Problema&observacao=${encodeURIComponent(problema)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + result.message);
+                }
+            }
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+}
+
+@functions {
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo? tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+}

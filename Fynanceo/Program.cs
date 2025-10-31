@@ -16,7 +16,11 @@ builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IMesaService, MesaService>();
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
+builder.Services.AddScoped<IEntregaService, EntregaService>();
+builder.Services.AddScoped<IFinanceiroService, FinanceiroService>();
+builder.Services.AddScoped<IEstoqueService, EstoqueService>();
 
+builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 
 var app = builder.Build();
 

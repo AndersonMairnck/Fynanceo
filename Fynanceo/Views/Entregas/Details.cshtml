@@ -1,0 +1,412 @@
+﻿<!-- Views/Entregas/Details.cshtml -->
+@model Fynanceo.Models.Entrega
+
+@{
+    ViewData["Title"] = $"Entrega #{Model.Id}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-truck text-primary me-2"></i>Entrega: Pedido @Model.Pedido?.NumeroPedido
+    </h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+        @if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
+                Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+        {
+            <button class="btn btn-primary" onclick="atualizarStatus()">
+                <i class="fas fa-sync-alt me-2"></i>Atualizar Status
+            </button>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informações da Entrega -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Informações da Entrega</h5>
+                <span class="badge @GetStatusBadgeClass(Model.Status)">@Model.Status</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Pedido:</th>
+                                <td>@Model.Pedido?.NumeroPedido</td>
+                            </tr>
+                            <tr>
+                                <th>Cliente:</th>
+                                <td>@Model.Pedido?.Cliente?.NomeCompleto</td>
+                            </tr>
+                            <tr>
+                                <th>Telefone:</th>
+                                <td>@Model.Pedido?.Cliente?.Telefone</td>
+                            </tr>
+                            <tr>
+                                <th>Taxa de Entrega:</th>
+                                <td>R$ @Model.TaxaEntrega.ToString("N2")</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Entregador:</th>
+                                <td>
+                                    @if (Model.Entregador != null)
+                                    {
+                                        <text>@Model.Entregador.Nome</text>
+                                        <br>
+                                        <small class="text-muted">@Model.Entregador.Telefone - @Model.Entregador.TipoVeiculo</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Não atribuído</span>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Comissão:</th>
+                                <td>R$ @Model.ComissaoEntregador.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <th>Código Verificação:</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(Model.CodigoVerificacao))
+                                    {
+                                        <code class="bg-light p-1 rounded">@Model.CodigoVerificacao</code>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Não gerado</span>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="mt-3">
+                    <h6>Endereço de Entrega</h6>
+                    <div class="alert alert-light">
+                        <strong>@Model.EnderecoCompleto</strong>
+                        @if (!string.IsNullOrEmpty(Model.Complemento))
+                        {
+                            <br>
+                            <span>Complemento: @Model.Complemento</span>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Referencia))
+                        {
+                            <br>
+                            <span>Referência: @Model.Referencia</span>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Instrucoes))
+                {
+                    <div class="alert alert-warning mt-3">
+                        <strong><i class="fas fa-exclamation-circle me-2"></i>Instruções Especiais:</strong>
+                        @Model.Instrucoes
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.MotivoProblema))
+                {
+                    <div class="alert alert-danger mt-3">
+                        <strong><i class="fas fa-times-circle me-2"></i>Problema Reportado:</strong>
+                        @Model.MotivoProblema
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Histórico da Entrega</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    @foreach (var historico in Model.Historico.OrderBy(h => h.DataAlteracao))
+                    {
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex">
+                                <div class="timeline-marker bg-primary rounded-circle" style="width: 12px; height: 12px; margin-top: 5px;"></div>
+                                <div class="ms-3">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>@historico.StatusNovo</strong>
+                                        <small class="text-muted">@historico.DataAlteracao.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        De <strong>@historico.StatusAnterior</strong> para <strong>@historico.StatusNovo</strong>
+                                        por @historico.UsuarioNome
+                                    </small>
+                                    @if (!string.IsNullOrEmpty(historico.Observacao))
+                                    {
+                                        <div class="mt-1">
+                                            <small>@historico.Observacao</small>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Ações -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Ações</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
+                {
+                    <button class="btn btn-warning w-100 mb-2" onclick="atribuirEntregador()">
+                        <i class="fas fa-user-plus me-2"></i>Atribuir Entregador
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                {
+                    <button class="btn btn-primary w-100 mb-2" onclick="marcarEmRota()">
+                        <i class="fas fa-road me-2"></i>Marcar em Rota
+                    </button>
+                }
+                else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+                {
+                    <button class="btn btn-success w-100 mb-2" onclick="marcarEntregue()">
+                        <i class="fas fa-check me-2"></i>Marcar Entregue
+                    </button>
+                }
+
+                @if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
+                                Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+                {
+                    <button class="btn btn-outline-danger w-100" onclick="reportarProblema()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Reportar Problema
+                    </button>
+                }
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Details", "Pedidos", new { id = Model.PedidoId })" class="btn btn-outline-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Ver Pedido
+                    </a>
+                    @if (Model.EntregadorId.HasValue)
+                    {
+                        <a href="@Url.Action("Details", "Entregadores", new { id = Model.EntregadorId })" class="btn btn-outline-secondary">
+                            <i class="fas fa-user me-2"></i>Ver Entregador
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações de Tempo -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Tempos</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td><small>Criação:</small></td>
+                        <td class="text-end"><small>@Model.DataCriacao.ToString("HH:mm")</small></td>
+                    </tr>
+                    @if (Model.DataSaiuEntrega.HasValue)
+                    {
+                        <tr>
+                            <td><small>Saiu para Entrega:</small></td>
+                            <td class="text-end"><small>@Model.DataSaiuEntrega.Value.ToString("HH:mm")</small></td>
+                        </tr>
+                    }
+                    @if (Model.DataPrevisao.HasValue)
+                    {
+                        <tr>
+                            <td><small>Previsão:</small></td>
+                            <td class="text-end"><small>@Model.DataPrevisao.Value.ToString("HH:mm")</small></td>
+                        </tr>
+                    }
+                    @if (Model.DataEntrega.HasValue)
+                    {
+                        <tr>
+                            <td><small>Entrega:</small></td>
+                            <td class="text-end"><small>@Model.DataEntrega.Value.ToString("HH:mm")</small></td>
+                        </tr>
+                    }
+                </table>
+
+                <div class="text-center mt-3">
+                    @{
+                        var tempoTotal = DateTime.Now - Model.DataCriacao;
+                        <h4 class="text-primary">@((int)tempoTotal.TotalMinutes)m</h4>
+                        <small class="text-muted">Tempo decorrido</small>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Avaliação -->
+        @if (Model.Avaliacao.HasValue)
+        {
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Avaliação do Cliente</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fas fa-star @(i <= Model.Avaliacao.Value ? "text-warning" : "text-muted")"></i>
+                        }
+                    </div>
+                    <p class="mb-0">
+                        <strong>@Model.Avaliacao.Value/5</strong>
+                    </p>
+                    @if (!string.IsNullOrEmpty(Model.ComentarioAvaliacao))
+                    {
+                        <p class="text-muted small mt-2">"@Model.ComentarioAvaliacao"</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal Atualizar Status -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atualizar Status da Entrega</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Novo Status</label>
+                    <select class="form-select" id="statusSelect">
+                        @if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
+                        {
+                            <option value="SaiuParaEntrega">Saiu para Entrega</option>
+                        }
+                        else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                        {
+                            <option value="EmRota">Em Rota</option>
+                        }
+                        else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+                        {
+                            <option value="Entregue">Entregue</option>
+                        }
+                        <option value="Cancelada">Cancelada</option>
+                        <option value="Problema">Problema</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Observação</label>
+                    <textarea class="form-control" id="observacaoStatus" rows="3" placeholder="Observação opcional..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarStatus()">Atualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function atualizarStatus() {
+            $('#statusSelect').val('');
+            $('#observacaoStatus').val('');
+            $('#statusModal').modal('show');
+        }
+
+        function atribuirEntregador() {
+            // Implementar atribuição de entregador
+            alert('Funcionalidade de atribuição de entregador');
+        }
+
+        function marcarEmRota() {
+            confirmarStatusAcao('EmRota', 'Marcar entrega como Em Rota?');
+        }
+
+        function marcarEntregue() {
+            confirmarStatusAcao('Entregue', 'Marcar entrega como Entregue?');
+        }
+
+        function reportarProblema() {
+            confirmarStatusAcao('Problema', 'Reportar problema na entrega?');
+        }
+
+        function confirmarStatusAcao(status, mensagem) {
+            if (confirm(mensagem)) {
+                $('#statusSelect').val(status);
+                confirmarStatus();
+            }
+        }
+
+        async function confirmarStatus() {
+            const status = $('#statusSelect').val();
+            const observacao = $('#observacaoStatus').val();
+
+            if (!status) {
+                alert('Selecione um status');
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=@Model.Id&novoStatus=${status}&observacao=${encodeURIComponent(observacao)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                $('#statusModal').modal('hide');
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Auto-refresh a cada 30 segundos se a entrega não estiver finalizada
+        @if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue && Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+        {
+                <text>
+                setInterval(() => {
+                    location.reload();
+                }, 30000);
+                </text>
+        }
+    </script>
+}
+
+@functions {
+    public string GetStatusBadgeClass(Fynanceo.Models.Enums.StatusEntrega status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "bg-info text-white",
+            Fynanceo.Models.Enums.StatusEntrega.EmRota => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Entregue => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Cancelada => "bg-danger text-white",
+            Fynanceo.Models.Enums.StatusEntrega.Problema => "bg-dark text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+}

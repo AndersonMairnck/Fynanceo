@@ -1,5 +1,6 @@
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\js\maiuscula.js
 wwwroot\js\mascaras.js
 wwwroot\js\notificacoes.js
 wwwroot\js\site.js

@@ -30,7 +30,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="Codigo" class="form-label"></label>
-                                    <input asp-for="Codigo" class="form-control" />
+                                    <input asp-for="Codigo" class="form-control" data-maiuscula="tudo" />
                                     <span asp-validation-for="Codigo" class="text-danger"></span>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Nome" class="form-label"></label>
-                            <input asp-for="Nome" class="form-control" />
+                            <input asp-for="Nome" class="form-control" data-maiuscula="titulo"/>
                             <span asp-validation-for="Nome" class="text-danger"></span>
                         </div>
 
@@ -187,41 +187,7 @@
                         </div>
                     </div>
 
-                    @* <div class="col-md-6">
-                        <h5 class="text-success mb-3">
-                            <i class="fas fa-receipt me-2"></i>Tributação
-                        </h5> *@
-
-                      @*   <div class="mb-3">
-                            <label asp-for="CodigoNCM" class="form-label"></label>
-                            <input asp-for="CodigoNCM" class="form-control" />
-                            <span asp-validation-for="CodigoNCM" class="text-danger"></span>
-                        </div> *@
-
-                @*         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="Origem" class="form-label"></label>
-                                    <input asp-for="Origem" class="form-control" />
-                                    <span asp-validation-for="Origem" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label asp-for="CST" class="form-label"></label>
-                                    <input asp-for="CST" class="form-control" />
-                                    <span asp-validation-for="CST" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Aliquota" class="form-label"></label>
-                            <input asp-for="Aliquota" type="number" step="0.01" class="form-control" />
-                            <span asp-validation-for="Aliquota" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div> *@
+                  
 
                 <div class="row mt-4">
                     <div class="col-12">

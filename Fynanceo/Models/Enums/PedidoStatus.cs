@@ -9,7 +9,8 @@ namespace Fynanceo.Models.Enums
         Pronto = 4,
         Entregue = 5,
         Fechado = 6,
-        Cancelado = 7
+        Cancelado = 7,
+            Finalizado = 8
     }
 
     public enum TipoPedido

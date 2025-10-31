@@ -1,0 +1,286 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Alertas de Estoque";
+    ViewData["ActivePage"] = "estoque-alertas";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Alertas de Estoque
+        </h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-outline-primary">
+                <i class="fas fa-box me-2"></i>Ver Produtos
+            </a>
+            <a href="@Url.Action("NovaMovimentacao")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nova Movimentação
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertas de Estoque Mínimo -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>Produtos com Estoque Baixo
+                    </h6>
+                    <span class="badge bg-warning">@Model.EstoqueMinimo.Count produtos</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.EstoqueMinimo.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="tableEstoqueMinimo">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Código</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Estoque Mínimo</th>
+                                        <th>Unidade</th>
+                                        <th>Fornecedor</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var produto in Model.EstoqueMinimo)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@produto.Nome</strong>
+                                                @if (!string.IsNullOrEmpty(produto.Descricao))
+                                                {
+                                                    <br>
+                                        
+                                                    <small class="text-muted">@produto.Descricao</small>
+                                                }
+                                            </td>
+                                            <td>@produto.Codigo</td>
+                                            <td>
+                                                <span class="badge @(produto.EstoqueAtual == 0 ? "bg-danger" : "bg-warning text-dark")">
+                                                    @produto.EstoqueAtual.ToString("N2")
+                                                </span>
+                                            </td>
+                                            <td>@produto.EstoqueMinimo.ToString("N2")</td>
+                                            <td>@produto.UnidadeMedida</td>
+                                            <td>@(produto.Fornecedor?.Nome ?? "N/A")</td>
+                                            <td>
+                                                @if (produto.EstoqueAtual == 0)
+                                                {
+                                                    <span class="badge bg-danger">ESGOTADO</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">ESTOQUE BAIXO</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("Details", new { id = produto.Id })"
+                                                       class="btn btn-outline-primary" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = produto.Id })"
+                                                       class="btn btn-outline-warning" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("NovaMovimentacao", "Estoque", new { produtoId = produto.Id })"
+                                                       class="btn btn-outline-success" title="Entrada de Estoque">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">Nenhum alerta de estoque baixo</h5>
+                            <p class="text-muted">Todos os produtos estão com estoque acima do mínimo</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Produtos com Estoque Zero -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-danger">
+                        <i class="fas fa-times-circle me-2"></i>Produtos com Estoque Zero
+                    </h6>
+                    <span class="badge bg-danger">@Model.EstoqueZero.Count produtos</span>
+                </div>
+                <div class="card-body">
+                    @if (Model.EstoqueZero.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="tableEstoqueZero">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Código</th>
+                                        <th>Estoque Mínimo</th>
+                                        <th>Unidade</th>
+                                        <th>Fornecedor</th>
+                                        <th>Última Movimentação</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var produto in Model.EstoqueZero)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@produto.Nome</strong>
+                                                @if (!string.IsNullOrEmpty(produto.Descricao))
+                                                {
+                                                    <br>
+                                        
+                                                    <small class="text-muted">@produto.Descricao</small>
+                                                }
+                                            </td>
+                                            <td>@produto.Codigo</td>
+                                            <td>@produto.EstoqueMinimo.ToString("N2")</td>
+                                            <td>@produto.UnidadeMedida</td>
+                                            <td>@(produto.Fornecedor?.Nome ?? "N/A")</td>
+                                            <td>
+                                                @{
+                                                    // Aqui você pode buscar a última movimentação se necessário
+                                                }
+                                                <small class="text-muted">N/A</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("Details", new { id = produto.Id })"
+                                                       class="btn btn-outline-primary" title="Detalhes">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("NovaMovimentacao", "Estoque", new { produtoId = produto.Id })"
+                                                       class="btn btn-outline-success" title="Entrada de Estoque">
+                                                        <i class="fas fa-arrow-down"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">Nenhum produto com estoque zero</h5>
+                            <p class="text-muted">Todos os produtos possuem estoque disponível</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Entrada Rápida
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Estoque</div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="@Url.Action("NovaMovimentacao")" class="btn btn-primary btn-circle">
+                                <i class="fas fa-arrow-down"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Produtos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Cadastrar</div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="@Url.Action("Create")" class="btn btn-warning btn-circle">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Inventário
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Conferir</div>
+                        </div>
+                        <div class="col-auto">
+                            <a href="@Url.Action("Inventario")" class="btn btn-info btn-circle">
+                                <i class="fas fa-clipboard-check"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Inicializar DataTables
+            $('#tableEstoqueMinimo').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                },
+                order: [[2, 'asc']],
+                pageLength: 25
+            });
+
+            $('#tableEstoqueZero').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                },
+                order: [[0, 'asc']],
+                pageLength: 25
+            });
+
+            // Auto-refresh a cada 5 minutos
+            setInterval(function() {
+                location.reload();
+            }, 300000); // 5 minutos
+        });
+    </script>
+}

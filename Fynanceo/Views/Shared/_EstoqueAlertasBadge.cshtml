@@ -1,0 +1,13 @@
+﻿<!-- Views/Shared/_EstoqueAlertasBadge.cshtml -->
+@using Fynanceo.Services
+@inject IEstoqueService EstoqueService
+
+@{
+    var produtosAlerta = await EstoqueService.ObterProdutosEstoqueMinimoAsync();
+    var alertaCount = produtosAlerta.Count;
+}
+
+@if (alertaCount > 0)
+{
+    <small class="badge bg-danger ms-1">@alertaCount</small>
+}

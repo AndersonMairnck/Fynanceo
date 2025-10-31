@@ -47,12 +47,9 @@ namespace Fynanceo.Services
                     TempoExtraPico = model.TempoExtraPico,
                     OpcoesPersonalizacao = model.OpcoesPersonalizacao,
                     Disponivel = model.Disponivel,
-                    //MotivoIndisponibilidade = model.MotivoIndisponibilidade,
-                    //CodigoNCM = model.CodigoNCM,
-                    //Origem = model.Origem,
-                    //CST = model.CST,
-                    //Aliquota = model.Aliquota,
-                    DataCadastro = DateTime.Now
+                  
+                    DataCadastro = DateTime.UtcNow,
+                    
                 };
 
                 // Adicionar ingredientes
@@ -63,10 +60,12 @@ namespace Fynanceo.Services
                         Nome = ingredienteModel.Nome,
                         Quantidade = ingredienteModel.Quantidade,
                         UnidadeMedida = ingredienteModel.UnidadeMedida
+                        
                     });
                 }
 
                 _context.Produtos.Add(produto);
+                
                 await _context.SaveChangesAsync();
                 return true;
             }

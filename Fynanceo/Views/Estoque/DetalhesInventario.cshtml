@@ -1,0 +1,280 @@
+﻿@model Fynanceo.Models.Inventario
+@{
+    ViewData["Title"] = "Detalhes do Inventário";
+    ViewData["ActivePage"] = "estoque-inventario";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-check me-2"></i>Detalhes do Inventário
+        </h1>
+        <div>
+            <a href="@Url.Action("Inventario")" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+            @if (Model.Status == StatusInventario.Aberto || Model.Status == StatusInventario.EmAndamento)
+            {
+                <a href="@Url.Action("EditarInventario", new { id = Model.Id })" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-2"></i>Continuar Conferência
+                </a>
+                <button type="button" class="btn btn-success" onclick="fecharInventario(@Model.Id)">
+                    <i class="fas fa-lock me-2"></i>Fechar Inventário
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Informações do Inventário -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informações do Inventário</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Descrição:</strong></td>
+                                    <td>@Model.Descricao</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        <span class="badge @GetStatusInventarioBadgeClass(Model.Status)">
+                                            @Model.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Data Abertura:</strong></td>
+                                    <td>@Model.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Data Fechamento:</strong></td>
+                                    <td>
+                                        @if (Model.DataFechamento.HasValue)
+                                        {
+                                            @Model.DataFechamento.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Itens Conferidos:</strong></td>
+                                    <td>
+                                        @Model.Itens.Count(ii => ii.Conferido)/@Model.Itens.Count
+                                        (@((Model.Itens.Count(ii => ii.Conferido) * 100 / Model.Itens.Count))%)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Diferenças:</strong></td>
+                                    <td>
+                                        @Model.Itens.Count(ii => ii.Conferido && ii.Diferenca != 0) itens
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Observacao))
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <strong>Observações:</strong>
+                                <p class="text-muted">@Model.Observacao</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Resumo de Diferenças -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Resumo de Diferenças</h6>
+                </div>
+                <div class="card-body">
+                    @{
+                        var itensComDiferenca = Model.Itens.Where(ii => ii.Conferido && ii.Diferenca != 0).ToList();
+                        var valorTotalPositivo = itensComDiferenca.Where(ii => ii.Diferenca > 0).Sum(ii => ii.CustoTotalDiferenca);
+                        var valorTotalNegativo = itensComDiferenca.Where(ii => ii.Diferenca < 0).Sum(ii => ii.CustoTotalDiferenca);
+                    }
+
+                    @if (itensComDiferenca.Any())
+                    {
+                        <div class="mb-3">
+                            <strong>Itens com diferença:</strong>
+                            <span class="badge bg-danger">@itensComDiferenca.Count</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Valor total positivo:</strong>
+                            <span class="text-success">@valorTotalPositivo.ToString("C")</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Valor total negativo:</strong>
+                            <span class="text-danger">@valorTotalNegativo.ToString("C")</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Saldo final:</strong>
+                            <span class="@((valorTotalPositivo + valorTotalNegativo) >= 0 ? "text-success" : "text-danger")">
+                                @((valorTotalPositivo + valorTotalNegativo).ToString("C"))
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <p>Nenhuma diferença encontrada</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens do Inventário -->
+    <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Itens do Inventário</h6>
+            <span class="badge bg-primary">@Model.Itens.Count itens</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="itensTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Produto</th>
+                            <th>Estoque Sistema</th>
+                            <th>Estoque Físico</th>
+                            <th>Diferença</th>
+                            <th>Valor Diferença</th>
+                            <th>Status</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Itens.OrderBy(i => i.Estoque.Nome))
+                        {
+                            <tr class="@(item.Diferenca != 0 && item.Conferido ? "table-warning" : "")">
+                                <td>
+                                    <strong>@item.Estoque.Nome</strong>
+                                    <br><small class="text-muted">@item.Estoque.Codigo</small>
+                                </td>
+                                <td>@item.QuantidadeSistema.ToString("N2") @item.Estoque.UnidadeMedida</td>
+                                <td>
+                                    @if (item.Conferido)
+                                    {
+                                        @item.QuantidadeFisica.ToString("N2") @item.Estoque.UnidadeMedida
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Conferido)
+                                    {
+                                        <span class="@(item.Diferenca > 0 ? "text-success" : item.Diferenca < 0 ? "text-danger" : "text-muted")">
+                                            @if (item.Diferenca > 0)
+                                            {
+                                                <i class="fas fa-arrow-up me-1"></i>
+                                            }
+                                            else if (item.Diferenca < 0)
+                                            {
+                                                <i class="fas fa-arrow-down me-1"></i>
+                                            }
+                                            @Math.Abs(item.Diferenca).ToString("N2") @item.Estoque.UnidadeMedida
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Conferido && item.Diferenca != 0)
+                                    {
+                                        <span class="@(item.CustoTotalDiferenca > 0 ? "text-success" : "text-danger")">
+                                            @Math.Abs(item.CustoTotalDiferenca).ToString("C")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Conferido)
+                                    {
+                                        <span class="badge bg-success">Conferido</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Pendente</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Observacao))
+                                    {
+                                        <small title="@item.Observacao">@item.Observacao</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#itensTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                },
+                order: [[0, 'asc']],
+                pageLength: 50,
+                responsive: true
+            });
+        });
+
+        function fecharInventario(id) {
+            if (confirm('Tem certeza que deseja fechar este inventário?\n\nApós o fechamento, serão gerados ajustes automáticos no estoque.')) {
+                window.location.href = `@Url.Action("FecharInventario")/${id}`;
+            }
+        }
+    </script>
+}
+
+@functions {
+    public string GetStatusInventarioBadgeClass(StatusInventario status)
+    {
+        return status switch
+        {
+            StatusInventario.Aberto => "bg-warning text-dark",
+            StatusInventario.EmAndamento => "bg-info",
+            StatusInventario.Concluido => "bg-success",
+            StatusInventario.Cancelado => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

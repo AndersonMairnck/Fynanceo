@@ -41,6 +41,9 @@ namespace Fynanceo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cadastrar(ProdutoViewModel model)
         {
+          
+           
+
             try { 
             if (ModelState.IsValid)
             {
@@ -115,11 +118,7 @@ namespace Fynanceo.Controllers
                 TempoExtraPico = produto.TempoExtraPico,
                 OpcoesPersonalizacao = produto.OpcoesPersonalizacao,
                 Disponivel = produto.Disponivel,
-              ////  MotivoIndisponibilidade = produto.MotivoIndisponibilidade,
-              //  CodigoNCM = produto.CodigoNCM,
-              //  Origem = produto.Origem,
-              //  CST = produto.CST,
-              //  Aliquota = produto.Aliquota
+              
             };
 
             // Converter ingredientes para ViewModel

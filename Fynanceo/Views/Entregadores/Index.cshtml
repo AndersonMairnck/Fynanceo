@@ -1,0 +1,255 @@
+﻿<!-- Views/Entregadores/Index.cshtml -->
+@model IEnumerable<Fynanceo.Models.Entregador>
+
+@{
+    ViewData["Title"] = "Entregadores";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-users text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Novo Entregador
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">@Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Disponivel)</h4>
+                <small>Disponíveis</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">@Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando)</h4>
+                <small>Entregando</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h4 class="mb-0">@Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Ausente)</h4>
+                <small>Ausentes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body text-center">
+                <h4 class="mb-0">@Model.Count(e => e.Ativo)</h4>
+                <small>Ativos</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Todos os Entregadores</h5>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" onclick="filterEntregadores('all')">Todos</button>
+            <button class="btn btn-outline-success btn-sm" onclick="filterEntregadores('Disponivel')">Disponíveis</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="filterEntregadores('Entregando')">Entregando</button>
+            <button class="btn btn-outline-warning btn-sm" onclick="filterEntregadores('Ausente')">Ausentes</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Contato</th>
+                        <th>Veículo</th>
+                        <th>Status</th>
+                        <th>Estatísticas</th>
+                        <th>Última Atividade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entregador in Model)
+                    {
+                        <tr class="entregador-row" data-status="@entregador.Status">
+                            <td>
+                                <strong>@entregador.Nome</strong>
+                                @if (!entregador.Ativo)
+                                {
+                                    <span class="badge bg-danger ms-1">Inativo</span>
+                                }
+                            </td>
+                            <td>
+                                @entregador.Telefone
+                                @if (entregador.UltimaAtualizacao.HasValue)
+                                {
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        @entregador.UltimaAtualizacao.Value.ToString("HH:mm")
+                                    </small>
+                                }
+                            </td>
+                            <td>
+                                <i class="fas @GetVeiculoIcon(entregador.TipoVeiculo) me-1"></i>
+                                @entregador.TipoVeiculo
+                                @if (!string.IsNullOrEmpty(entregador.Placa))
+                                {
+                                    <br>
+                                    <small class="text-muted">@entregador.Placa</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @GetStatusBadgeClass(entregador.Status)">@entregador.Status</span>
+                            </td>
+                            <td>
+                                <small>
+                                    <strong>@entregador.TotalEntregas</strong> entregas
+                                    <br>
+                                    <span class="text-warning">
+                                        <i class="fas fa-star"></i> @entregador.AvaliacaoMedia.ToString("N1")
+                                    </span>
+                                    <br>
+                                    <span class="text-success">
+                                        R$ @entregador.ComissaoTotal.ToString("N2")
+                                    </span>
+                                </small>
+                            </td>
+                            <td>
+                                @if (entregador.UltimaAtualizacao.HasValue)
+                                {
+                                    var tempo = DateTime.Now - entregador.UltimaAtualizacao.Value;
+                                    if (tempo.TotalMinutes < 5)
+                                    {
+                                        <span class="badge bg-success">Online</span>
+                                    }
+                                    else if (tempo.TotalMinutes < 30)
+                                    {
+                                        <span class="badge bg-warning text-dark">@((int)tempo.TotalMinutes)m</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Offline</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Nunca</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="@Url.Action("Details", new { id = entregador.Id })"
+                                       class="btn btn-outline-primary" title="Detalhes">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="@Url.Action("Edit", new { id = entregador.Id })"
+                                       class="btn btn-outline-secondary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-info dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            title="Status">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                               onclick="atualizarStatus(@entregador.Id, 'Disponivel')">
+                                                <i class="fas fa-check text-success me-2"></i>Disponível
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                               onclick="atualizarStatus(@entregador.Id, 'Ausente')">
+                                                <i class="fas fa-clock text-warning me-2"></i>Ausente
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#"
+                                               onclick="atualizarStatus(@entregador.Id, 'Bloqueado')">
+                                                <i class="fas fa-ban text-danger me-2"></i>Bloqueado
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterEntregadores(status) {
+            const rows = document.querySelectorAll('.entregador-row');
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        async function atualizarStatus(entregadorId, novoStatus) {
+            if (!confirm(`Alterar status do entregador para "${novoStatus}"?`)) {
+                return;
+            }
+
+            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregadores")?id=${entregadorId}&novoStatus=${novoStatus}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Erro: ' + result.message);
+            }
+        }
+
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+}
+
+@functions {
+    public string GetStatusBadgeClass(Fynanceo.Models.Enums.StatusEntregador status)
+    {
+        return status switch
+        {
+            Fynanceo.Models.Enums.StatusEntregador.Disponivel => "bg-success text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Entregando => "bg-primary text-white",
+            Fynanceo.Models.Enums.StatusEntregador.Ausente => "bg-warning text-dark",
+            Fynanceo.Models.Enums.StatusEntregador.Bloqueado => "bg-danger text-white",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+}
