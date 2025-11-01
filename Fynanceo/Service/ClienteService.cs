@@ -1,9 +1,10 @@
 ﻿using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Fynanceo.Utils;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.ClientesModel;
 
 namespace Fynanceo.Services
 {

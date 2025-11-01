@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.ViewModels;
-using Fynanceo.Services;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.DeliveryModel;
 
 namespace Fynanceo.Controllers
 {

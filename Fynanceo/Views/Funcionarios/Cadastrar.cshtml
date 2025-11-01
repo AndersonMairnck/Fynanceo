@@ -1,4 +1,6 @@
-﻿@model Fynanceo.ViewModels.FuncionarioViewModel
+﻿@using Fynanceo.ViewModel
+@using Fynanceo.ViewModel.FuncionariosModel
+@model FuncionarioViewModel
 
 @{
     ViewData["Title"] = "Cadastrar Funcionário";
@@ -28,7 +30,7 @@
 
                         <div class="mb-3">
                             <label asp-for="NomeCompleto" class="form-label"></label>
-                            <input asp-for="NomeCompleto" class="form-control" />
+                            <input asp-for="NomeCompleto" class="form-control" data-maiuscula="titulo"/>
                             <span asp-validation-for="NomeCompleto" class="text-danger"></span>
                         </div>
 
@@ -44,7 +46,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Endereco" class="form-label"></label>
-                            <input asp-for="Endereco" class="form-control" />
+                            <input asp-for="Endereco" class="form-control" data-maiuscula="titulo" />
                             <span asp-validation-for="Endereco" class="text-danger"></span>
                         </div>
 

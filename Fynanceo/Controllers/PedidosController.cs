@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.ViewModels;
-using Fynanceo.Services;
 using Fynanceo.Models.Enums;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.PedidosModel;
 
 namespace Fynanceo.Controllers
 {

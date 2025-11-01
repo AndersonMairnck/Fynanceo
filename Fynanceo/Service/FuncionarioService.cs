@@ -1,7 +1,8 @@
 ﻿using Fynanceo.Data;
 using Fynanceo.Models;
+using Fynanceo.Service.Interface;
 using Fynanceo.Utils;
-using Fynanceo.ViewModels;
+using Fynanceo.ViewModel.FuncionariosModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Fynanceo.Services

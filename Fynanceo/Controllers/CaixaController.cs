@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.ViewModels;
-using Fynanceo.Services;
 using Fynanceo.Models.Enums;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.CaixaModel;
+using Fynanceo.ViewModel.FinanceirosModel;
 
 namespace Fynanceo.Controllers
 {

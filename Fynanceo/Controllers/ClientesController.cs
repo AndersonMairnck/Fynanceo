@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Fynanceo.Services;
-using Fynanceo.ViewModels;
 using Fynanceo.Utils;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.ClientesModel;
 namespace Fynanceo.Controllers
 {
     public class ClientesController : Controller

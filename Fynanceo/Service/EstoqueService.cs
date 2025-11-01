@@ -2,7 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.ViewModels;
+using Fynanceo.ViewModel.EstoquesModel;
+using Fynanceo.Service.Interface;
 
 
 

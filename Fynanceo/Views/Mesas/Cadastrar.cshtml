@@ -1,4 +1,6 @@
-﻿@model Fynanceo.ViewModels.MesaViewModel
+﻿@using Fynanceo.ViewModel
+@using Fynanceo.ViewModel.MesasModel
+@model MesaViewModel
 
 @{
     ViewData["Title"] = "Cadastrar Mesa";
@@ -28,7 +30,7 @@
                         
                         <div class="mb-3">
                             <label asp-for="Numero" class="form-label"></label>
-                            <input asp-for="Numero" class="form-control" />
+                            <input asp-for="Numero" class="form-control" data-maiuscula="tudo" />
                             <span asp-validation-for="Numero" class="text-danger"></span>
                         </div>
 
