@@ -2,9 +2,8 @@
 using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
-using Fynanceo.Services;
-
-using Fynanceo.ViewModels;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.EstoquesModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

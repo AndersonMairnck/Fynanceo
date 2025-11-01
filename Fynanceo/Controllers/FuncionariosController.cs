@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Fynanceo.Services;
-using Fynanceo.ViewModels;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.FuncionariosModel;
 
 namespace Fynanceo.Controllers
 {

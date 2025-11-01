@@ -3,24 +3,8 @@
   "WorkspaceRootPath": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\controllers\\produtoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:controllers\\produtoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\viewmodel\\produtoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:viewmodel\\produtoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\models\\produto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:models\\produto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\service\\produtoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:service\\produtoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\service\\estoqueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:service\\estoqueservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 168,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -41,69 +25,21 @@
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProdutoViewModel.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\ProdutoViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModel\\ProdutoViewModel.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\ProdutoViewModel.cs",
-              "RelativeToolTip": "ViewModel\\ProdutoViewModel.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAAAIwC8AAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T19:48:32.13Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "EstoqueService.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\EstoqueService.cs",
-              "RelativeDocumentMoniker": "Service\\EstoqueService.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\EstoqueService.cs",
-              "RelativeToolTip": "Service\\EstoqueService.cs",
-              "ViewState": "AgIAAIkBAAAAAAAAAADwv5MBAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T19:37:18.788Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Produto.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Produto.cs",
-              "RelativeDocumentMoniker": "Models\\Produto.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Models\\Produto.cs",
-              "RelativeToolTip": "Models\\Produto.cs",
-              "ViewState": "AgIAACUAAAAAAAAAAIA0wC0AAABVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T19:10:55.571Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ProdutoService.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\ProdutoService.cs",
-              "RelativeDocumentMoniker": "Service\\ProdutoService.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\ProdutoService.cs",
-              "RelativeToolTip": "Service\\ProdutoService.cs",
-              "ViewState": "AgIAAIwAAAAAAAAAAAAewJUAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T18:37:01.045Z"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProdutosController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ProdutosController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ProdutosController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ProdutosController.cs",
-              "RelativeToolTip": "Controllers\\ProdutosController.cs",
-              "ViewState": "AgIAACYAAAAAAAAAAAAewC8AAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-31T18:37:01.1Z",
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Create.cshtml",
+              "RelativeDocumentMoniker": "Views\\Pedidos\\Create.cshtml",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Create.cshtml",
+              "RelativeToolTip": "Views\\Pedidos\\Create.cshtml",
+              "ViewState": "AgIAAJ4BAAAAAAAAAAAwwMQBAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-31T22:48:41.83Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }

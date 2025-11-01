@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
+using Fynanceo.Service.Interface;
 
 namespace Fynanceo.Services
 {
