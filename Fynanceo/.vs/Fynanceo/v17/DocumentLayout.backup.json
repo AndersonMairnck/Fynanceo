@@ -3,8 +3,20 @@
   "WorkspaceRootPath": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:views\\pedidos\\cozinha.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\service\\interface\\ipedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:service\\interface\\ipedidoservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\viewmodel\\pedidosmodel\\pedidoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|solutionrelative:viewmodel\\pedidosmodel\\pedidoviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6EFC3329-3BBA-481B-A724-4FC39822AD3D}|Fynanceo.csproj|d:\\mairinck\\1- projetos\\fynanceo\\fynanceo\\fynanceo\\views\\clientes\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -26,8 +38,60 @@
       "DocumentGroups": [
         {
           "DockedWidth": 168,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PedidoViewModel.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\PedidosModel\\PedidoViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModel\\PedidosModel\\PedidoViewModel.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\ViewModel\\PedidosModel\\PedidoViewModel.cs",
+              "RelativeToolTip": "ViewModel\\PedidosModel\\PedidoViewModel.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAkwDgAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-03T17:26:27.598Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IPedidoService.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\Interface\\IPedidoService.cs",
+              "RelativeDocumentMoniker": "Service\\Interface\\IPedidoService.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\Interface\\IPedidoService.cs",
+              "RelativeToolTip": "Service\\Interface\\IPedidoService.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAwwBoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-03T17:19:48.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PedidosController.cs",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\PedidosController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PedidosController.cs",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\PedidosController.cs",
+              "RelativeToolTip": "Controllers\\PedidosController.cs",
+              "ViewState": "AgIAAA4BAAAAAAAAAADwvwkBAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-03T17:14:38.033Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Cozinha.cshtml",
+              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml",
+              "RelativeDocumentMoniker": "Views\\Pedidos\\Cozinha.cshtml",
+              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Pedidos\\Cozinha.cshtml",
+              "RelativeToolTip": "Views\\Pedidos\\Cozinha.cshtml",
+              "ViewState": "AgIAAO8AAAAAAAAAAAAgwPoAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-03T16:58:25.741Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
@@ -37,12 +101,8 @@
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
-            {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "IClienteService.cs",
               "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\Interface\\IClienteService.cs",
               "RelativeDocumentMoniker": "Service\\Interface\\IClienteService.cs",
@@ -50,12 +110,11 @@
               "RelativeToolTip": "Service\\Interface\\IClienteService.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAAzwA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-03T11:47:29.129Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-03T11:47:29.129Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Views\\Clientes\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Clientes\\Index.cshtml",
@@ -68,7 +127,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "ClienteService.cs",
               "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Service\\ClienteService.cs",
               "RelativeDocumentMoniker": "Service\\ClienteService.cs",
@@ -80,17 +139,8 @@
               "EditorCaption": ""
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ClientesController.cs",
-              "DocumentMoniker": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ClientesController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ClientesController.cs",
-              "ToolTip": "D:\\Mairinck\\1- Projetos\\Fynanceo\\Fynanceo\\Fynanceo\\Controllers\\ClientesController.cs",
-              "RelativeToolTip": "Controllers\\ClientesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAD4vwkAAAA8AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-03T11:43:34.733Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }

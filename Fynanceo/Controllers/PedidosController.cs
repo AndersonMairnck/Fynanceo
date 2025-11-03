@@ -111,11 +111,33 @@ namespace Fynanceo.Controllers
             {
                 PedidosCozinha = await _pedidoService.ObterPedidosPorStatus("EnviadoCozinha"),
                 PedidosPreparo = await _pedidoService.ObterPedidosPorStatus("EmPreparo"),
-                PedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto")
+                PedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto"),
+                Config = new CozinhaConfig
+                {
+                    TempoAlertaPreparoMinutos = 30, // Pode vir de appsettings
+                    TempoAlertaProntoMinutos = 10,
+                    IntervaloAtualizacaoSegundos = 30
+                }
             };
 
-            return View(viewModel); // Agora passamos o ViewModel completo
+            return View(viewModel);
         }
+
+        [HttpGet]
+        public async Task<JsonResult> ObterEstadoCozinha()
+        {
+            var pedidosCozinha = await _pedidoService.ObterPedidosPorStatus("EnviadoCozinha");
+            var pedidosPreparo = await _pedidoService.ObterPedidosPorStatus("EmPreparo");
+            var pedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto");
+
+            return Json(new
+            {
+                pedidosCozinhaCount = pedidosCozinha.Count,
+                pedidosPreparoCount = pedidosPreparo.Count,
+                pedidosProntosCount = pedidosProntos.Count
+            });
+        }
+
 
         // POST: Pedidos/AtualizarStatus/5
         [HttpPost]
@@ -241,7 +263,7 @@ namespace Fynanceo.Controllers
 
         [HttpPost]
 
-        public async Task<IActionResult> IntregaIndividualCozinha(int itemId)
+        public async Task<IActionResult> EntregaIndividualCozinha(int itemId)
         {
             if (itemId <= 0)
                 return BadRequest(new { success = false, message = "ID do item inválido." });

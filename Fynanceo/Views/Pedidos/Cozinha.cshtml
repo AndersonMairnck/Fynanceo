@@ -8,7 +8,51 @@
     var pedidosCozinha = Model.PedidosCozinha;
     var pedidosPreparo = Model.PedidosPreparo;
     var pedidosProntos = Model.PedidosProntos;
+    var config = Model.Config;
 }
+
+<!-- ÁREA FIXA DE OBSERVAÇÕES DA COZINHA -->
+<div class="card mb-4 border-info" id="area-observacoes-fixa">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-clipboard-list me-2"></i>Informações da Cozinha
+        </h5>
+        <div class="d-flex align-items-center">
+            <small class="me-3">
+                <i class="fas fa-sync-alt me-1"></i>
+                Atualização: @config.IntervaloAtualizacaoSegundos seg
+            </small>
+            <button class="btn btn-sm btn-light" onclick="atualizarSeletivamente()">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body py-2">
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted d-block">
+                    <i class="fas fa-clock me-1"></i>
+                    <strong>Alerta Preparo:</strong> @config.TempoAlertaPreparoMinutos min
+                </small>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted d-block">
+                    <i class="fas fa-bell me-1"></i>
+                    <strong>Alerta Entrega:</strong> @config.TempoAlertaProntoMinutos min
+                </small>
+            </div>
+            <div class="col-md-6">
+                <small class="text-muted d-block">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <strong>Status:</strong>
+                    <span class="badge bg-warning">Preparar: @pedidosCozinha.Count</span>
+                    <span class="badge bg-danger">Preparo: @pedidosPreparo.Count</span>
+                    <span class="badge bg-success">Prontos: @pedidosProntos.Count</span>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">
@@ -32,10 +76,10 @@
             <div class="card-header bg-warning text-dark">
                 <h5 class="mb-0">
                     <i class="fas fa-inbox me-2"></i>Para Preparar
-                    <span class="badge bg-dark ms-2">@pedidosCozinha.Count</span>
+                    <span class="badge bg-dark ms-2" id="count-preparar">@pedidosCozinha.Count</span>
                 </h5>
             </div>
-            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;">
+            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;" id="coluna-preparar">
                 @if (!pedidosCozinha.Any())
                 {
                     <div class="text-center text-muted py-5">
@@ -47,7 +91,7 @@
                 {
                     foreach (var pedido in pedidosCozinha)
                     {
-                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id">
+                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id" id="pedido-@pedido.Id">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="card-title mb-0">
@@ -57,7 +101,9 @@
                                             <span class="badge bg-danger ms-1">URGENTE</span>
                                         }
                                     </h6>
-                                    <small class="text-muted">@pedido.DataEnvioCozinha?.ToLocalTime().ToString("HH:mm")</small>
+                                    <small class="text-muted tempo-decorrido" data-inicio="@pedido.DataEnvioCozinha?.ToString("O")">
+                                        @pedido.DataEnvioCozinha?.ToLocalTime().ToString("HH:mm")
+                                    </small>
                                 </div>
                                 <div class="mb-2">
                                     @if (pedido.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Mesa && pedido.Mesa != null)
@@ -74,11 +120,10 @@
                                     }
                                     @{
                                         var tempo = DateTime.UtcNow - (pedido.DataEnvioCozinha ?? DateTime.UtcNow);
-                                        // Defina um limite para atraso — pode ser 5 min, ou baseado no tempo de preparo médio
                                         bool atrasado = tempo.TotalMinutes > pedido.Itens.Average(i => i.Produto.TempoPreparoMinutos);
                                     }
                                     <small class="@(atrasado ? "text-danger fw-bold" : "text-muted") ms-2">
-                                        <i class="fas fa-clock me-1"></i>@((int)tempo.TotalMinutes)m
+                                        <i class="fas fa-clock me-1"></i><span class="tempo-texto">@((int)tempo.TotalMinutes)m</span>
                                         @if (atrasado)
                                         {
                                             <strong> - ATRASADO!</strong>
@@ -88,18 +133,24 @@
 
                                 @if (!string.IsNullOrEmpty(pedido.Observacoes))
                                 {
-                                    <div class="alert alert-warning py-2 px-3 mb-2">
-                                        <small><i class="fas fa-exclamation-circle me-1"></i> @pedido.Observacoes</small>
+                                    <div class="p-3 rounded d-flex bg-light border-start border-4 border-warning">
+                                        <i class="fas fa-info-circle me-3 text-warning fs-4"></i>
+                                        <div>
+                                            <div class="fw-bold text-decoration-underline">Observações</div>
+                                            <div class="text-muted">@pedido.Observacoes</div>
+                                        </div>
                                     </div>
                                 }
 
                                 <div class="itens-pedido">
+                                   
                                     @foreach (var item in pedido.Itens.Where(i => i.Status == PedidoStatus.EnviadoCozinha))
                                     {
                                         <div class="item-pedido border-bottom pb-2 mb-2" data-item-id="@item.Id">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div class="flex-grow-1">
                                                     <strong class="d-block">@item.Quantidade x @item.Produto.Nome</strong>
+                                                   
                                                     @if (!string.IsNullOrEmpty(item.Observacoes))
                                                     {
                                                         <small class="text-danger d-block"><strong>Obs:</strong> @item.Observacoes</small>
@@ -137,10 +188,10 @@
             <div class="card-header bg-danger text-white">
                 <h5 class="mb-0">
                     <i class="fas fa-fire me-2"></i>Em Preparo
-                    <span class="badge bg-light text-dark ms-2">@pedidosPreparo.Count</span>
+                    <span class="badge bg-light text-dark ms-2" id="count-preparo">@pedidosPreparo.Count</span>
                 </h5>
             </div>
-            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;">
+            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;" id="coluna-preparo">
                 @if (!pedidosPreparo.Any())
                 {
                     <div class="text-center text-muted py-5">
@@ -152,7 +203,7 @@
                 {
                     foreach (var pedido in pedidosPreparo)
                     {
-                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id">
+                        <div class="card mb-3 pedido-card" data-pedido-id="@pedido.Id" id="pedido-@pedido.Id">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="card-title mb-0">
@@ -163,12 +214,16 @@
                                         }
                                     </h6>
                                     <div class="text-end">
-                                        <small class="text-muted d-block">@pedido.DataPreparo?.ToLocalTime().ToString("HH:mm")</small>
+                                        <small class="text-muted d-block tempo-decorrido" data-inicio="@pedido.DataPreparo?.ToString("O")">
+                                            @pedido.DataPreparo?.ToLocalTime().ToString("HH:mm")
+                                        </small>
                                         @{
                                             var tempoPreparo = DateTime.UtcNow - (pedido.DataPreparo ?? DateTime.UtcNow);
-                                            var tempoExcedido = tempoPreparo.TotalMinutes > 30;
+                                            var tempoExcedido = tempoPreparo.TotalMinutes > config.TempoAlertaPreparoMinutos;
                                         }
-                                        <small class="@(tempoExcedido ? "text-danger" : "text-muted")">@((int)tempoPreparo.TotalMinutes)m</small>
+                                        <small class="@(tempoExcedido ? "text-danger" : "text-muted")">
+                                            <span class="tempo-texto">@((int)tempoPreparo.TotalMinutes)m</span>
+                                        </small>
                                     </div>
                                 </div>
 
@@ -186,19 +241,26 @@
                                         <span class="badge bg-secondary">Balcão</span>
                                     }
                                 </div>
-                                <!-- Observações do pedido sempre visíveis -->
-                                <div class="alert alert-warning py-2 px-3 mb-2">
-                                    <small>
-                                        <i class="fas fa-exclamation-circle me-1"></i>
-                                        @(string.IsNullOrEmpty(pedido.Observacoes) ? "Sem observações" : pedido.Observacoes)
-                                    </small>
+
+                                <div class="p-3 rounded d-flex bg-light border-start border-4 border-warning">
+                                    <i class="fas fa-info-circle me-3 text-warning fs-4"></i>
+                                    <div>
+                                        <div class="fw-bold text-decoration-underline">Observações</div>
+                                        <div class="text-muted">@pedido.Observacoes</div>
+                                    </div>
                                 </div>
+
+
+
                                 <div class="itens-pedido">
+
                                     @foreach (var item in pedido.Itens.Where(i => i.Status == PedidoStatus.EmPreparo))
                                     {
                                         <div class="item-pedido border-bottom pb-2 mb-2" data-item-id="@item.Id">
                                             <div class="d-flex justify-content-between align-items-start">
                                                 <div class="flex-grow-1">
+
+                                                  
                                                     <strong class="d-block">@item.Quantidade x @item.Produto.Nome</strong>
                                                     @if (!string.IsNullOrEmpty(item.Observacoes))
                                                     {
@@ -210,7 +272,7 @@
                                                     }
                                                     <small class="@(tempoItemExcedido ? "text-danger" : "text-muted")">
                                                         <i class="fas fa-clock me-1"></i>
-                                                        @((int)tempoItem.TotalMinutes)m / @item.Produto.TempoPreparoMinutos m
+                                                        <span class="tempo-texto">@((int)tempoItem.TotalMinutes)m</span> / @item.Produto.TempoPreparoMinutos m
                                                         @if (tempoItemExcedido)
                                                         {
                                                             <strong> - ATRASADO!</strong>
@@ -238,17 +300,16 @@
         </div>
     </div>
 
-
-@* ========== PRONTOS ========== *@
+    @* ========== PRONTOS ========== *@
     <div class="col-md-4">
         <div class="card border-success">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
                     <i class="fas fa-check-circle me-2"></i>Prontos para Entrega
-                    <span class="badge bg-light text-dark ms-2">@pedidosProntos.Count</span>
+                    <span class="badge bg-light text-dark ms-2" id="count-prontos">@pedidosProntos.Count</span>
                 </h5>
             </div>
-            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;">
+            <div class="card-body" style="min-height:600px;max-height:600px;overflow-y:auto;" id="coluna-prontos">
                 @if (!pedidosProntos.Any())
                 {
                     <div class="text-center text-muted py-5">
@@ -262,9 +323,9 @@
                     {
                         var todosEntregues = pedido.Itens.All(i => i.Status == PedidoStatus.Entregue);
                         var tempoPronto = DateTime.UtcNow - (pedido.DataPronto ?? DateTime.UtcNow);
-                        var tempoProntoLongo = tempoPronto.TotalMinutes > 10; // alerta visual após 10 min
+                        var tempoProntoLongo = tempoPronto.TotalMinutes > config.TempoAlertaProntoMinutos;
 
-                        <div class="card mb-3 pedido-card @(tempoProntoLongo && !todosEntregues ? "alerta-ativo" : "") @(todosEntregues ? "opacity-75" : "")" data-pedido-id="@pedido.Id">
+                        <div class="card mb-3 pedido-card @(tempoProntoLongo && !todosEntregues ? "alerta-ativo" : "") @(todosEntregues ? "opacity-75" : "")" data-pedido-id="@pedido.Id" id="pedido-@pedido.Id">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="card-title mb-0">
@@ -275,9 +336,11 @@
                                         }
                                     </h6>
                                     <div class="text-end">
-                                        <small class="text-muted d-block">@pedido.DataPronto?.ToLocalTime().ToString("HH:mm")</small>
+                                        <small class="text-muted d-block tempo-decorrido" data-inicio="@pedido.DataPronto?.ToString("O")">
+                                            @pedido.DataPronto?.ToLocalTime().ToString("HH:mm")
+                                        </small>
                                         <small class="@(tempoProntoLongo ? "text-danger fw-bold" : "text-muted")">
-                                            <i class="fas fa-clock me-1"></i>@((int)tempoPronto.TotalMinutes)m
+                                            <i class="fas fa-clock me-1"></i><span class="tempo-texto">@((int)tempoPronto.TotalMinutes)m</span>
                                             @if (tempoProntoLongo)
                                             {
                                                 <strong> - AGUARDANDO ENTREGA!</strong>
@@ -301,12 +364,12 @@
                                     }
                                 </div>
 
-                                <!-- Observação sempre visível -->
-                                <div class="alert alert-warning py-2 px-3 mb-3">
-                                    <small>
-                                        <i class="fas fa-exclamation-circle me-1"></i>
-                                        @(string.IsNullOrEmpty(pedido.Observacoes) ? "Sem observações" : pedido.Observacoes)
-                                    </small>
+                                <div class="p-3 rounded d-flex bg-light border-start border-4 border-warning">
+                                    <i class="fas fa-info-circle me-3 text-warning fs-4"></i>
+                                    <div>
+                                        <div class="fw-bold text-decoration-underline">Observações</div>
+                                        <div class="text-muted">@pedido.Observacoes</div>
+                                    </div>
                                 </div>
 
                                 <div class="itens-pedido mb-3">
@@ -339,7 +402,7 @@
 
                                                 @if (!entregue)
                                                 {
-                                                    <button class="btn btn-sm btn-primary ms-2" onclick="IntregaIndividualCozinha(@item.Id, @pedido.Id)">
+                                                    <button class="btn btn-sm btn-primary ms-2" onclick="entregaIndividualCozinha(@item.Id, @pedido.Id)">
                                                         <i class="fas fa-truck"></i>
                                                     </button>
                                                 }
@@ -350,7 +413,7 @@
 
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-info btn-sm"
-                                            onclick="EntregaTodosCozinha(@pedido.Id)"
+                                            onclick="entregaTodosCozinha(@pedido.Id)"
                                             @(todosEntregues ? "disabled" : "")>
                                         <i class="fas fa-truck me-1"></i>Marcar Todos Entregues
                                     </button>
@@ -362,8 +425,7 @@
             </div>
         </div>
     </div>
-
-
+</div>
 
 <!-- Modal de Alerta -->
 <div class="modal fade" id="alertaModal" tabindex="-1">
@@ -382,80 +444,138 @@
 </div>
 
 @section Scripts {
-<script>
-    // Atualizar relógio em tempo real
-    function atualizarRelogio() {
-        const now = new Date();
-        $('#currentTime').html(`<i class="fas fa-clock me-1"></i> ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
-    }
-    setInterval(atualizarRelogio, 60000);
+    <script>
+        // Configurações (substituindo magic numbers)
+        const config = {
+            tempoAlertaPreparo: @config.TempoAlertaPreparoMinutos,
+            tempoAlertaPronto: @config.TempoAlertaProntoMinutos,
+            intervaloAtualizacao: @config.IntervaloAtualizacaoSegundos * 1000
+        };
 
-    // Controle de preparo
-    function iniciarPreparoItem(id) {
-        $.post('@Url.Action("IniciarPreparoItem","Pedidos")', { itemId: id })
-            .done(() => location.reload());
-    }
-    function marcarProntoItem(id) {
-        $.post('@Url.Action("MarcarProntoItem","Pedidos")', { itemId: id })
-            .done(() => location.reload());
-    }
-    function iniciarPreparoTodos(id) {
-        if (!confirm('Iniciar preparo de todos os itens?')) return;
-        $.post('@Url.Action("IniciarPreparoTodos","Pedidos")', { pedidoId: id })
-            .done(() => location.reload());
-    }
-    function marcarProntoTodos(id) {
-        if (!confirm('Marcar todos os itens como prontos?')) return;
-        $.post('@Url.Action("MarcarProntoTodos","Pedidos")', { pedidoId: id })
-            .done(() => location.reload());
-    }
-    function marcarEntregue(id) {
-        if (!confirm('Marcar pedido como entregue?')) return;
-            $.post('@Url.Action("EntregaTodosCozinha", "Pedidos")', { id: id, novoStatus: 'Entregue' })
-            .done(() => location.reload());
-    }
+        // Atualizar relógio em tempo real
+        function atualizarRelogio() {
+            const now = new Date();
+            $('#currentTime').html(`<i class="fas fa-clock me-1"></i> ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
+        }
 
-    // Verificar atrasos
-    function verificarAlertas() {
-        $('.pedido-card').each(function () {
-            const card = $(this);
-            if (card.find('.text-danger').length > 0 && !card.hasClass('alerta-ativo')) {
-                card.addClass('alerta-ativo');
-                card.css('animation', 'pulse 2s infinite');
-                if (!card.data('alerta-mostrado')) {
-                    $('#alertaMensagem').text('Há pedidos atrasados que precisam de atenção!');
-                    $('#alertaModal').modal('show');
-                    card.data('alerta-mostrado', true);
+        // Atualizar tempos decorridos sem refresh completo
+        function atualizarTempos() {
+            $('.tempo-decorrido').each(function() {
+                const elemento = $(this);
+                const inicio = new Date(elemento.data('inicio'));
+                const agora = new Date();
+                const diffMs = agora - inicio;
+                const diffMins = Math.floor(diffMs / 60000);
+
+                // Atualiza o texto do tempo
+                elemento.find('.tempo-texto').text(diffMins + 'm');
+
+                // Atualizar status de alerta baseado nos tempos configuráveis
+                const card = elemento.closest('.pedido-card');
+                const coluna = card.closest('.card-body').parent().find('.card-header').text();
+
+                if (coluna.includes('Em Preparo') && diffMins > config.tempoAlertaPreparo) {
+                    card.addClass('alerta-ativo');
+                } else if (coluna.includes('Prontos') && diffMins > config.tempoAlertaPronto) {
+                    card.addClass('alerta-ativo');
+                } else {
+                    card.removeClass('alerta-ativo');
                 }
-            }
+            });
+        }
+
+        // Atualização seletiva via AJAX - PERFORMANCE MELHORADA
+        function atualizarSeletivamente() {
+            $.get('@Url.Action("ObterEstadoCozinha", "Pedidos")')
+                .done(function(data) {
+                    // Atualiza apenas se houver mudanças
+                    if (data.pedidosCozinhaCount !== parseInt($('#count-preparar').text())) {
+                        location.reload(); // Por enquanto recarrega, pode ser otimizado depois
+                    } else if (data.pedidosPreparoCount !== parseInt($('#count-preparo').text())) {
+                        location.reload();
+                    } else if (data.pedidosProntosCount !== parseInt($('#count-prontos').text())) {
+                        location.reload();
+                    }
+
+                    // Atualiza sempre os tempos
+                    atualizarTempos();
+                })
+                .fail(function() {
+                    console.log('Falha na atualização seletiva');
+                });
+        }
+
+        // Controle de preparo (mantendo compatibilidade)
+        function iniciarPreparoItem(itemId, pedidoId) {
+            $.post('@Url.Action("IniciarPreparoItem", "Pedidos")', { itemId: itemId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        function marcarProntoItem(itemId, pedidoId) {
+            $.post('@Url.Action("MarcarProntoItem", "Pedidos")', { itemId: itemId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        function iniciarPreparoTodos(pedidoId) {
+            if (!confirm('Iniciar preparo de todos os itens?')) return;
+            $.post('@Url.Action("IniciarPreparoTodos", "Pedidos")', { pedidoId: pedidoId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        function marcarProntoTodos(pedidoId) {
+            if (!confirm('Marcar todos os itens como prontos?')) return;
+            $.post('@Url.Action("MarcarProntoTodos", "Pedidos")', { pedidoId: pedidoId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        // ✅ CORREÇÃO DA NOMENCLATURA - Funções renomeadas
+        function entregaIndividualCozinha(itemId, pedidoId) {
+            if (!confirm('Marcar este item como entregue?')) return;
+            $.post('@Url.Action("EntregaIndividualCozinha", "Pedidos")', { itemId: itemId, pedidoId: pedidoId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        function entregaTodosCozinha(pedidoId) {
+            if (!confirm('Marcar todos os itens deste pedido como entregues?')) return;
+            $.post('@Url.Action("EntregaTodosCozinha", "Pedidos")', { pedidoId: pedidoId })
+                .done(() => atualizarSeletivamente());
+        }
+
+        // Verificar alertas
+        function verificarAlertas() {
+            $('.pedido-card').each(function () {
+                const card = $(this);
+                if (card.find('.text-danger').length > 0 && !card.hasClass('alerta-ativo')) {
+                    card.addClass('alerta-ativo');
+                    card.css('animation', 'pulse 2s infinite');
+                    if (!card.data('alerta-mostrado')) {
+                        $('#alertaMensagem').text('Há pedidos atrasados que precisam de atenção!');
+                        $('#alertaModal').modal('show');
+                        card.data('alerta-mostrado', true);
+                    }
+                }
+            });
+        }
+
+        // Inicialização
+        $(document).ready(function() {
+            setInterval(atualizarRelogio, 60000);
+            setInterval(atualizarTempos, 30000); // Atualiza tempos a cada 30s
+            setInterval(atualizarSeletivamente, config.intervaloAtualizacao);
+            setInterval(verificarAlertas, 10000);
+
+            atualizarRelogio();
+            verificarAlertas();
         });
-    }
-                          // Entrega individual
-            function IntregaIndividualCozinha(itemId, pedidoId) {
-                if (!confirm('Marcar este item como entregue?')) return;
-                $.post('@Url.Action("IntregaIndividualCozinha", "Pedidos")', { itemId: itemId, pedidoId: pedidoId })
-                    .done(() => location.reload());
-            }
 
-            // Entrega de todos os itens
-            function EntregaTodosCozinha(pedidoId) {
-                if (!confirm('Marcar todos os itens deste pedido como entregues?')) return;
-                $.post('@Url.Action("EntregaTodosCozinha", "Pedidos")', { pedidoId: pedidoId })
-                    .done(() => location.reload());
-            }
-
-    // // CSS de animação corrigido (escapando o '@@')
-    const style = document.createElement('style');
-    style.textContent = `@@keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(220,53,69,0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(220,53,69,0); }
-        100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
-    }
-    .alerta-ativo { border-color: #dc3545 !important; }`;
-    document.head.appendChild(style);
-
-    setInterval(verificarAlertas, 10000);
-    setInterval(() => location.reload(), 30000);
-    verificarAlertas();
-</script>
+        // CSS de animação
+        const style = document.createElement('style');
+        style.textContent = `@@keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220,53,69,0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220,53,69,0); }
+            100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+        }
+        .alerta-ativo { border-color: #dc3545 !important; }`;
+        document.head.appendChild(style);
+    </script>
 }
