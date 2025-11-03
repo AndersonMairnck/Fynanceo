@@ -12,15 +12,15 @@ namespace Fynanceo.Controllers
 {
     public class PedidosController : Controller
     {
-       // private readonly ApplicationDbContext _context;
+        // private readonly ApplicationDbContext _context;
         private readonly IPedidoService _pedidoService;
         private readonly IMesaService _mesaService;
         private readonly IProdutoService _produtoService;
         private readonly IClienteService _clienteService;
 
-        public PedidosController( IPedidoService pedidoService,IMesaService mesaService, IProdutoService produtoService,IClienteService clienteService)
+        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService)
         {
-          
+
             _pedidoService = pedidoService;
             _mesaService = mesaService;
             _produtoService = produtoService;
@@ -35,18 +35,31 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Pedidos/Create
+        //public async Task<IActionResult> Create()
+        //{
+        //    var viewModel = new PedidoViewModel
+        //    {
+        //        MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre"),
+        //        ProdutosDisponiveis = await _produtoService.ObterTodosAsync(),
+        //        Clientes = await _clienteService.ObterTodosAsync()
+
+        //    }; 
+
+        //    return View(viewModel);
+        //}
         public async Task<IActionResult> Create()
         {
             var viewModel = new PedidoViewModel
             {
                 MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre"),
-                ProdutosDisponiveis = await _produtoService.ObterTodosAsync(),
-                Clientes = await _clienteService.ObterTodosAsync()
-
-            }; 
+                Clientes = await _clienteService.ObterTodosAsync(),
+                ProdutosDisponiveis = await _produtoService.ObterProdutosPopularesAsync(10),
+                CategoriasDisponiveis = await _produtoService.ObterCategoriasAsync()
+            };
 
             return View(viewModel);
         }
+
 
         // POST: Pedidos/Create
         [HttpPost]
@@ -59,14 +72,7 @@ namespace Fynanceo.Controllers
                 {
                     var pedido = await _pedidoService.CriarPedido(viewModel);
 
-                    //// Adicionar itens se houver
-                    //if (viewModel.Itens.Any())
-                    //{
-                    //    foreach (var item in viewModel.Itens)
-                    //    {
-                    //        await _pedidoService.AdicionarItem(pedido.Id, item);
-                    //    }
-                    //}
+
 
                     TempData["Success"] = "Pedido criado com sucesso!";
                     return RedirectToAction(nameof(Details), new { id = pedido.Id });
@@ -153,7 +159,7 @@ namespace Fynanceo.Controllers
 
         // No PedidosController.cs
         [HttpPost]
-     
+
         public async Task<IActionResult> IniciarPreparoItem(int itemId)
         {
             if (itemId <= 0)
@@ -165,7 +171,7 @@ namespace Fynanceo.Controllers
                 if (item == null)
                     return NotFound(new { success = false, message = "Item não encontrado." });
 
-               // return Ok(new { success = true, message = "Preparo iniciado com sucesso.", data = item });
+                // return Ok(new { success = true, message = "Preparo iniciado com sucesso.", data = item });
                 return Ok(ApiResponse<ItemPedido>.Ok("Preparo iniciado", item));
 
             }
@@ -272,9 +278,35 @@ namespace Fynanceo.Controllers
                 return Json(new { success = false, message = "Erro ao iniciar preparo: " + ex.Message });
             }
         }
+        public async Task<IActionResult> GetProdutosPaginados(int page = 1, int pageSize = 20, string search = "", string categoria = "")
+        {
+            try
+            {
+                var resultTuple = await _produtoService.ObterProdutosPaginadosAsync(page, pageSize, search, categoria);
+                var produtos = resultTuple.Produtos;
+                var totalCount = resultTuple.TotalCount;
 
-       
+                var result = produtos.Select(p => new
+                {
+                    p.Id,
+                    p.Nome,
+                    p.Descricao,
+                    p.Categoria,
+                    Subcategoria = p.Subcategoria ?? "",
+                    p.ValorVenda
+                }).ToList();
 
-
+                return Json(new
+                {
+                    produtos = result,
+                    totalCount,
+                    totalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
     }
 }

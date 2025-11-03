@@ -3,16 +3,20 @@ using Fynanceo.Models;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ProdutosModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Fynanceo.Services
 {
     public class ProdutoService : IProdutoService
     {
         private readonly AppDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public ProdutoService(AppDbContext context)
+        public ProdutoService(AppDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _cache = memoryCache;
+              
         }
 
         public async Task<List<Produto>> ObterTodosAsync()
@@ -167,6 +171,64 @@ namespace Fynanceo.Services
                 .Distinct()
                 .OrderBy(s => s)
                 .ToListAsync();
+        }
+        public async Task<List<Produto>> ObterProdutosPopularesAsync(int quantidade)
+        {
+            var cacheKey = $"produtos_populares_{quantidade}";
+
+            if (!_cache.TryGetValue(cacheKey, out List<Produto> produtos))
+            {
+                produtos = await _context.Produtos
+                    .Where(p => p.Disponivel)
+                    .OrderBy(p => p.Nome) // Ordena por nome como fallback
+                    .Take(quantidade)
+                    .ToListAsync();
+
+                _cache.Set(cacheKey, produtos, TimeSpan.FromMinutes(30));
+            }
+
+            return produtos;
+        }
+
+        public async Task<List<Produto>> ObterPorCategoriaAsync(string categoria)
+        {
+            return await _context.Produtos
+                .Where(p => p.Disponivel && p.Categoria == categoria)
+                .OrderBy(p => p.Nome)
+                .Take(50)
+                .ToListAsync();
+        }
+
+        public async Task<(List<Produto> Produtos, int TotalCount)> ObterProdutosPaginadosAsync(int page, int pageSize, string search = "", string categoria = "")
+        {
+            var query = _context.Produtos.Where(p => p.Disponivel);
+
+            // Filtro por categoria (corrigido)
+            if (!string.IsNullOrEmpty(categoria))
+            {
+                query = query.Where(p => p.Categoria == categoria);
+            }
+
+            // Filtro por busca (case insensitive)
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower(); // Converte para minúsculas para busca case insensitive
+                query = query.Where(p =>
+                    p.Nome.ToLower().Contains(search) ||
+                    (p.Descricao != null && p.Descricao.ToLower().Contains(search)) ||
+                    p.Categoria.ToLower().Contains(search) ||
+                    (p.Subcategoria != null && p.Subcategoria.ToLower().Contains(search))
+                );
+            }
+
+            var totalCount = await query.CountAsync();
+            var produtos = await query
+                .OrderBy(p => p.Nome)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (produtos, totalCount);
         }
     }
 }

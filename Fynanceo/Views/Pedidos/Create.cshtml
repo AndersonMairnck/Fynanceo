@@ -1,6 +1,5 @@
 ﻿@using Fynanceo.ViewModel
 @using Fynanceo.ViewModel.PedidosModel
-<!-- Views/Pedidos/Create.cshtml -->
 @model PedidoViewModel
 
 @{
@@ -18,6 +17,7 @@
 
 <div class="row">
     <div class="col-md-8">
+        <!-- Informações do Pedido -->
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Informações do Pedido</h5>
@@ -45,7 +45,6 @@
                                 </select>
                                 <span asp-validation-for="MesaId" class="text-danger"></span>
                             </div>
-
                             <div class="mb-3" id="clienteField" style="display: none;">
                                 <label asp-for="ClienteId" class="form-label">Cliente *</label>
                                 <select asp-for="ClienteId" class="form-select" id="clienteSelect">
@@ -88,7 +87,7 @@
             </div>
         </div>
 
-        <!-- Seção de Produtos -->
+        <!-- Seção de Itens do Pedido -->
         <div class="card mt-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Itens do Pedido</h5>
@@ -98,13 +97,11 @@
             </div>
             <div class="card-body">
                 <div id="itensPedido">
-                    <!-- Itens serão adicionados aqui via JavaScript -->
                     <div class="text-center text-muted py-4" id="emptyMessage">
                         <i class="fas fa-shopping-cart fa-2x mb-3"></i>
                         <p>Nenhum item adicionado ao pedido</p>
                     </div>
                 </div>
-
                 <div class="mt-4 pt-3 border-top" id="resumoPedido" style="display: none;">
                     <div class="row">
                         <div class="col-md-6">
@@ -120,6 +117,7 @@
         </div>
     </div>
 
+    <!-- Coluna Resumo e Produtos Rápidos -->
     <div class="col-md-4">
         <!-- Resumo Rápido -->
         <div class="card">
@@ -130,7 +128,6 @@
                 <div id="resumoRapido">
                     <p class="text-muted">Preencha as informações do pedido</p>
                 </div>
-
                 <div class="d-grid gap-2 mt-3">
                     <button type="submit" form="pedidoForm" class="btn btn-success btn-lg">
                         <i class="fas fa-check me-2"></i>Finalizar Pedido
@@ -142,7 +139,7 @@
             </div>
         </div>
 
-        <!-- Produtos em Destaque -->
+        <!-- Produtos Populares -->
         <div class="card mt-4">
             <div class="card-header">
                 <h5 class="mb-0">Produtos Populares</h5>
@@ -154,8 +151,7 @@
                         <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                                 onclick="adicionarProdutoRapido(@produto.Id, '@produto.Nome', @produto.ValorVenda)">
                             <div>
-                                <strong>@produto.Nome</strong>
-                                <br>
+                                <strong>@produto.Nome</strong><br>
                                 <small class="text-muted">R$ @produto.ValorVenda.ToString("N2")</small>
                             </div>
                             <span class="badge bg-primary rounded-pill">
@@ -169,7 +165,7 @@
     </div>
 </div>
 
-<!-- Modal de Produtos -->
+<!-- Modal de Produtos (AJAX + Paginado + Scroll Infinito + Filtros) -->
 <div class="modal fade" id="produtoModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -179,35 +175,45 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <input type="text" class="form-control" id="searchProduto" placeholder="Buscar produto...">
+                    <input type="text" class="form-control" id="searchProduto"
+                           placeholder="Buscar produto por nome, categoria...">
                 </div>
 
-                <div class="row" id="listaProdutos">
-                    @foreach (var produto in Model.ProdutosDisponiveis ?? new List<Fynanceo.Models.Produto>())
-                    {
-                        <div class="col-md-6 mb-3 produto-item" data-nome="@produto.Nome.ToLower()">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title">@produto.Nome</h6>
-                                    <p class="card-text text-muted small">@produto.Descricao</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong class="text-primary">R$ @produto.ValorVenda.ToString("N2")</strong>
-                                        <button type="button" class="btn btn-sm btn-outline-primary"
-                                                onclick="selecionarProduto(@produto.Id, '@produto.Nome', @produto.ValorVenda)">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
+                <!-- Filtros Rápidos -->
+                <div class="mb-3">
+                    <div class="btn-group btn-group-sm" role="group" id="filtrosCategorias">
+                        <button type="button" class="btn btn-outline-secondary active" data-categoria="">Todos</button>
+                        @foreach (var categoria in Model.CategoriasDisponiveis?.Take(6) ?? new List<string>())
+                        {
+                            <button type="button" class="btn btn-outline-secondary" data-categoria="@categoria">@categoria</button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Lista de Produtos -->
+                <div class="row" id="listaProdutos" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Produtos carregados via AJAX -->
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingProdutos" class="text-center py-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Carregando produtos...</p>
+                </div>
+
+                <!-- Sem resultados -->
+                <div id="noResults" class="text-center py-4" style="display: none;">
+                    <i class="fas fa-search fa-2x text-muted mb-3"></i>
+                    <p class="text-muted">Nenhum produto encontrado</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de Quantidade -->
+<!-- Modal de Quantidade e Observações -->
 <div class="modal fade" id="quantidadeModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -245,56 +251,45 @@
 
 @section Scripts {
     <script>
+        // ===== Estado global da view =====
         let itensPedido = [];
         let currentProduto = null;
 
-        // Controle do tipo de pedido
+        // ===== Variáveis para paginação AJAX =====
+        let currentPage = 1;
+        const pageSize = 20;
+        let isLoading = false;
+        let hasMore = true;
+        let currentSearch = '';
+        let currentCategoria = '';
+
+        // ===== Tipo de pedido (exibe campos) =====
         $('#tipoPedidoSelect').change(function() {
             const tipo = $(this).val();
-
-            // Reset campos
             $('#mesaField, #clienteField, #deliveryFields').hide();
             $('#MesaId, #ClienteId').val('');
-
             switch(tipo) {
-                case '1': // Mesa
-                    $('#mesaField').show();
-                    break;
-                case '2': // Balcão
-                    $('#clienteField').show();
-                    break;
-                case '3': // Delivery
-                    $('#clienteField, #deliveryFields').show();
-                    break;
+                case '1': $('#mesaField').show(); break;
+                case '2': $('#clienteField').show(); break;
+                case '3': $('#clienteField, #deliveryFields').show(); break;
             }
-
             atualizarResumo();
         });
 
-        // Buscar endereços do cliente
+        // ===== Endereços do cliente (AJAX) =====
         $('#clienteSelect').change(function() {
             const clienteId = $(this).val();
-            if (clienteId) {
-                $.get('/Pedidos/GetEnderecosCliente?clienteId=' + clienteId, function(data) {
-                    const select = $('#enderecoSelect');
-                    select.empty().append('<option value="">Selecione o endereço...</option>');
-                    data.forEach(endereco => {
-                        select.append(`<option value="${endereco.id}">${endereco.enderecoCompleto}</option>`);
-                    });
+            if (!clienteId) return;
+            $.get('/Pedidos/GetEnderecosCliente?clienteId=' + clienteId, function(data) {
+                const select = $('#enderecoSelect');
+                select.empty().append('<option value="">Selecione o endereço...</option>');
+                data.forEach(endereco => {
+                    select.append(`<option value="${endereco.id}">${endereco.enderecoCompleto}</option>`);
                 });
-            }
-        });
-
-        // Busca de produtos
-        $('#searchProduto').on('input', function() {
-            const termo = $(this).val().toLowerCase();
-            $('.produto-item').each(function() {
-                const nome = $(this).data('nome');
-                $(this).toggle(nome.includes(termo));
             });
         });
 
-        // Selecionar produto para adicionar
+        // ===== Selecionar produto (abre modal quantidade) =====
         function selecionarProduto(id, nome, preco) {
             currentProduto = { id, nome, preco };
             $('#produtoSelecionadoId').val(id);
@@ -304,72 +299,49 @@
             $('#quantidadeProduto').val(1);
             $('#observacoesProduto').val('');
             $('#personalizacoesProduto').val('');
-
             $('#produtoModal').modal('hide');
             $('#quantidadeModal').modal('show');
         }
 
-        // Adicionar produto rápido
         function adicionarProdutoRapido(id, nome, preco) {
-            currentProduto = { id, nome, preco };
-            $('#produtoSelecionadoId').val(id);
-            $('#produtoSelecionadoNome').val(nome);
-            $('#produtoSelecionadoPreco').val(preco);
-            $('#quantidadeModalTitle').text(`Adicionar ${nome}`);
-            $('#quantidadeProduto').val(1);
-            $('#observacoesProduto').val('');
-            $('#personalizacoesProduto').val('');
-
-            $('#quantidadeModal').modal('show');
+            selecionarProduto(id, nome, preco);
         }
 
-        // Adicionar item ao pedido
+        // ===== Adicionar item ao pedido =====
         function adicionarItemPedido() {
             const quantidade = parseFloat($('#quantidadeProduto').val());
-            const observacoes = $('#observacoesProduto').val();
-            const personalizacoes = $('#personalizacoesProduto').val();
-
-            if (quantidade <= 0) {
-                alert('Quantidade deve ser maior que zero');
-                return;
-            }
-
+            if (quantidade <= 0) { alert('Quantidade deve ser maior que zero'); return; }
+            const precoUnitario = parseFloat($('#produtoSelecionadoPreco').val()) || currentProduto?.preco || 0;
             const item = {
-                produtoId: currentProduto.id,
-                produtoNome: currentProduto.nome,
-                precoUnitario: currentProduto.preco,
+                produtoId: $('#produtoSelecionadoId').val() || currentProduto.id,
+                produtoNome: $('#produtoSelecionadoNome').val() || currentProduto.nome,
+                precoUnitario: precoUnitario,
                 quantidade: quantidade,
-                observacoes: observacoes,
-                personalizacoes: personalizacoes,
-                total: quantidade * currentProduto.preco
+                observacoes: $('#observacoesProduto').val(),
+                personalizacoes: $('#personalizacoesProduto').val(),
+                total: quantidade * precoUnitario
             };
-
             itensPedido.push(item);
             atualizarListaItens();
             $('#quantidadeModal').modal('hide');
         }
 
-        // Atualizar lista de itens na tela
+        // ===== Atualizar lista de itens (UI) =====
         function atualizarListaItens() {
             const container = $('#itensPedido');
             const emptyMessage = $('#emptyMessage');
             const resumoPedido = $('#resumoPedido');
-
             if (itensPedido.length === 0) {
                 emptyMessage.show();
                 resumoPedido.hide();
                 container.find('.item-pedido').remove();
                 return;
             }
-
             emptyMessage.hide();
             resumoPedido.show();
-
-            // Limpar itens existentes (exceto empty message)
             container.find('.item-pedido').remove();
-
             itensPedido.forEach((item, index) => {
-                const itemHtml = `
+                container.append(`
                     <div class="item-pedido border-bottom pb-3 mb-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="flex-grow-1">
@@ -385,30 +357,25 @@
                             </button>
                         </div>
                     </div>
-                `;
-                container.append(itemHtml);
+                `);
             });
-
             atualizarResumo();
         }
 
-        // Remover item do pedido
         function removerItem(index) {
             itensPedido.splice(index, 1);
             atualizarListaItens();
         }
 
-        // Atualizar resumo financeiro
+        // ===== Atualizar resumo (subtotal, taxa, total) =====
         function atualizarResumo() {
-            const subtotal = itensPedido.reduce((sum, item) => sum + item.total, 0);
+            const subtotal = itensPedido.reduce((sum, i) => sum + i.total, 0);
             const taxaEntrega = parseFloat($('#TaxaEntrega').val()) || 0;
             const total = subtotal + taxaEntrega;
-
             $('#subtotal').text(`R$ ${subtotal.toFixed(2)}`);
             $('#taxaEntrega').text(`R$ ${taxaEntrega.toFixed(2)}`);
             $('#totalPedido').text(`R$ ${total.toFixed(2)}`);
 
-            // Atualizar resumo rápido
             const resumoRapido = $('#resumoRapido');
             if (itensPedido.length > 0) {
                 resumoRapido.html(`
@@ -417,31 +384,29 @@
                     <p><strong>Taxa:</strong> R$ ${taxaEntrega.toFixed(2)}</p>
                     <p><strong>Total:</strong> R$ ${total.toFixed(2)}</p>
                 `);
+            } else {
+                resumoRapido.html('<p class="text-muted">Preencha as informações do pedido</p>');
             }
         }
 
-        // Limpar pedido
+        // ===== Limpar pedido =====
         function limparPedido() {
-            if (confirm('Tem certeza que deseja cancelar este pedido?')) {
-                itensPedido = [];
-                atualizarListaItens();
-                $('#pedidoForm')[0].reset();
-                $('#resumoRapido').html('<p class="text-muted">Preencha as informações do pedido</p>');
-            }
+            if (!confirm('Tem certeza que deseja cancelar este pedido?')) return;
+            itensPedido = [];
+            atualizarListaItens();
+            $('#pedidoForm')[0].reset();
+            $('#resumoRapido').html('<p class="text-muted">Preencha as informações do pedido</p>');
         }
 
-        // Preparar formulário antes do envio
-                    $('#pedidoForm').submit(function(e) {
+        // ===== Submissão do form =====
+        $('#pedidoForm').submit(function(e) {
             if (itensPedido.length === 0) {
                 e.preventDefault();
                 alert('Adicione pelo menos um item ao pedido');
                 return;
             }
-
-            // 🔧 Remove inputs antigos
+            // Remove inputs escondidos antigos (se houver)
             $(this).find('input[type="hidden"][name^="Itens"]').remove();
-
-            // Adiciona novamente os atuais
             itensPedido.forEach((item, index) => {
                 $(this).append(`
                     <input type="hidden" name="Itens[${index}].ProdutoId" value="${item.produtoId}">
@@ -453,9 +418,122 @@
             });
         });
 
-        
-
-        // Atualizar taxa de entrega no resumo
+        // ===== Taxa entrega input - atualiza resumo =====
         $('#TaxaEntrega').on('input', atualizarResumo);
+
+        // ======= AJAX: carregar produtos paginados =======
+        function carregarProdutos(page = 1, search = '', categoria = '') {
+            if (isLoading) return;
+
+            isLoading = true;
+            $('#loadingProdutos').show();
+            $('#noResults').hide();
+
+            $.get('/Pedidos/GetProdutosPaginados', {
+                page: page,
+                pageSize: pageSize,
+                search: search,
+                categoria: categoria
+            }, function(data) {
+                if (page === 1) {
+                    $('#listaProdutos').empty();
+                }
+
+                if (!data || !data.produtos || data.produtos.length === 0) {
+                    // sem resultados na primeira página
+                    if (page === 1) {
+                        $('#noResults').show();
+                    }
+                    hasMore = false;
+                } else {
+                    data.produtos.forEach(produto => {
+                        // escapar apóstrofos no nome para inserir no onclick
+                        const nomeEsc = (produto.nome || '').replace(/'/g, "\\'");
+                        const produtoHtml = `
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${produto.nome}</h6>
+                                        <p class="card-text text-muted small">${produto.subcategoria || ''}</p>
+                                        <p class="card-text text-muted small">${produto.descricao || ''}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong class="text-primary">R$ ${parseFloat(produto.valorVenda).toFixed(2)}</strong>
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    onclick="selecionarProduto(${produto.id}, '${nomeEsc}', ${parseFloat(produto.valorVenda)})">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        $('#listaProdutos').append(produtoHtml);
+                    });
+
+                    hasMore = page < data.totalPages;
+                }
+
+                currentPage = page;
+                isLoading = false;
+                $('#loadingProdutos').hide();
+            }).fail(function() {
+                // erro na requisição
+                if (page === 1) {
+                    $('#listaProdutos').empty();
+                    $('#noResults').show();
+                }
+                isLoading = false;
+                $('#loadingProdutos').hide();
+            });
+        }
+
+        // ===== Scroll infinito no container de produtos (div com overflow) =====
+        $('#listaProdutos').on('scroll', function() {
+            const el = $(this)[0];
+            if (!el) return;
+            if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+                if (hasMore && !isLoading) {
+                    carregarProdutos(currentPage + 1, currentSearch, currentCategoria);
+                }
+            }
+        });
+
+        // ===== Busca com debounce (input do modal) =====
+        let searchTimeout;
+        $('#searchProduto').on('input', function() {
+            clearTimeout(searchTimeout);
+            const termo = $(this).val().trim();
+            searchTimeout = setTimeout(() => {
+                currentSearch = termo;
+                currentPage = 1;
+                hasMore = true;
+                carregarProdutos(1, currentSearch, currentCategoria);
+            }, 500);
+        });
+
+        // ===== Filtro rápido por categoria =====
+        $('#filtrosCategorias').on('click', 'button', function() {
+            $('#filtrosCategorias button').removeClass('active');
+            $(this).addClass('active');
+            currentCategoria = $(this).data('categoria') || '';
+            currentPage = 1;
+            hasMore = true;
+            carregarProdutos(1, currentSearch, currentCategoria);
+        });
+
+        // ===== Ao abrir o modal, carregar produtos (primeira página) =====
+        $('#produtoModal').on('show.bs.modal', function () {
+            // reset filtros de busca apenas no primeiro carregamento opcional
+            // Caso queira manter últimos termos, comente as linhas abaixo.
+            //$('#searchProduto').val('');
+            //currentSearch = '';
+            //currentCategoria = '';
+            currentPage = 1;
+            hasMore = true;
+            carregarProdutos(1, currentSearch, currentCategoria);
+        });
+
+        // ===== Inicialização: caso queira pré-carregar produtos ao carregar a página (opcional) =====
+        // Não pré-carrego para economizar requisições; o carregamento acontece ao abrir o modal.
     </script>
 }

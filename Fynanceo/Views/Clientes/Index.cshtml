@@ -31,6 +31,32 @@
     }
 
     <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="searchInput"
+                               placeholder="Buscar por nome, CPF, telefone..." value="@ViewBag.Search">
+                        <button class="btn btn-outline-secondary" type="button" id="btnSearch">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" type="button" id="btnClear"
+                                style="@(string.IsNullOrEmpty(ViewBag.Search) ? "display:none" : "")">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted" id="resultInfo">
+                        @if (ViewBag.TotalCount > 0)
+                        {
+                            <span>Total: @ViewBag.TotalCount cliente(s)</span>
+                        }
+                    </small>
+                </div>
+            </div>
+        </div>
+
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-hover" id="tabela-clientes">
@@ -45,51 +71,234 @@
                             <th class="text-center">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.NomeCompleto</td>
-                                <td>@item.CpfCnpj</td>
-                                <td>@item.Telefone</td>
-                                <td>
-                                    <span class="badge @(item.Classificacao == "VIP" ? "bg-warning" :
-                                                                                              item.Classificacao == "Frequente" ? "bg-info" : "bg-secondary")">
-                                    @item.Classificacao
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge @(item.Ativo ? "bg-success" : "bg-danger")">
-                                    @(item.Ativo ? "Ativo" : "Inativo")
-                                </span>
-                            </td>
-                            <td>@item.DataCadastro.ToString("dd/MM/yyyy")</td>
-                            <td class="text-center">
-                                <div class="btn-group btn-group-sm">
-                                    <a href="@Url.Action("Detalhes", new { id = item.Id })"
-                                       class="btn btn-info" title="Detalhes">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="@Url.Action("Editar", new { id = item.Id })"
-                                       class="btn btn-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form method="post" action="@Url.Action("Excluir", new { id = item.Id })"
-                                          class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
-                                        <button type="submit" class="btn btn-danger" title="Excluir">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                                                }
+                    <tbody id="clientes-body">
+                        <!-- Os dados serão carregados via AJAX -->
                     </tbody>
                 </table>
             </div>
+
+            <!-- Loading -->
+            <div id="loadingClientes" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2 text-muted">Carregando clientes...</p>
+            </div>
+
+            <!-- Paginação -->
+            <nav aria-label="Paginação" id="paginationContainer">
+                <ul class="pagination justify-content-center" id="pagination">
+                    <!-- A paginação será gerada via JavaScript -->
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        let currentPage = @(ViewBag.CurrentPage ?? 1);
+        let currentSearch = '@(ViewBag.Search ?? "")';
+        const pageSize = @(ViewBag.PageSize ?? 15);
+
+        $(document).ready(function() {
+            carregarClientes(currentPage, currentSearch);
+
+            // Busca ao digitar
+            $('#searchInput').on('input', function() {
+                clearTimeout(window.searchTimeout);
+                window.searchTimeout = setTimeout(() => {
+                    currentPage = 1;
+                    currentSearch = $(this).val();
+                    carregarClientes(currentPage, currentSearch);
+                    toggleClearButton();
+                }, 500);
+            });
+
+            // Busca ao clicar no botão
+            $('#btnSearch').click(function() {
+                currentPage = 1;
+                currentSearch = $('#searchInput').val();
+                carregarClientes(currentPage, currentSearch);
+                toggleClearButton();
+            });
+
+            // Limpar busca
+            $('#btnClear').click(function() {
+                $('#searchInput').val('');
+                currentPage = 1;
+                currentSearch = '';
+                carregarClientes(currentPage, currentSearch);
+                toggleClearButton();
+            });
+
+            // Enter na busca
+            $('#searchInput').keypress(function(e) {
+                if (e.which === 13) {
+                    currentPage = 1;
+                    currentSearch = $(this).val();
+                    carregarClientes(currentPage, currentSearch);
+                    toggleClearButton();
+                }
+            });
+        });
+
+        function toggleClearButton() {
+            if ($('#searchInput').val()) {
+                $('#btnClear').show();
+            } else {
+                $('#btnClear').hide();
+            }
+        }
+
+        function carregarClientes(page, search) {
+            $('#loadingClientes').show();
+            $('#clientes-body').empty();
+            $('#pagination').empty();
+
+            $.get('/Clientes/GetClientesPaginados', {
+                page: page,
+                search: search
+            }, function(data) {
+                if (data.error) {
+                    console.error('Erro ao carregar clientes:', data.error);
+                    return;
+                }
+
+                $('#loadingClientes').hide();
+
+                if (data.clientes.length === 0) {
+                    $('#clientes-body').html(`
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fas fa-users fa-2x mb-3"></i>
+                                <p>Nenhum cliente encontrado</p>
+                                ${currentSearch ? '<small>Tente ajustar os termos da busca</small>' : ''}
+                            </td>
+                        </tr>
+                    `);
+                } else {
+                    data.clientes.forEach(cliente => {
+                        const row = `
+                            <tr>
+                                <td>${cliente.nomeCompleto}</td>
+                                <td>${cliente.cpfCnpj}</td>
+                                <td>${cliente.telefone}</td>
+                                <td>
+                                    <span class="badge ${cliente.classificacaoBadge}">
+                                        ${cliente.classificacao}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge ${cliente.statusBadge}">
+                                        ${cliente.statusText}
+                                    </span>
+                                </td>
+                                <td>${cliente.dataCadastro}</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="/Clientes/Detalhes/${cliente.id}"
+                                           class="btn btn-info" title="Detalhes">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="/Clientes/Editar/${cliente.id}"
+                                           class="btn btn-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="/Clientes/Excluir/${cliente.id}"
+                                              class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                            <button type="submit" class="btn btn-danger" title="Excluir">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        $('#clientes-body').append(row);
+                    });
+                }
+
+                // Atualizar informações
+                $('#resultInfo').html(`Total: ${data.totalCount} cliente(s)`);
+
+                // Gerar paginação
+                gerarPaginacao(data.currentPage, data.totalPages);
+
+            }).fail(function() {
+                $('#loadingClientes').hide();
+                $('#clientes-body').html(`
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <p>Erro ao carregar clientes</p>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        function gerarPaginacao(currentPage, totalPages) {
+            const pagination = $('#pagination');
+            pagination.empty();
+
+            if (totalPages <= 1) {
+                $('#paginationContainer').hide();
+                return;
+            }
+
+            $('#paginationContainer').show();
+
+            // Botão anterior
+            const prevDisabled = currentPage <= 1 ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" onclick="mudarPagina(${currentPage - 1})">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `);
+
+            // Páginas
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                pagination.append(`
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" onclick="mudarPagina(${i})">${i}</a>
+                    </li>
+                `);
+            }
+
+            // Botão próximo
+            const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" onclick="mudarPagina(${currentPage + 1})">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `);
+        }
+
+        function mudarPagina(page) {
+            currentPage = page;
+            carregarClientes(currentPage, currentSearch);
+
+            // Atualizar URL sem recarregar a página
+            const url = new URL(window.location);
+            url.searchParams.set('page', page);
+            if (currentSearch) {
+                url.searchParams.set('search', currentSearch);
+            } else {
+                url.searchParams.delete('search');
+            }
+            window.history.pushState({}, '', url);
+        }
+    </script>
+}
 
 @section Styles {
     <style>
@@ -106,6 +315,11 @@
         #tabela-clientes tbody tr:hover {
             background-color: rgba(0, 123, 255, 0.05);
             transition: background-color 0.2s ease;
+        }
+
+        .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
         }
     </style>
 }

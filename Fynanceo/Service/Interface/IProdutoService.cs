@@ -13,5 +13,8 @@ namespace Fynanceo.Service.Interface
         Task<bool> CodigoExisteAsync(string codigo, int? id = null);
         Task<List<string>> ObterCategoriasAsync();
         Task<List<string>> ObterSubcategoriasAsync();
+        Task<List<Produto>> ObterProdutosPopularesAsync(int quantidade);
+        Task<List<Produto>> ObterPorCategoriaAsync(string categoria);
+        Task<(List<Produto> Produtos, int TotalCount)> ObterProdutosPaginadosAsync(int page, int pageSize, string search = "",string categoria="");
     }
 }
