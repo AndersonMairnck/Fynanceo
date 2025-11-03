@@ -59,6 +59,14 @@ namespace Fynanceo.ViewModel.PedidosModel
         public List<Pedido> PedidosCozinha { get; set; } = new();
         public List<Pedido> PedidosPreparo { get; set; } = new();
         public List<Pedido> PedidosProntos { get; set; } = new();
+
+        public CozinhaConfig Config { get; set; } = new CozinhaConfig();
+    }
+    public class CozinhaConfig
+    {
+        public int TempoAlertaPreparoMinutos { get; set; } = 30;
+        public int TempoAlertaProntoMinutos { get; set; } = 10;
+        public int IntervaloAtualizacaoSegundos { get; set; } = 30;
     }
     public class ApiResponse<T>
     {
