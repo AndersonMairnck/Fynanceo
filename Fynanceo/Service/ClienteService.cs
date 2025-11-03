@@ -153,5 +153,36 @@ namespace Fynanceo.Services
             return await _context.Clientes
                 .AnyAsync(c => c.CpfCnpj == cpfCnpj && (!id.HasValue || c.Id != id.Value));
         }
+
+        public async Task<(List<Cliente> Clientes, int TotalCount, int TotalPages)> ObterClientesPaginadosAsync(int page, int pageSize, string search = "")
+        {
+            var query = _context.Clientes.AsQueryable();
+
+            // Filtro de busca (case insensitive)
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                query = query.Where(c =>
+                    c.NomeCompleto.ToLower().Contains(search) ||
+                    c.CpfCnpj.Contains(search) ||
+                    c.Telefone.Contains(search) ||
+                    c.Email.ToLower().Contains(search) ||
+                    c.Classificacao.ToLower().Contains(search)
+                );
+            }
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var clientes = await query
+                .Include(c => c.Enderecos)
+                .OrderBy(c => c.NomeCompleto)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (clientes, totalCount, totalPages);
+        }
+
     }
 }

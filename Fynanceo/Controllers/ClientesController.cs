@@ -7,6 +7,7 @@ namespace Fynanceo.Controllers
     public class ClientesController : Controller
     {
         private readonly IClienteService _clienteService;
+        private const int PageSize = 15; // Itens por página
 
         public ClientesController(IClienteService clienteService)
         {
@@ -14,10 +15,62 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Clientes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, string search = "")
         {
-            var clientes = await _clienteService.ObterTodosAsync();
+            // CORREÇÃO: Usando tuple explicitamente
+            var resultTuple = await _clienteService.ObterClientesPaginadosAsync(page, PageSize, search);
+            var clientes = resultTuple.Clientes;
+            var totalCount = resultTuple.TotalCount;
+            var totalPages = resultTuple.TotalPages;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.Search = search;
+            ViewBag.PageSize = PageSize;
+
             return View(clientes);
+        }
+
+        // Novo endpoint para carregar clientes via AJAX
+        public async Task<IActionResult> GetClientesPaginados(int page = 1, string search = "")
+        {
+            try
+            {
+                // CORREÇÃO: Usando tuple explicitamente
+                var resultTuple = await _clienteService.ObterClientesPaginadosAsync(page, PageSize, search);
+                var clientes = resultTuple.Clientes;
+                var totalCount = resultTuple.TotalCount;
+                var totalPages = resultTuple.TotalPages;
+
+                var result = clientes.Select(c => new
+                {
+                    id = c.Id,
+                    nomeCompleto = c.NomeCompleto,
+                    cpfCnpj = c.CpfCnpj,
+                    telefone = c.Telefone,
+                    email = c.Email,
+                    classificacao = c.Classificacao,
+                    ativo = c.Ativo,
+                    dataCadastro = c.DataCadastro.ToString("dd/MM/yyyy"),
+                    classificacaoBadge = c.Classificacao == "VIP" ? "bg-warning" :
+                                       c.Classificacao == "Frequente" ? "bg-info" : "bg-secondary",
+                    statusBadge = c.Ativo ? "bg-success" : "bg-danger",
+                    statusText = c.Ativo ? "Ativo" : "Inativo"
+                }).ToList();
+
+                return Json(new
+                {
+                    clientes = result,
+                    totalCount,
+                    totalPages,
+                    currentPage = page
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
         }
 
         // GET: Clientes/Detalhes/5

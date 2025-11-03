@@ -11,5 +11,7 @@ namespace Fynanceo.Service.Interface
         Task<bool> AtualizarAsync(int id, ClienteViewModel model);
         Task<bool> ExcluirAsync(int id);
         Task<bool> CpfCnpjExisteAsync(string cpfCnpj, int? id = null);
+
+        Task<(List<Cliente> Clientes, int TotalCount, int TotalPages)> ObterClientesPaginadosAsync(int page, int pageSize, string search = "");
     }
 }

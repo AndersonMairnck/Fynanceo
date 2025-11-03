@@ -36,6 +36,7 @@ namespace Fynanceo.ViewModel.PedidosModel
         public List<Cliente>? Clientes { get; set; }
         public List<EnderecoCliente>? EnderecosEntrega { get; set; }
         public List<Produto>? ProdutosDisponiveis { get; set; }
+        public List<string>? CategoriasDisponiveis { get; set; }
 
         // Itens do pedido
         public List<ItemPedidoViewModel> Itens { get; set; } = new List<ItemPedidoViewModel>();
