@@ -80,11 +80,19 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Todos os Pedidos de Hoje</h5>
-        <div class="btn-group">
-            <button class="btn btn-outline-secondary btn-sm" onclick="filterPedidos('all')">Todos</button>
-            <button class="btn btn-outline-primary btn-sm" onclick="filterPedidos('Aberto')">Abertos</button>
-            <button class="btn btn-outline-warning btn-sm" onclick="filterPedidos('EmPreparo')">Preparo</button>
-            <button class="btn btn-outline-success btn-sm" onclick="filterPedidos('Pronto')">Prontos</button>
+        <div class="d-flex gap-2">
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nº pedido...">
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="filterPedidos('all')">Todos</button>
+                <button class="btn btn-outline-primary btn-sm" onclick="filterPedidos('Aberto')">Abertos</button>
+                <button class="btn btn-outline-warning btn-sm" onclick="filterPedidos('EmPreparo')">Preparo</button>
+                <button class="btn btn-outline-success btn-sm" onclick="filterPedidos('Pronto')">Prontos</button>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -105,7 +113,7 @@
                 <tbody>
                     @foreach (var pedido in Model)
                     {
-                        <tr class="pedido-row" data-status="@pedido.Status">
+                        <tr class="pedido-row" data-status="@pedido.Status" data-numero="@pedido.NumeroPedido">
                             <td>
                                 <strong>@pedido.NumeroPedido</strong>
                                 <br>
@@ -223,10 +231,18 @@
 
 @section Scripts {
     <script>
+        // Filtro por status
         function filterPedidos(status) {
             const rows = document.querySelectorAll('.pedido-row');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
             rows.forEach(row => {
-                if (status === 'all' || row.getAttribute('data-status') === status) {
+                const rowStatus = row.getAttribute('data-status');
+                const numeroPedido = row.getAttribute('data-numero').toString().toLowerCase();
+                const matchesStatus = status === 'all' || rowStatus === status;
+                const matchesSearch = !searchTerm || numeroPedido.includes(searchTerm);
+
+                if (matchesStatus && matchesSearch) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
@@ -234,9 +250,121 @@
             });
         }
 
+        // Busca por número de pedido
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('.pedido-row');
+                let hasResults = false;
+
+                rows.forEach(row => {
+                    const numeroPedido = row.getAttribute('data-numero').toString().toLowerCase();
+
+                    if (!searchTerm || numeroPedido.includes(searchTerm)) {
+                        row.style.display = '';
+                        hasResults = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Destacar resultados da busca
+                if (searchTerm) {
+                    highlightSearchResults(searchTerm);
+                }
+            });
+
+            // Permitir busca com Enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    filterPedidos('all');
+                }
+            });
+        }
+
+        // Limpar busca
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterPedidos('all');
+        }
+
+        // Destacar resultados da busca (opcional)
+        function highlightSearchResults(searchTerm) {
+            const rows = document.querySelectorAll('.pedido-row');
+            rows.forEach(row => {
+                const numeroCell = row.querySelector('td:first-child strong');
+                const numeroPedido = row.getAttribute('data-numero').toString();
+
+                if (numeroPedido.toLowerCase().includes(searchTerm)) {
+                    // Adicionar classe de destaque
+                    row.classList.add('table-active');
+
+                    // Destacar o número correspondente (opcional)
+                    const originalNumero = numeroPedido;
+                    const highlightedNumero = originalNumero.replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<span class="bg-warning text-dark">${match}</span>`
+                    );
+                    numeroCell.innerHTML = highlightedNumero;
+                } else {
+                    row.classList.remove('table-active');
+                }
+            });
+        }
+
+        // Inicializar busca quando o documento carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSearch();
+        });
+
         // Auto-refresh a cada 30 segundos
         setInterval(() => {
             window.location.reload();
         }, 30000);
     </script>
+
+    <style>
+        .table-active {
+            background-color: #fff3cd !important;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .status-aberto {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .status-cozinha {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .status-preparo {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .status-pronto {
+            background-color: #198754;
+            color: white;
+        }
+
+        .status-entregue {
+            background-color: #6f42c1;
+            color: white;
+        }
+
+        .status-fechado {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
 }
