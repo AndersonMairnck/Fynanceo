@@ -62,12 +62,7 @@ namespace Fynanceo.ViewModel.PedidosModel
 
         public CozinhaConfig Config { get; set; } = new CozinhaConfig();
     }
-    public class CozinhaConfig
-    {
-        public int TempoAlertaPreparoMinutos { get; set; } = 30;
-        public int TempoAlertaProntoMinutos { get; set; } = 10;
-        public int IntervaloAtualizacaoSegundos { get; set; } = 30;
-    }
+   
     public class ApiResponse<T>
     {
         public bool Success { get; set; }

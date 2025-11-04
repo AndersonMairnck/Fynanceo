@@ -561,7 +561,9 @@ namespace Fynanceo.Services
                 return null;
 
             // 2️⃣ Impede reprocessar item já em preparo ou pronto
-            if (item.Status == PedidoStatus.Pronto || item.Status == PedidoStatus.Entregue)
+            //if (item.Status == PedidoStatus.Pronto || item.Status == PedidoStatus.Entregue)
+            //    throw new InvalidOperationException("O item já está em preparo ou entregue.");
+            if (item.Status == PedidoStatus.Entregue)
                 throw new InvalidOperationException("O item já está em preparo ou entregue.");
 
             // 3️⃣ Atualiza o status do item
@@ -571,17 +573,17 @@ namespace Fynanceo.Services
             await _context.SaveChangesAsync();
 
             // 4️⃣ Verifica se todos os itens do pedido já estão em preparo
-            bool todosEmPreparo = await _context.ItensPedido
+            bool todosEntregue = await _context.ItensPedido
                 .Where(i => i.PedidoId == item.PedidoId)
-                .AllAsync(i => i.Status == PedidoStatus.Pronto || i.Status == PedidoStatus.Entregue);
+                .AllAsync(i =>  i.Status == PedidoStatus.Entregue);
 
             // 5️⃣ Se todos estão em entregue ou prontos, atualiza o status do pedido
-            if (todosEmPreparo)
+            if (todosEntregue)
             {
                 var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
                 if (pedido != null)
                 {
-                    AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    AtualizarStatus(pedido.Id, PedidoStatus.Entregue.ToString(), "Sistema").Wait();
                     //pedido.Status = PedidoStatus.EmPreparo; // Enum do pedido
                     //pedido.DataPreparo = DateTime.UtcNow;
                     //await _context.SaveChangesAsync();

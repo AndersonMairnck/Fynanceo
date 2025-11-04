@@ -170,10 +170,12 @@
                                 </div>
 
                                 <div class="d-grid gap-2 mt-3">
-                                    <button class="btn btn-warning btn-sm" onclick="iniciarPreparoTodos(@pedido.Id)">
-                                        <i class="fas fa-play-circle me-1"></i>Iniciar Todos
-                                    </button>
+                                    <span class="badge bg-warning text-dark fs-5 animate-pulse">@pedido.NumeroPedido</span>
                                 </div>
+
+
+
+
                             </div>
                         </div>
                     }
@@ -288,11 +290,10 @@
                                 </div>
 
                                 <div class="d-grid gap-2 mt-3">
-                                    <button class="btn btn-success btn-sm" onclick="marcarProntoTodos(@pedido.Id)">
-                                        <i class="fas fa-check-circle me-1"></i>Pronto Todos
-                                    </button>
+                                    <span class="badge bg-success pedido-badge fs-5">@pedido.NumeroPedido</span>
                                 </div>
                             </div>
+
                         </div>
                     }
                 }
@@ -412,11 +413,9 @@
                                 </div>
 
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-info btn-sm"
-                                            onclick="entregaTodosCozinha(@pedido.Id)"
-                                            @(todosEntregues ? "disabled" : "")>
-                                        <i class="fas fa-truck me-1"></i>Marcar Todos Entregues
-                                    </button>
+                                    <div class="d-grid gap-2 mt-3">
+                                        <span class="pedido-destaque bg-primary text-white p-2 rounded text-center">@pedido.NumeroPedido</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -516,17 +515,8 @@
                 .done(() => atualizarSeletivamente());
         }
 
-        function iniciarPreparoTodos(pedidoId) {
-            if (!confirm('Iniciar preparo de todos os itens?')) return;
-            $.post('@Url.Action("IniciarPreparoTodos", "Pedidos")', { pedidoId: pedidoId })
-                .done(() => atualizarSeletivamente());
-        }
 
-        function marcarProntoTodos(pedidoId) {
-            if (!confirm('Marcar todos os itens como prontos?')) return;
-            $.post('@Url.Action("MarcarProntoTodos", "Pedidos")', { pedidoId: pedidoId })
-                .done(() => atualizarSeletivamente());
-        }
+       
 
         // ✅ CORREÇÃO DA NOMENCLATURA - Funções renomeadas
         function entregaIndividualCozinha(itemId, pedidoId) {
@@ -535,11 +525,7 @@
                 .done(() => atualizarSeletivamente());
         }
 
-        function entregaTodosCozinha(pedidoId) {
-            if (!confirm('Marcar todos os itens deste pedido como entregues?')) return;
-            $.post('@Url.Action("EntregaTodosCozinha", "Pedidos")', { pedidoId: pedidoId })
-                .done(() => atualizarSeletivamente());
-        }
+      
 
         // Verificar alertas
         function verificarAlertas() {

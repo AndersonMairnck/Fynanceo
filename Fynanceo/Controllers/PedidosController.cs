@@ -17,14 +17,16 @@ namespace Fynanceo.Controllers
         private readonly IMesaService _mesaService;
         private readonly IProdutoService _produtoService;
         private readonly IClienteService _clienteService;
+        private readonly IConfigService _configService;
 
-        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService)
+        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService, IConfigService configService)
         {
 
             _pedidoService = pedidoService;
             _mesaService = mesaService;
             _produtoService = produtoService;
             _clienteService = clienteService;
+            _configService = configService;
         }
 
         // GET: Pedidos
@@ -107,17 +109,14 @@ namespace Fynanceo.Controllers
         // GET: Pedidos/Cozinha
         public async Task<IActionResult> Cozinha()
         {
+            var config = await _configService.ObterConfigCozinhaAsync();
+
             var viewModel = new CozinhaViewModel
             {
                 PedidosCozinha = await _pedidoService.ObterPedidosPorStatus("EnviadoCozinha"),
                 PedidosPreparo = await _pedidoService.ObterPedidosPorStatus("EmPreparo"),
                 PedidosProntos = await _pedidoService.ObterPedidosPorStatus("Pronto"),
-                Config = new CozinhaConfig
-                {
-                    TempoAlertaPreparoMinutos = 30, // Pode vir de appsettings
-                    TempoAlertaProntoMinutos = 10,
-                    IntervaloAtualizacaoSegundos = 30
-                }
+                Config = config // Agora vem do banco
             };
 
             return View(viewModel);
@@ -263,7 +262,7 @@ namespace Fynanceo.Controllers
 
         [HttpPost]
 
-        public async Task<IActionResult> EntregaIndividualCozinha(int itemId)
+        public async Task<IActionResult> EntregaIndividualCozinha(int itemId, int pedidoId)
         {
             if (itemId <= 0)
                 return BadRequest(new { success = false, message = "ID do item inválido." });
@@ -329,6 +328,33 @@ namespace Fynanceo.Controllers
             {
                 return Json(new { error = ex.Message });
             }
+        }
+        public async Task<IActionResult> ConfigCozinha()
+        {
+            var config = await _configService.ObterConfigCozinhaAsync();
+            return View(config);
+        }
+
+        // POST: Configurações da Cozinha
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfigCozinha(CozinhaConfig config)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _configService.AtualizarConfigCozinhaAsync(config);
+                    TempData["Success"] = "Configurações atualizadas com sucesso!";
+                    return RedirectToAction(nameof(Cozinha));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Erro ao salvar configurações: {ex.Message}");
+                }
+            }
+
+            return View(config);
         }
     }
 }

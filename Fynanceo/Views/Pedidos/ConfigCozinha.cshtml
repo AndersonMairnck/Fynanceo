@@ -1,0 +1,58 @@
+﻿@model Fynanceo.Models.CozinhaConfig
+
+@{
+    ViewData["Title"] = "Configurações da Cozinha";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog me-2"></i>@ViewData["Title"]
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="ConfigCozinha">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="TempoAlertaPreparoMinutos" class="form-label"></label>
+                        <input asp-for="TempoAlertaPreparoMinutos" class="form-control" />
+                        <span asp-validation-for="TempoAlertaPreparoMinutos" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            Tempo em minutos para disparar alerta quando um pedido está em preparo
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TempoAlertaProntoMinutos" class="form-label"></label>
+                        <input asp-for="TempoAlertaProntoMinutos" class="form-control" />
+                        <span asp-validation-for="TempoAlertaProntoMinutos" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            Tempo em minutos para disparar alerta quando um pedido está pronto aguardando entrega
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IntervaloAtualizacaoSegundos" class="form-label"></label>
+                        <input asp-for="IntervaloAtualizacaoSegundos" class="form-control" />
+                        <span asp-validation-for="IntervaloAtualizacaoSegundos" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            Intervalo em segundos para atualização automática da tela da cozinha
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Salvar Configurações
+                        </button>
+                        <a href="@Url.Action("Cozinha")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Voltar para Cozinha
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

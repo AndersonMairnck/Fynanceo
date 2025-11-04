@@ -36,9 +36,9 @@ namespace Fynanceo.Data
         public DbSet<Inventario> Inventarios { get; set; }
         public DbSet<ItemInventario> ItensInventario { get; set; }
         public DbSet<ProdutoIngrediente> ProdutoIngredientes { get; set; }
-   
 
-        // Configurações existentes dos outros módulos...
+
+        public DbSet<CozinhaConfig> CozinhaConfigs { get; set; }
 
 
 
@@ -162,6 +162,16 @@ namespace Fynanceo.Data
                       .HasForeignKey(e => e.PedidoId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            // Configuração para garantir que só tenha uma linha na tabela
+            modelBuilder.Entity<CozinhaConfig>()
+                .HasData(new CozinhaConfig
+                {
+                    Id = 1,
+                    TempoAlertaPreparoMinutos = 30,
+                    TempoAlertaProntoMinutos = 10,
+                    IntervaloAtualizacaoSegundos = 30
+                });
         }
     }
 }

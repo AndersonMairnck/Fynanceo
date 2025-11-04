@@ -1,4 +1,5 @@
 ﻿using Fynanceo.Data;
+using Fynanceo.Service;
 using Fynanceo.Service.Interface;
 using Fynanceo.Services;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IFinanceiroService, FinanceiroService>();
 builder.Services.AddScoped<IEstoqueService, EstoqueService>();
 
 builder.Services.AddScoped<IFornecedorService, FornecedorService>();
+builder.Services.AddScoped<IConfigService, ConfigService>();
 
 
 builder.Services.AddMemoryCache();
