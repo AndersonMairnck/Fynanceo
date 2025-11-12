@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b1f2263cfd031671b78ad0235e7a6c865121c79d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+095cf34e9cab408b6511b3ec76dc6bbee1835203")]
 [assembly: System.Reflection.AssemblyProductAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
