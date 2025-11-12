@@ -1,4 +1,5 @@
-﻿using Fynanceo.Models;
+﻿
+using Fynanceo.Models;
 using Fynanceo.ViewModel.ProdutosModel;
 
 namespace Fynanceo.Service.Interface
@@ -16,5 +17,6 @@ namespace Fynanceo.Service.Interface
         Task<List<Produto>> ObterProdutosPopularesAsync(int quantidade);
         Task<List<Produto>> ObterPorCategoriaAsync(string categoria);
         Task<(List<Produto> Produtos, int TotalCount)> ObterProdutosPaginadosAsync(int page, int pageSize, string search = "",string categoria="");
+        Task<List<Produto>> BuscarProdutosAsync(string termo, string categoria);
     }
 }

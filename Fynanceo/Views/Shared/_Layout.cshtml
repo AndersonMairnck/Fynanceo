@@ -386,6 +386,15 @@
                         <span>Mesas</span>
                     </a>
                 </li>
+                <!-- Nova Gestão de Mesas -->
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
+                       href="@Url.Action("Dashboard", "GestaoMesas")">
+                        <i class="fas fa-chair"></i>
+                        <span>Gestão de Mesas</span>
+                        <span class="badge bg-success badge-notification">Novo</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
                        href="/Funcionarios">

@@ -1,4 +1,4 @@
-﻿// Services/IPedidoService.cs
+﻿
 using Fynanceo.Models;
 using Fynanceo.ViewModel.PedidosModel;
 
@@ -21,6 +21,10 @@ namespace Fynanceo.Service.Interface
         Task<bool> MarcarProntoTodosAsync(int itemPedidoId);
         Task<ItemPedido> EntregueIndividualCozinha(int pedidoId);
         Task<bool> EntregaTodosCozinha(int pedidoId);
+
+
+        Task<Pedido> ObterPedidoAtivoPorMesa(int mesaId);
+        Task<bool> FecharPedidoMesa(int pedidoId, int mesaId);
 
 
     }

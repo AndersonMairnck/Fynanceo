@@ -13,10 +13,12 @@ namespace Fynanceo.Services
     public class PedidoService : IPedidoService
     {
         private readonly AppDbContext _context;
+        private readonly IMesaService _mesaService;
 
-        public PedidoService(AppDbContext context)
+        public PedidoService(AppDbContext context, IMesaService mesaService)
         {
             _context = context;
+            _mesaService = mesaService;
         }
 
         public async Task<Pedido> CriarPedido(PedidoViewModel viewModel)
@@ -35,7 +37,7 @@ namespace Fynanceo.Services
                     Observacoes = viewModel.Observacoes,
                     TaxaEntrega = viewModel.TaxaEntrega,
                     DataAbertura = DateTime.Now,
-                    FuncionarioId = 4 // Temporário - depois pegar do usuário logado
+                    FuncionarioId = 2 // Temporário - depois pegar do usuário logado
                 };
 
                 _context.Pedidos.Add(pedido);
@@ -83,14 +85,15 @@ namespace Fynanceo.Services
                 Quantidade = itemVm.Quantidade,
                 PrecoUnitario = produto.ValorVenda,
                 Observacoes = itemVm.Observacoes,
-                Personalizacoes = itemVm.Personalizacoes
+                Personalizacoes = itemVm.Personalizacoes,
+                   //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
             };
 
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();
 
-            // Recalcular totais
-            // await RecalcularTotais(pedidoId);
+           // Recalcular totais
+             await RecalcularTotais(pedidoId);
 
             return await ObterPedidoCompleto(pedidoId);
         }
@@ -591,6 +594,34 @@ namespace Fynanceo.Services
             }
 
             return item;
+        }
+
+        public async Task<Pedido> ObterPedidoAtivoPorMesa(int mesaId)
+        {
+            return await _context.Pedidos
+                .Include(p => p.Itens)
+                    .ThenInclude(i => i.Produto)
+                .Where(p => p.MesaId == mesaId &&
+                           p.Status != PedidoStatus.Fechado &&
+                           p.Status != PedidoStatus.Cancelado)
+                .OrderByDescending(p => p.DataAbertura)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> FecharPedidoMesa(int pedidoId, int mesaId)
+        {
+            var pedido = await _context.Pedidos.FindAsync(pedidoId);
+            if (pedido == null || pedido.MesaId != mesaId) return false;
+
+            pedido.Status = PedidoStatus.Fechado;
+            pedido.DataFechamento = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            // Liberar mesa
+            await _mesaService.AtualizarStatusAsync(mesaId, "Livre");
+
+            return true;
         }
 
     }
