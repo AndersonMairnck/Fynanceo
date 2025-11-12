@@ -1,0 +1,551 @@
+﻿@model Fynanceo.ViewModel.PedidosModel.GerenciarMesaViewModel
+@using Fynanceo.Models.Enums
+
+<link href="~/css/produtoCards.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <!-- Cabeçalho da Mesa -->
+    <div class="mesa-header">
+        <div class="mesa-header-content">
+            <div class="mesa-info">
+                <div class="mesa-info-item">
+                    <span class="mesa-info-label">Mesa</span>
+                    <span class="mesa-info-value">@Model.Mesa.Numero</span>
+                </div>
+                <div class="mesa-info-item">
+                    <span class="mesa-info-label">Capacidade</span>
+                    <span class="mesa-info-value">@Model.Mesa.Capacidade pessoas</span>
+                </div>
+                <div class="mesa-info-item">
+                    <span class="mesa-info-label">Localização</span>
+                    <span class="mesa-info-value">@Model.Mesa.Localizacao</span>
+                </div>
+                <div class="mesa-info-item">
+                    <span class="mesa-info-label">Status</span>
+                    <span class="mesa-info-value">
+                        <span class="badge bg-@(Model.Mesa.Status == "Livre" ? "success" : Model.Mesa.Status == "Ocupada" ? "danger" : "warning")">
+                            @Model.Mesa.Status
+                        </span>
+                    </span>
+                </div>
+                @if (Model.PedidoAtivo != null)
+                {
+                    <div class="mesa-info-item">
+                        <span class="mesa-info-label">Pedido</span>
+                        <span class="mesa-info-value">@Model.PedidoAtivo.NumeroPedido</span>
+                    </div>
+                    <div class="mesa-info-item">
+                        <span class="mesa-info-label">Total</span>
+                        <span class="mesa-info-value">R$ @Model.PedidoAtivo.Total.ToString("N2")</span>
+                    </div>
+                }
+            </div>
+
+            <div class="mesa-actions">
+                <a href="@Url.Action("Dashboard")" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+                @if (Model.PedidoAtivo != null)
+                {
+                    <button class="btn btn-light enviar-cozinha" data-pedido-id="@Model.PedidoAtivo.Id">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Coluna Esquerda - Busca -->
+        <div class="col-lg-4">
+            <!-- Busca Rápida de Produtos -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-search me-2"></i>Busca Rápida</h5>
+                </div>
+                <div class="card-body">
+                    <input type="hidden" id="pedido-id" value="@Model.PedidoAtivo?.Id" />
+
+                    <!-- Campo de Busca -->
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-search me-1"></i>Buscar Produto</label>
+                        <input type="text"
+                               class="form-control"
+                               id="busca-produto"
+                               placeholder="Digite o nome do produto..."
+                               autocomplete="off">
+                        <div class="form-text">
+                            Busca não diferencia maiúsculas/minúsculas e ignora acentos
+                        </div>
+                    </div>
+
+                    <!-- Filtro de Categorias -->
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-filter me-1"></i>Filtrar por Categoria</label>
+                        <select class="form-select" id="filtro-categoria">
+                            <option value="">Todas as categorias</option>
+                            @foreach (var categoria in Model.CategoriasDisponiveis)
+                            {
+                                <option value="@categoria">@categoria</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="loading-produtos" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Buscando produtos...</p>
+                    </div>
+
+                    @if (Model.PedidoAtivo == null)
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <small>É necessário abrir uma comanda primeiro</small>
+                            <div class="mt-2">
+                                <button class="btn btn-warning btn-sm abrir-comanda" data-mesa-id="@Model.Mesa.Id">
+                                    <i class="fas fa-plus me-2"></i>Abrir Comanda
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita - Produtos e Itens do Pedido -->
+        <div class="col-lg-8">
+            <!-- Cards de Produtos -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-boxes me-2"></i>Produtos
+                    </h5>
+                    <span class="badge bg-light text-dark" id="contador-produtos">
+                        @Model.ProdutosDisponiveis.Count() disponíveis
+                    </span>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Container dos Cards -->
+                    <div class="cards-container">
+                        <div id="container-produtos" class="cards-grid p-3">
+                            <!-- Cards serão carregados aqui via JavaScript -->
+                        </div>
+
+                        <!-- Mensagem quando não há produtos -->
+                        <div id="sem-produtos" class="empty-state d-none">
+                            <i class="fas fa-search"></i>
+                            <h6>Nenhum produto encontrado</h6>
+                            <p class="text-muted">Tente alterar os termos da busca ou filtro</p>
+                        </div>
+
+                        <!-- Produtos Populares (inicial) -->
+                        <div id="produtos-populares" class="p-3">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-fire me-1"></i>Produtos Populares
+                            </h6>
+                            <div class="cards-grid" id="cards-populares">
+                                @foreach (var produto in Model.ProdutosDisponiveis.Take(8))
+                                {
+                                    <div class="card produto-card"
+                                         data-produto-id="@produto.Id"
+                                         data-produto-nome="@produto.Nome"
+                                         data-produto-preco="@produto.ValorVenda">
+                                        <div class="card-body text-center">
+                                            <div class="mb-2 text-primary">
+                                                @* <i class="fas fa-@(ObterIconeCategoria(produto.Categoria)) fa-lg"></i> *@
+                                            </div>
+                                            <h6 class="card-title">@produto.Nome</h6>
+                                            <p class="preco mb-2">R$ @produto.ValorVenda.ToString("N2")</p>
+                                            <button class="btn btn-sm btn-outline-primary w-100 adicionar-rapido">
+                                                <i class="fas fa-plus me-1"></i>Adicionar
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itens do Pedido -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Itens do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PedidoAtivo == null || !Model.PedidoAtivo.Itens.Any())
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h6>Nenhum item no pedido</h6>
+                            <p class="text-muted">Adicione produtos usando a busca acima</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th width="80">Qtd</th>
+                                        <th width="100">Preço</th>
+                                        <th width="100">Total</th>
+                                        <th width="120">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.PedidoAtivo.Itens)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>@item.Produto.Nome</strong>
+                                                    @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                    {
+                                                        <br>
+                                                        <small class="text-muted">@item.Observacoes</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>@item.Quantidade</td>
+                                            <td>R$ @item.PrecoUnitario.ToString("N2")</td>
+                                            <td>R$ @item.Total.ToString("N2")</td>
+                                            <td>
+                                                <span class="badge bg-@(item.Status == PedidoStatus.Aberto ? "secondary" :
+                                                                                                                             item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
+                                                                                                                             item.Status == PedidoStatus.EmPreparo ? "info" :
+                                                                                                                             item.Status == PedidoStatus.Pronto ? "success" : "primary")">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                </tr>
+                                                                }
+                                </tbody>
+                                <tfoot class="table-warning">
+                                    <tr>
+                                        <td colspan="3"><strong>Total</strong></td>
+                                        <td colspan="2"><strong>R$ @Model.PedidoAtivo.Total.ToString("N2")</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Quantidade -->
+<div id="modal-quantidade" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-produto-nome">Adicionar Produto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modal-produto-id">
+                <input type="hidden" id="modal-produto-preco">
+
+                <div class="mb-3">
+                    <label class="form-label">Quantidade</label>
+                    <input type="number" class="form-control" id="modal-quantidade" value="1" min="1" max="50">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-control" id="modal-observacoes" rows="2"
+                              placeholder="Ex: Sem cebola, ponto da carne, etc."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmar-adicao">
+                    <i class="fas fa-cart-plus me-2"></i>Adicionar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        // Variáveis globais
+        let timeoutBusca;
+        let termoBuscaAtual = '';
+        let categoriaAtual = '';
+
+        $(document).ready(function() {
+            // Inicializar componentes
+            inicializarBuscaProdutos();
+            inicializarEventos();
+
+            // Abrir comanda se não existir
+            $('.abrir-comanda').click(abrirComanda);
+
+            // Enviar pedido para cozinha
+            $('.enviar-cozinha').click(enviarParaCozinha);
+        });
+
+        function inicializarBuscaProdutos() {
+            const $buscaInput = $('#busca-produto');
+            const $filtroCategoria = $('#filtro-categoria');
+
+            // Busca em tempo real - apenas após 3 caracteres
+            $buscaInput.on('input', function() {
+                clearTimeout(timeoutBusca);
+                const termo = $(this).val().trim();
+
+                if (termo.length >= 3) {
+                    timeoutBusca = setTimeout(() => {
+                        termoBuscaAtual = termo;
+                        buscarProdutos(termo, categoriaAtual);
+                    }, 500);
+                } else if (termo.length === 0) {
+                    mostrarProdutosPopulares();
+                } else {
+                    // Simplesmente mostra os produtos populares enquanto digita menos de 3 caracteres
+                    mostrarProdutosPopulares();
+                }
+            });
+
+            // Filtro por categoria
+            $filtroCategoria.on('change', function() {
+                categoriaAtual = $(this).val();
+                const termo = $('#busca-produto').val().trim();
+
+                if (termo.length >= 3) {
+                    buscarProdutos(termo, categoriaAtual);
+                } else {
+                    buscarProdutos('', categoriaAtual);
+                }
+            });
+        }
+
+        function inicializarEventos() {
+            // Delegation para cards dinâmicos
+            $(document).on('click', '.produto-card', function(e) {
+                if (!$(e.target).hasClass('adicionar-rapido') && !$(e.target).closest('.adicionar-rapido').length) {
+                    selecionarProduto($(this));
+                }
+            });
+
+            $(document).on('click', '.adicionar-rapido', function(e) {
+                e.stopPropagation();
+                const $card = $(this).closest('.produto-card');
+                selecionarProduto($card);
+            });
+
+            // Modal de confirmação
+            $('#confirmar-adicao').click(adicionarProdutoSelecionado);
+        }
+
+        function buscarProdutos(termo, categoria) {
+            const $container = $('#container-produtos');
+            const $loading = $('#loading-produtos');
+            const $semProdutos = $('#sem-produtos');
+            const $populares = $('#produtos-populares');
+            const $contador = $('#contador-produtos');
+
+            // Se termo vazio, mostra produtos populares
+            if (!termo || termo.length < 3) {
+                mostrarProdutosPopulares();
+                return;
+            }
+
+            // Mostrar loading e esconder populares
+            $loading.removeClass('d-none');
+            $container.addClass('d-none');
+            $semProdutos.addClass('d-none');
+            $populares.addClass('d-none');
+
+            $.ajax({
+                url: '@Url.Action("BuscarProdutos", "GestaoMesas")',
+                type: 'GET',
+                data: {
+                    termo: termo,
+                    categoria: categoria
+                },
+                success: function(response) {
+                    $loading.addClass('d-none');
+
+                    if (response.success && response.produtos.length > 0) {
+                        renderizarCardsProdutos(response.produtos);
+                        $container.removeClass('d-none');
+                        $contador.text(response.produtos.length + ' produtos encontrados');
+                    } else {
+                        $semProdutos.removeClass('d-none');
+                        $contador.text('0 produtos encontrados');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $loading.addClass('d-none');
+                    $semProdutos.removeClass('d-none');
+                    console.error('Erro na busca:', error);
+                    mostrarMensagemErro('Erro ao buscar produtos');
+                }
+            });
+        }
+
+        function renderizarCardsProdutos(produtos) {
+            const $container = $('#container-produtos');
+            $container.empty();
+
+            produtos.forEach(produto => {
+                const cardHtml = `
+                    <div class="card produto-card"
+                         data-produto-id="${produto.id}"
+                         data-produto-nome="${produto.nome}"
+                         data-produto-preco="${produto.valorVenda}">
+                        <div class="card-body text-center">
+                            <div class="mb-2 text-primary">
+                                <i class="fas fa-${obterIconeCategoria(produto.categoria)} fa-lg"></i>
+                            </div>
+                            <h6 class="card-title">${produto.nome}</h6>
+                            <p class="preco mb-2">R$ ${produto.valorVenda.toFixed(2)}</p>
+                            ${produto.descricao ? `<p class="card-text text-muted small mb-2">${produto.descricao}</p>` : ''}
+                            <button class="btn btn-sm btn-outline-primary w-100 adicionar-rapido">
+                                <i class="fas fa-plus me-1"></i>Adicionar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $container.append(cardHtml);
+            });
+        }
+
+        function obterIconeCategoria(categoria) {
+            const icones = {
+                'Bebidas': 'wine-glass',
+                'Pizzas': 'pizza-slice',
+                'Lanches': 'hamburger',
+                'Sobremesas': 'ice-cream',
+                'Saladas': 'leaf',
+                'Massas': 'utensils',
+                'Carnes': 'drumstick-bite'
+            };
+            return icones[categoria] || 'utensils';
+        }
+
+        function selecionarProduto($card) {
+            if ($('#pedido-id').val() === '') {
+                mostrarMensagemErro('É necessário abrir uma comanda primeiro');
+                return;
+            }
+
+            const produtoId = $card.data('produto-id');
+            const produtoNome = $card.data('produto-nome');
+            const produtoPreco = $card.data('produto-preco');
+
+            // Preencher modal
+            $('#modal-produto-id').val(produtoId);
+            $('#modal-produto-nome').text(`Adicionar ${produtoNome}`);
+            $('#modal-produto-preco').val(produtoPreco);
+            $('#modal-quantidade').val(1);
+            $('#modal-observacoes').val('');
+
+            // Mostrar modal
+            $('#modal-quantidade').modal('show');
+        }
+
+        function adicionarProdutoSelecionado() {
+            const pedidoId = $('#pedido-id').val();
+            const produtoId = $('#modal-produto-id').val();
+            const quantidade = $('#modal-quantidade').val();
+            const observacoes = $('#modal-observacoes').val();
+
+            if (!pedidoId) {
+                mostrarMensagemErro('Pedido não encontrado');
+                return;
+            }
+
+            const data = {
+                PedidoId: parseInt(pedidoId),
+                ProdutoId: parseInt(produtoId),
+                Quantidade: parseInt(quantidade),
+                Observacoes: observacoes
+            };
+
+            // Mostrar loading no botão
+            const $btn = $('#confirmar-adicao');
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Adicionando...');
+
+            $.ajax({
+                url: '@Url.Action("AdicionarItemMesa", "GestaoMesas")',
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function(response) {
+                    $btn.prop('disabled', false).html('<i class="fas fa-cart-plus me-2"></i>Adicionar');
+
+                    if (response.success) {
+                        $('#modal-quantidade').modal('hide');
+                        mostrarMensagemSucesso('Produto adicionado com sucesso!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                },
+                error: function() {
+                    $btn.prop('disabled', false).html('<i class="fas fa-cart-plus me-2"></i>Adicionar');
+                    mostrarMensagemErro('Erro ao adicionar produto');
+                }
+            });
+        }
+
+        function mostrarProdutosPopulares() {
+            const $mensagemMin = $('#mensagem-min-caracteres');
+            if ($mensagemMin.length) {
+                $mensagemMin.addClass('d-none');
+            }
+
+            $('#container-produtos').addClass('d-none');
+            $('#sem-produtos').addClass('d-none');
+            $('#loading-produtos').addClass('d-none');
+            $('#produtos-populares').removeClass('d-none');
+            $('#contador-produtos').text('@Model.ProdutosDisponiveis.Count() disponíveis');
+        }
+
+        function abrirComanda() {
+            var mesaId = $(this).data('mesa-id');
+            $.post('@Url.Action("AbrirComanda", "GestaoMesas")', { mesaId: mesaId })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                });
+        }
+
+        function enviarParaCozinha() {
+            var pedidoId = $(this).data('pedido-id');
+            $.post('@Url.Action("EnviarCozinha", "GestaoMesas")', { pedidoId: pedidoId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso('Pedido enviado para cozinha!');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                });
+        }
+
+        // Funções auxiliares
+        function mostrarMensagemSucesso(mensagem) {
+            // Implementar toast ou alerta bonito
+            alert(mensagem); // Temporário - substituir por toast
+        }
+
+        function mostrarMensagemErro(mensagem) {
+            alert(mensagem); // Temporário - substituir por toast
+        }
+    </script>
+}
+}

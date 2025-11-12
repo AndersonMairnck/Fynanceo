@@ -26,6 +26,7 @@ builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 builder.Services.AddScoped<IConfigService, ConfigService>();
 
 
+
 builder.Services.AddMemoryCache();
 
 

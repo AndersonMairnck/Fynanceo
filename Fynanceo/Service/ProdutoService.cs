@@ -4,6 +4,8 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ProdutosModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Globalization;
+using System.Text;
 
 namespace Fynanceo.Services
 {
@@ -16,7 +18,7 @@ namespace Fynanceo.Services
         {
             _context = context;
             _cache = memoryCache;
-              
+
         }
 
         public async Task<List<Produto>> ObterTodosAsync()
@@ -52,9 +54,9 @@ namespace Fynanceo.Services
                     TempoExtraPico = model.TempoExtraPico,
                     OpcoesPersonalizacao = model.OpcoesPersonalizacao,
                     Disponivel = model.Disponivel,
-                  
+
                     DataCadastro = DateTime.UtcNow,
-                    
+
                 };
 
                 // Adicionar ingredientes
@@ -65,12 +67,12 @@ namespace Fynanceo.Services
                         Nome = ingredienteModel.Nome,
                         Quantidade = ingredienteModel.Quantidade,
                         UnidadeMedida = ingredienteModel.UnidadeMedida
-                        
+
                     });
                 }
 
                 _context.Produtos.Add(produto);
-                
+
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -230,5 +232,68 @@ namespace Fynanceo.Services
 
             return (produtos, totalCount);
         }
+
+        // No ProdutoService
+        // No ProdutoService - Versão Cliente
+        public async Task<List<Produto>> BuscarProdutosAsync(string termo, string categoria)
+        {
+            var query = _context.Produtos
+                .Where(p => p.Disponivel)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(categoria))
+            {
+                query = query.Where(p => p.Categoria == categoria);
+            }
+
+            // Busca todos os produtos (limitado) e filtra no lado do cliente
+            var produtos = await query
+                .OrderBy(p => p.Nome)
+                .Take(200) // Limite maior para garantir resultados
+                .ToListAsync();
+
+            // Se não há termo de busca, retorna os produtos
+            if (string.IsNullOrEmpty(termo))
+            {
+                return produtos.Take(50).ToList();
+            }
+
+            // Filtra no lado do cliente (case-insensitive e sem acentos)
+            termo = termo.ToLower().Trim();
+            var termoSemAcentos = RemoverAcentos(termo);
+
+            var produtosFiltrados = produtos.Where(p =>
+                p.Nome.ToLower().Contains(termo) ||
+                RemoverAcentos(p.Nome.ToLower()).Contains(termoSemAcentos) ||
+                (p.Descricao != null && (
+                    p.Descricao.ToLower().Contains(termo) ||
+                    RemoverAcentos(p.Descricao.ToLower()).Contains(termoSemAcentos)
+                ))
+            ).Take(50).ToList();
+
+            return produtosFiltrados;
+        }
+
+        // Método otimizado para remover acentos
+        private static string RemoverAcentos(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLower();
+        }
+
     }
 }

@@ -30,6 +30,8 @@ namespace Fynanceo.ViewModel.PedidosModel
 
         [Display(Name = "Taxa de Entrega")]
         public decimal TaxaEntrega { get; set; }
+        public PedidoStatus Status { get; set; } = PedidoStatus.Aberto;
+        public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
 
         // Para seleção
         public List<Mesa>? MesasDisponiveis { get; set; }
