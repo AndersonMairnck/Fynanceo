@@ -63,6 +63,20 @@ namespace Fynanceo.Controllers
         }
 
         [HttpPost]
+        public async Task<JsonResult> FecharPedido(int pedidoId)
+        {
+            try
+            {
+                var pedido = await _pedidoService.FecharPedidoAsync(pedidoId);
+                return Json(new { success = true, message = "Pedido fechado com sucesso! Mesa liberada." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
         public async Task<JsonResult> CancelarPedido(int pedidoId)
         {
             try

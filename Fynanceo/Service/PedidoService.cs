@@ -20,7 +20,51 @@ namespace Fynanceo.Services
             _context = context;
             _mesaService = mesaService;
         }
+        public async Task<Pedido> FecharPedidoAsync(int pedidoId)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Itens)
+                .Include(p => p.Mesa)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
 
+            if (pedido == null)
+                throw new ArgumentException("Pedido não encontrado");
+
+            // Verifica se o pedido já está fechado ou cancelado
+            if (pedido.Status == PedidoStatus.Fechado || pedido.Status == PedidoStatus.Cancelado)
+            {
+                throw new InvalidOperationException("Pedido já está " + pedido.Status);
+            }
+
+            // Verifica se todos os itens estão entregues ou cancelados
+            var itensPendentes = pedido.Itens.Where(i =>
+                i.Status != PedidoStatus.Entregue &&
+                i.Status != PedidoStatus.Cancelado
+            ).ToList();
+
+            if (itensPendentes.Any())
+            {
+                var itensPendentesNomes = string.Join(", ", itensPendentes.Select(i => i.Produto?.Nome));
+                throw new InvalidOperationException($"Não é possível fechar o pedido. Itens pendentes: {itensPendentesNomes}");
+            }
+
+            // Fecha o pedido
+            pedido.Status = PedidoStatus.Fechado;
+            pedido.DataFechamento = DateTime.UtcNow;
+
+            // Libera a mesa
+            if (pedido.Mesa != null)
+            {
+                pedido.Mesa.Status = "Livre";
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Adiciona histórico
+            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Fechado", "Sistema");
+
+            return pedido;
+        }
         public async Task<Pedido> CriarPedido(PedidoViewModel viewModel)
         {
             try
@@ -257,31 +301,24 @@ namespace Fynanceo.Services
 
         private async Task RecalcularTotais(int pedidoId)
         {
-            var pedido = await _context.Pedidos.FindAsync(pedidoId);
+            var pedido = await _context.Pedidos
+                .Include(p => p.Itens)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
+
             if (pedido != null)
             {
                 try
                 {
-                    //pedido.Subtotal = await _context.ItensPedido
-                    //    .Where(i => i.PedidoId == pedidoId)
-                    //    .SumAsync(i => i.Total);
+                    // Considera apenas itens não cancelados
+                    var itensNaoCancelados = pedido.Itens.Where(i => i.Status != PedidoStatus.Cancelado).ToList();
 
-                    var itens = await _context.ItensPedido
-        .Where(i => i.PedidoId == pedidoId)
-        .ToListAsync();
-
-                    pedido.Subtotal = itens.Sum(i => i.Quantidade * i.PrecoUnitario);
-
-
-
-
+                    pedido.Subtotal = itensNaoCancelados.Sum(i => i.Quantidade * i.PrecoUnitario);
                     pedido.Total = pedido.Subtotal + pedido.TaxaEntrega;
 
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
-                    // Captura qualquer erro, inclusive de consulta
                     throw new Exception("Erro ao recalcular totais: " + ex.InnerException?.Message ?? ex.Message);
                 }
             }
