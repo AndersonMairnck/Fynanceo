@@ -34,5 +34,7 @@ namespace Fynanceo.Service.Interface
 
         Task<Pedido> CancelarPedidoAsync(int pedidoId);
         Task<ItemPedido> CancelarItemAsync(int itemId);
+
+        Task<Pedido> FecharPedidoAsync(int pedidoId);
     }
 }
