@@ -50,6 +50,11 @@
                     <button class="btn btn-light enviar-cozinha" data-pedido-id="@Model.PedidoAtivo.Id">
                         <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
                     </button>
+
+                    <!-- Botão Cancelar Pedido -->
+                    <button class="btn btn-danger cancelar-pedido" data-pedido-id="@Model.PedidoAtivo.Id">
+                        <i class="fas fa-times me-2"></i>Cancelar Pedido
+                    </button>
                 }
             </div>
         </div>
@@ -173,8 +178,17 @@
 
             <!-- Itens do Pedido -->
             <div class="card">
-                <div class="card-header bg-info text-white">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-list me-2"></i>Itens do Pedido</h5>
+                    @if (Model.PedidoAtivo != null && Model.PedidoAtivo.Itens.Any())
+                    {
+                        <div>
+                            <button class="btn btn-sm btn-light enviar-pendentes-cozinha" data-pedido-id="@Model.PedidoAtivo.Id"
+                                    title="Enviar todos os itens pendentes para cozinha">
+                                <i class="fas fa-paper-plane me-1"></i>Enviar Pendentes
+                            </button>
+                        </div>
+                    }
                 </div>
                 <div class="card-body">
                     @if (Model.PedidoAtivo == null || !Model.PedidoAtivo.Itens.Any())
@@ -195,16 +209,31 @@
                                         <th width="80">Qtd</th>
                                         <th width="100">Preço</th>
                                         <th width="100">Total</th>
-                                        <th width="120">Status</th>
+                                        <th width="150">Status</th>
+                                        <th width="120" class="text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var item in Model.PedidoAtivo.Itens)
                                     {
-                                        <tr>
+                                        var isProdutoPronto = item.Produto?.TempoPreparoMinutos == 0;
+                                        var badgeClass = item.Status == PedidoStatus.Aberto ? "secondary" :
+                                        item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
+                                        item.Status == PedidoStatus.EmPreparo ? "info" :
+                                        item.Status == PedidoStatus.Pronto ? "success" :
+                                        item.Status == PedidoStatus.Entregue ? "primary" :
+                                        item.Status == PedidoStatus.Cancelado ? "danger" : "secondary";
+
+                                        <tr data-item-id="@item.Id" class="@(isProdutoPronto ? "table-success" : "") @(item.Status == PedidoStatus.Cancelado ? "cancelado" : "")">
                                             <td>
                                                 <div>
                                                     <strong>@item.Produto.Nome</strong>
+                                                    @if (isProdutoPronto)
+                                                    {
+                                                        <span class="badge bg-success ms-1" title="Produto Pronto">
+                                                            <i class="fas fa-bolt"></i>
+                                                        </span>
+                                                    }
                                                     @if (!string.IsNullOrEmpty(item.Observacoes))
                                                     {
                                                         <br>
@@ -216,23 +245,85 @@
                                             <td>R$ @item.PrecoUnitario.ToString("N2")</td>
                                             <td>R$ @item.Total.ToString("N2")</td>
                                             <td>
-                                                <span class="badge bg-@(item.Status == PedidoStatus.Aberto ? "secondary" :
-                                                                                                                             item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
-                                                                                                                             item.Status == PedidoStatus.EmPreparo ? "info" :
-                                                                                                                             item.Status == PedidoStatus.Pronto ? "success" : "primary")">
-                                            @item.Status
-                                        </span>
-                                    </td>
-                                </tr>
-                                                                }
+                                                <span class="badge bg-@badgeClass status-item">
+                                                    @item.Status
+                                                </span>
+                                                @if (isProdutoPronto && item.Status == PedidoStatus.Aberto)
+                                                {
+                                                    <br>
+                                                    <small class="text-success">
+                                                        <i class="fas fa-info-circle"></i> Pronto para servir
+                                                    </small>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.Status == PedidoStatus.Cancelado)
+                                                {
+                                                    <span class="badge bg-danger">Cancelado</span>
+                                                }
+                                                else if (item.Status == PedidoStatus.Aberto || item.Status == PedidoStatus.EnviadoCozinha)
+                                                {
+                                                    <!-- Botão Cancelar Item -->
+                                                    <button class="btn btn-sm btn-outline-danger cancelar-item ms-1"
+                                                            data-item-id="@item.Id"
+                                                            title="Cancelar item">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
+
+                                                    @if (item.Status == PedidoStatus.Aberto && !isProdutoPronto)
+                                                    {
+                                                        <button class="btn btn-sm btn-warning enviar-item-cozinha"
+                                                                data-item-id="@item.Id"
+                                                                title="Enviar para cozinha">
+                                                            <i class="fas fa-utensils"></i>
+                                                        </button>
+                                                    }
+                                                    else if (item.Status == PedidoStatus.Aberto && isProdutoPronto)
+                                                    {
+                                                        <button class="btn btn-sm btn-success marcar-entregue"
+                                                                data-item-id="@item.Id"
+                                                                title="Marcar como entregue">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    }
+                                                }
+                                                else if (item.Status == PedidoStatus.Pronto)
+                                                {
+                                                    <button class="btn btn-sm btn-success marcar-entregue"
+                                                            data-item-id="@item.Id"
+                                                            title="Marcar como entregue">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                                 <tfoot class="table-warning">
                                     <tr>
                                         <td colspan="3"><strong>Total</strong></td>
-                                        <td colspan="2"><strong>R$ @Model.PedidoAtivo.Total.ToString("N2")</strong></td>
+                                        <td colspan="3"><strong>R$ @Model.PedidoAtivo.Total.ToString("N2")</strong></td>
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
+
+                        <!-- Legenda -->
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Legenda:</strong>
+                                <span class="badge bg-success ms-2"><i class="fas fa-bolt"></i></span> Produto Pronto
+                                <span class="badge bg-warning ms-2">EnviadoCozinha</span> Na fila da cozinha
+                                <span class="badge bg-info ms-2">EmPreparo</span> Sendo preparado
+                                <span class="badge bg-success ms-2">Pronto</span> Pronto para servir
+                                <span class="badge bg-primary ms-2">Entregue</span> Entregue ao cliente
+                                <span class="badge bg-danger ms-2">Cancelado</span> Item cancelado
+                            </small>
                         </div>
                     }
                 </div>
@@ -273,6 +364,7 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
     <script>
         // Variáveis globais
@@ -343,6 +435,41 @@
 
             // Modal de confirmação
             $('#confirmar-adicao').click(adicionarProdutoSelecionado);
+
+            // Enviar item individual para cozinha
+            $(document).on('click', '.enviar-item-cozinha', function(e) {
+                e.stopPropagation();
+                const itemId = $(this).data('item-id');
+                enviarItemCozinha(itemId);
+            });
+
+            // Marcar item como entregue
+            $(document).on('click', '.marcar-entregue', function(e) {
+                e.stopPropagation();
+                const itemId = $(this).data('item-id');
+                marcarItemEntregue(itemId);
+            });
+
+            // Enviar todos os pendentes para cozinha
+            $(document).on('click', '.enviar-pendentes-cozinha', function(e) {
+                e.stopPropagation();
+                const pedidoId = $(this).data('pedido-id');
+                enviarPendentesCozinha(pedidoId);
+            });
+
+            // Cancelar pedido
+            $(document).on('click', '.cancelar-pedido', function(e) {
+                e.stopPropagation();
+                const pedidoId = $(this).data('pedido-id');
+                cancelarPedido(pedidoId);
+            });
+
+            // Cancelar item individual
+            $(document).on('click', '.cancelar-item', function(e) {
+                e.stopPropagation();
+                const itemId = $(this).data('item-id');
+                cancelarItem(itemId);
+            });
         }
 
         function buscarProdutos(termo, categoria) {
@@ -537,6 +664,94 @@
                 });
         }
 
+        // Enviar item individual para cozinha
+        function enviarItemCozinha(itemId) {
+            $.post('@Url.Action("EnviarItemCozinha", "GestaoMesas")', { itemId: itemId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso('Item enviado para cozinha!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    mostrarMensagemErro('Erro ao enviar item para cozinha');
+                });
+        }
+
+        // Marcar item como entregue
+        function marcarItemEntregue(itemId) {
+            $.post('@Url.Action("MarcarItemEntregue", "GestaoMesas")', { itemId: itemId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso('Item marcado como entregue!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    mostrarMensagemErro('Erro ao marcar item como entregue');
+                });
+        }
+
+        // Enviar todos os itens pendentes para cozinha
+        function enviarPendentesCozinha(pedidoId) {
+            $.post('@Url.Action("EnviarPendentesCozinha", "GestaoMesas")', { pedidoId: pedidoId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso(response.message);
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    mostrarMensagemErro('Erro ao enviar itens pendentes');
+                });
+        }
+
+        // Cancelar pedido completo
+        function cancelarPedido(pedidoId) {
+            if (!confirm('Tem certeza que deseja cancelar este pedido? Todos os itens serão cancelados.')) {
+                return;
+            }
+
+            $.post('@Url.Action("CancelarPedido", "GestaoMesas")', { pedidoId: pedidoId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso('Pedido cancelado com sucesso!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    mostrarMensagemErro('Erro ao cancelar pedido');
+                });
+        }
+
+        // Cancelar item individual
+        function cancelarItem(itemId) {
+            if (!confirm('Tem certeza que deseja cancelar este item?')) {
+                return;
+            }
+
+            $.post('@Url.Action("CancelarItem", "GestaoMesas")', { itemId: itemId })
+                .done(function(response) {
+                    if (response.success) {
+                        mostrarMensagemSucesso('Item cancelado com sucesso!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        mostrarMensagemErro('Erro: ' + response.message);
+                    }
+                })
+                .fail(function() {
+                    mostrarMensagemErro('Erro ao cancelar item');
+                });
+        }
+
         // Funções auxiliares
         function mostrarMensagemSucesso(mensagem) {
             // Implementar toast ou alerta bonito
@@ -547,5 +762,4 @@
             alert(mensagem); // Temporário - substituir por toast
         }
     </script>
-}
 }
