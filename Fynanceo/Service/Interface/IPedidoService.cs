@@ -25,7 +25,14 @@ namespace Fynanceo.Service.Interface
 
         Task<Pedido> ObterPedidoAtivoPorMesa(int mesaId);
         Task<bool> FecharPedidoMesa(int pedidoId, int mesaId);
+ 
+   
 
+        Task<ItemPedido> EnviarItemCozinhaAsync(int itemId);
+        Task<ItemPedido> MarcarItemEntregueAsync(int itemId);
+        Task<int> EnviarPendentesCozinhaAsync(int pedidoId);
 
+        Task<Pedido> CancelarPedidoAsync(int pedidoId);
+        Task<ItemPedido> CancelarItemAsync(int itemId);
     }
 }

@@ -343,8 +343,6 @@ namespace Fynanceo.Services
 
 
 
-
-
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
         {
@@ -622,6 +620,201 @@ namespace Fynanceo.Services
             await _mesaService.AtualizarStatusAsync(mesaId, "Livre");
 
             return true;
+        }
+
+
+        public async Task<ItemPedido> EnviarItemCozinhaAsync(int itemId)
+        {
+            var item = await _context.ItensPedido
+                .Include(i => i.Produto)
+                .Include(i => i.Pedido)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+
+            if (item == null)
+                throw new ArgumentException("Item não encontrado");
+
+            // Verifica se é um produto pronto (tempo de preparo = 0)
+            if (item.Produto?.TempoPreparoMinutos == 0)
+            {
+                // Produto pronto - marca diretamente como Pronto
+                item.Status = PedidoStatus.Pronto;
+                item.DataPronto = DateTime.UtcNow;
+            }
+            else
+            {
+                // Produto que precisa de preparo - envia para cozinha
+                item.Status = PedidoStatus.EnviadoCozinha;
+                item.DataEnvioCozinha = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Atualiza status do pedido se necessário
+            await AtualizarStatusPedidoAsync(item.PedidoId);
+
+            return item;
+        }
+
+        public async Task<ItemPedido> MarcarItemEntregueAsync(int itemId)
+        {
+            var item = await _context.ItensPedido
+                .Include(i => i.Pedido)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+
+            if (item == null)
+                throw new ArgumentException("Item não encontrado");
+
+            if (item.Status != PedidoStatus.Pronto && item.Status != PedidoStatus.Aberto)
+                throw new InvalidOperationException("Item não está pronto para entrega");
+
+            item.Status = PedidoStatus.Entregue;
+            item.DataEntrega = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // Atualiza status do pedido se necessário
+            await AtualizarStatusPedidoAsync(item.PedidoId);
+
+            return item;
+        }
+
+        public async Task<int> EnviarPendentesCozinhaAsync(int pedidoId)
+        {
+            var itensPendentes = await _context.ItensPedido
+                .Include(i => i.Produto)
+                .Where(i => i.PedidoId == pedidoId &&
+                           i.Status == PedidoStatus.Aberto &&
+                           i.Produto.TempoPreparoMinutos > 0) // Apenas itens que precisam de preparo
+                .ToListAsync();
+
+            if (!itensPendentes.Any())
+                return 0;
+
+            foreach (var item in itensPendentes)
+            {
+                item.Status = PedidoStatus.EnviadoCozinha;
+                item.DataEnvioCozinha = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Atualiza status do pedido
+            await AtualizarStatusPedidoAsync(pedidoId);
+
+            return itensPendentes.Count;
+        }
+
+        private async Task AtualizarStatusPedidoAsync(int pedidoId)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Itens)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
+
+            if (pedido == null) return;
+
+            // Verifica se todos os itens estão entregues
+            if (pedido.Itens.All(i => i.Status == PedidoStatus.Entregue))
+            {
+                pedido.Status = PedidoStatus.Entregue;
+                pedido.DataEntrega = DateTime.UtcNow;
+            }
+            // Verifica se todos os itens estão prontos
+            else if (pedido.Itens.All(i => i.Status == PedidoStatus.Pronto || i.Status == PedidoStatus.Entregue))
+            {
+                pedido.Status = PedidoStatus.Pronto;
+                pedido.DataPronto = DateTime.UtcNow;
+            }
+            // Verifica se algum item está em preparo
+            else if (pedido.Itens.Any(i => i.Status == PedidoStatus.EmPreparo))
+            {
+                pedido.Status = PedidoStatus.EmPreparo;
+                pedido.DataPreparo = DateTime.UtcNow;
+            }
+            // Verifica se algum item foi enviado para cozinha
+            else if (pedido.Itens.Any(i => i.Status == PedidoStatus.EnviadoCozinha))
+            {
+                pedido.Status = PedidoStatus.EnviadoCozinha;
+                pedido.DataEnvioCozinha = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Pedido> CancelarPedidoAsync(int pedidoId)
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Itens)
+                .Include(p => p.Mesa)
+                .FirstOrDefaultAsync(p => p.Id == pedidoId);
+
+            if (pedido == null)
+                throw new ArgumentException("Pedido não encontrado");
+
+            // Verifica se o pedido já está cancelado, fechado ou entregue
+            if (pedido.Status == PedidoStatus.Cancelado ||
+                pedido.Status == PedidoStatus.Fechado ||
+                pedido.Status == PedidoStatus.Entregue)
+            {
+                throw new InvalidOperationException("Não é possível cancelar um pedido com status: " + pedido.Status);
+            }
+
+            // Cancela todos os itens do pedido
+            foreach (var item in pedido.Itens.Where(i => i.Status != PedidoStatus.Cancelado))
+            {
+                item.Status = PedidoStatus.Cancelado;
+            }
+
+            // Atualiza status do pedido
+            pedido.Status = PedidoStatus.Cancelado;
+            pedido.DataFechamento = DateTime.UtcNow;
+
+            // Libera a mesa se estiver ocupada
+            if (pedido.Mesa != null && pedido.Mesa.Status == "Ocupada")
+            {
+                pedido.Mesa.Status = "Livre";
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Adiciona histórico
+            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Cancelado", "Sistema");
+
+            return pedido;
+        }
+
+        public async Task<ItemPedido> CancelarItemAsync(int itemId)
+        {
+            var item = await _context.ItensPedido
+                .Include(i => i.Pedido)
+                .Include(i => i.Produto)
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+
+            if (item == null)
+                throw new ArgumentException("Item não encontrado");
+
+            // Verifica se o item já está cancelado, entregue ou em preparo avançado
+            if (item.Status == PedidoStatus.Cancelado)
+            {
+                throw new InvalidOperationException("Item já está cancelado");
+            }
+
+            if (item.Status == PedidoStatus.Entregue || item.Status == PedidoStatus.Pronto)
+            {
+                throw new InvalidOperationException($"Não é possível cancelar um item com status: {item.Status}");
+            }
+
+            // Cancela o item
+            item.Status = PedidoStatus.Cancelado;
+
+            await _context.SaveChangesAsync();
+
+            // Recalcula totais do pedido
+            await RecalcularTotais(item.PedidoId);
+
+            // Atualiza status do pedido
+            await AtualizarStatusPedidoAsync(item.PedidoId);
+
+            return item;
         }
 
     }

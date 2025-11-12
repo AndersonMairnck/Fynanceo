@@ -274,3 +274,17 @@
         justify-content: center;
     }
 }
+/* produtoCards.css - Adicionar estilos para cancelamento */
+tr[data-item-id] .status-item.bg-danger {
+    opacity: 0.7;
+}
+
+.cancelado {
+    background-color: #f8f9fa !important;
+    opacity: 0.6;
+}
+
+    .cancelado td {
+        text-decoration: line-through;
+        color: #6c757d !important;
+    }

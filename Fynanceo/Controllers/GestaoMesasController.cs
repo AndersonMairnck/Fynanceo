@@ -62,6 +62,80 @@ namespace Fynanceo.Controllers
             return View(viewModel);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> CancelarPedido(int pedidoId)
+        {
+            try
+            {
+                var pedido = await _pedidoService.CancelarPedidoAsync(pedidoId);
+                return Json(new { success = true, message = "Pedido cancelado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> CancelarItem(int itemId)
+        {
+            try
+            {
+                var item = await _pedidoService.CancelarItemAsync(itemId);
+                return Json(new { success = true, message = "Item cancelado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> EnviarItemCozinha(int itemId)
+        {
+            try
+            {
+                var item = await _pedidoService.EnviarItemCozinhaAsync(itemId);
+                return Json(new { success = true, message = "Item enviado para cozinha!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> MarcarItemEntregue(int itemId)
+        {
+            try
+            {
+                var item = await _pedidoService.MarcarItemEntregueAsync(itemId);
+                return Json(new { success = true, message = "Item marcado como entregue!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> EnviarPendentesCozinha(int pedidoId)
+        {
+            try
+            {
+                var count = await _pedidoService.EnviarPendentesCozinhaAsync(pedidoId);
+                var message = count > 0
+                    ? $"{count} itens enviados para cozinha!"
+                    : "Nenhum item pendente para enviar";
+
+                return Json(new { success = true, message = message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         // Abrir nova comanda na mesa
         [HttpPost]
         public async Task<IActionResult> AbrirComanda(int mesaId)
