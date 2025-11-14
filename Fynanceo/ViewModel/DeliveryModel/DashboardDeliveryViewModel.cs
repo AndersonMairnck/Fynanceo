@@ -1,18 +1,5 @@
-﻿// ViewModels/DashboardDeliveryViewModel.cs
+﻿
 
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
-
-// ViewModels/DashboardDeliveryViewModel.cs
 using Fynanceo.Models;
 
 namespace Fynanceo.ViewModel.DeliveryModel

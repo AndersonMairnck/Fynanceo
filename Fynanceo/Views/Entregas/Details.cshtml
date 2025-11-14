@@ -51,6 +51,7 @@
                                 <th>Taxa de Entrega:</th>
                                 <td>R$ @Model.TaxaEntrega.ToString("N2")</td>
                             </tr>
+                           
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -92,21 +93,17 @@
                 </div>
 
                 <!-- Endereço -->
-                <div class="mt-3">
-                    <h6>Endereço de Entrega</h6>
-                    <div class="alert alert-light">
-                        <strong>@Model.EnderecoCompleto</strong>
-                        @if (!string.IsNullOrEmpty(Model.Complemento))
-                        {
-                            <br>
-                            <span>Complemento: @Model.Complemento</span>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.Referencia))
-                        {
-                            <br>
-                            <span>Referência: @Model.Referencia</span>
-                        }
-                    </div>
+                <div class="mt-3 border rounded p-3">
+
+                    <h4 class="fw-bold text-decoration-underline">Endereço de Entrega</h4>
+
+                    <strong>@Model.EnderecoEntrega.Logradouro</strong><br>
+                    <strong>Bairro: @Model.EnderecoEntrega.Bairro</strong><br>
+                    <strong>Cidade: @Model.EnderecoEntrega.Cidade</strong><br>
+                    <strong>Cep: @Model.EnderecoEntrega.Cep</strong><br>
+                    <strong>Complemento: @Model.EnderecoEntrega.Complemento</strong><br>
+                    <strong>Referência: @Model.EnderecoEntrega.Referencia</strong>
+
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.Instrucoes))
@@ -142,7 +139,7 @@
                                 <div class="ms-3">
                                     <div class="d-flex justify-content-between">
                                         <strong>@historico.StatusNovo</strong>
-                                        <small class="text-muted">@historico.DataAlteracao.ToString("dd/MM/yyyy HH:mm")</small>
+                                       <small class="text-muted">@historico.DataAlteracao.ToLocalTime()</small>
                                     </div>
                                     <small class="text-muted">
                                         De <strong>@historico.StatusAnterior</strong> para <strong>@historico.StatusNovo</strong>
@@ -222,34 +219,38 @@
                 <table class="table table-sm table-borderless">
                     <tr>
                         <td><small>Criação:</small></td>
-                        <td class="text-end"><small>@Model.DataCriacao.ToString("HH:mm")</small></td>
+                        <td class="text-end">
+                            <small>
+                                @Model.DataCriacao.ToLocalTime().ToString("HH:mm")
+                            </small>
+                        </td>
                     </tr>
                     @if (Model.DataSaiuEntrega.HasValue)
                     {
                         <tr>
                             <td><small>Saiu para Entrega:</small></td>
-                            <td class="text-end"><small>@Model.DataSaiuEntrega.Value.ToString("HH:mm")</small></td>
+                            <td class="text-end"><small>@Model.DataSaiuEntrega.Value.ToLocalTime().ToString("HH:mm")</small></td>
                         </tr>
                     }
                     @if (Model.DataPrevisao.HasValue)
                     {
                         <tr>
                             <td><small>Previsão:</small></td>
-                            <td class="text-end"><small>@Model.DataPrevisao.Value.ToString("HH:mm")</small></td>
+                            <td class="text-end"><small>@Model.DataPrevisao.Value.ToLocalTime().ToString("HH:mm")</small></td>
                         </tr>
                     }
                     @if (Model.DataEntrega.HasValue)
                     {
                         <tr>
                             <td><small>Entrega:</small></td>
-                            <td class="text-end"><small>@Model.DataEntrega.Value.ToString("HH:mm")</small></td>
+                            <td class="text-end"><small>@Model.DataEntrega.Value.ToLocalTime().ToString("HH:mm")</small></td>
                         </tr>
                     }
                 </table>
 
                 <div class="text-center mt-3">
                     @{
-                        var tempoTotal = DateTime.Now - Model.DataCriacao;
+                        var tempoTotal = DateTime.UtcNow - Model.DataCriacao;
                         <h4 class="text-primary">@((int)tempoTotal.TotalMinutes)m</h4>
                         <small class="text-muted">Tempo decorrido</small>
                     }

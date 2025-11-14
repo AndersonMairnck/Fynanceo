@@ -39,6 +39,7 @@ namespace Fynanceo.Controllers
             var entrega = await _context.Entregas
                 .Include(e => e.Pedido)
                     .ThenInclude(p => p.Cliente)
+                     .Include(e => e.EnderecoEntrega)
                 .Include(e => e.Entregador)
                 .Include(e => e.Historico)
                 .FirstOrDefaultAsync(e => e.Id == id);
@@ -61,7 +62,10 @@ namespace Fynanceo.Controllers
                                p.Status == Fynanceo.Models.Enums.PedidoStatus.Pronto &&
                                !_context.Entregas.Any(e => e.PedidoId == p.Id))
                     .Include(p => p.Cliente)
-                    .ToListAsync(),
+                     .Include(p => p.EnderecoEntrega)  // ← ADICIONAR ESTE INCLUDE
+            .Include(p => p.Itens)           // ← ADICIONAR ESTE INCLUDE
+                .ThenInclude(i => i.Produto) // ← ADICIONAR ESTE INCLUDE
+            .ToListAsync(),
                 EntregadoresDisponiveis = await _entregaService.ObterEntregadoresDisponiveis()
             };
 
@@ -106,8 +110,7 @@ namespace Fynanceo.Controllers
 
             return View(viewModel);
         }
-
-        // POST: Entregas/AtribuirEntregador/5
+        
         [HttpPost]
         public async Task<JsonResult> AtribuirEntregador(int id, int entregadorId)
         {
@@ -170,17 +173,10 @@ namespace Fynanceo.Controllers
         // GET: Entregas/EmAndamento
         public async Task<IActionResult> EmAndamento()
         {
-            //var entregas = await _context.Entregas
-            //    .Include(e => e.Pedido)
-            //    .Include(e => e.Entregador)
-            //    .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ||
-            //               e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
-            //    .OrderBy(e => e.DataSaiuEntrega)
-            //    .ToListAsync();
-
-            //return View(entregas);
+            
             var entregas = await _context.Entregas
         .Include(e => e.Pedido)
+          .Include(e => e.EnderecoEntrega)
             .ThenInclude(p => p.Cliente)
         .Include(e => e.Entregador)
         .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ||

@@ -36,7 +36,7 @@
         <div class="card bg-danger text-white">
             <div class="card-body text-center">
                 <h3 class="mb-0">
-                    @Model.Count(e => (DateTime.Now - e.DataCriacao).TotalMinutes > 30)
+                    @Model.Count(e => (DateTime.UtcNow - e.DataCriacao).TotalMinutes > 30)
                 </h3>
                 <small>Urgentes (+30min)</small>
             </div>
@@ -46,7 +46,7 @@
         <div class="card bg-info text-white">
             <div class="card-body text-center">
                 <h3 class="mb-0">
-                    @Model.Count(e => (DateTime.Now - e.DataCriacao).TotalMinutes <= 10)
+                    @Model.Count(e => (DateTime.UtcNow - e.DataCriacao).TotalMinutes <= 10)
                 </h3>
                 <small>Recentes (-10min)</small>
             </div>
@@ -75,7 +75,7 @@
             <div class="row">
                 @foreach (var entrega in Model.OrderBy(e => e.DataCriacao))
                 {
-                    var tempoEspera = DateTime.Now - entrega.DataCriacao;
+                    var tempoEspera = DateTime.UtcNow - entrega.DataCriacao;
                     var isUrgente = tempoEspera.TotalMinutes > 30;
                     var isRecente = tempoEspera.TotalMinutes <= 10;
 
@@ -107,20 +107,12 @@
                                 <!-- Endereço -->
                                 <div class="mb-3">
                                     <strong>Endereço:</strong>
-                                    <p class="mb-1">@entrega.EnderecoCompleto</p>
-                                    @if (!string.IsNullOrEmpty(entrega.Complemento))
-                                    {
-                                        <small class="text-muted">
-                                            <strong>Complemento:</strong> @entrega.Complemento
-                                        </small>
-                                    }
-                                    @if (!string.IsNullOrEmpty(entrega.Referencia))
-                                    {
-                                        <br>
-                                        <small class="text-muted">
-                                            <strong>Referência:</strong> @entrega.Referencia
-                                        </small>
-                                    }
+                                    <p class="mb-1">Rua/Av.: @entrega.EnderecoEntrega.Logradouro</p>
+                                    <p class="mb-1">Bairro: @entrega.EnderecoEntrega.Bairro</p>
+                                    <p class="mb-1">Complemento: @entrega.EnderecoEntrega.Complemento</p>
+                                    <p class="mb-1">Cidade.: @entrega.EnderecoEntrega.Cidade</p>
+                                    <p class="mb-1">Cep: @entrega.EnderecoEntrega.Cep</p>
+                                   
                                 </div>
 
                                 <!-- Informações do Pedido -->
@@ -226,18 +218,16 @@
                 <input type="hidden" id="entregaId">
                 <div class="mb-3">
                     <label class="form-label">Selecionar Entregador</label>
-                    <select class="form-select" id="entregadorSelect">
-                        <option value="">Selecione um entregador...</option>
-                    </select>
+                
                 </div>
                 <div id="entregadoresDisponiveis" class="mt-3">
                     <!-- Lista de entregadores será carregada aqui -->
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmarAtribuicao()">Atribuir</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
+
         </div>
     </div>
 </div>
@@ -295,35 +285,39 @@
             $('#atribuirModal').modal('show');
         }
 
-        function selecionarEntregador(entregadorId, entregadorNome) {
-            $('#entregadorSelect').val(entregadorId);
-        }
-
-        async function confirmarAtribuicao() {
+                async function selecionarEntregador(entregadorId, entregadorNome) {
             const entregaId = $('#entregaId').val();
-            const entregadorId = $('#entregadorSelect').val();
 
-            if (!entregadorId) {
-                alert('Selecione um entregador');
+            if (!entregaId) {
+                alert('Erro: entrega não identificada.');
                 return;
             }
 
-            const response = await fetch(`@Url.Action("AtribuirEntregador", "Entregas")?id=${entregaId}&entregadorId=${entregadorId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            if (!confirm(`Deseja realmente atribuir esta entrega para ${entregadorNome}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`@Url.Action("AtribuirEntregador", "Entregas")?id=${entregaId}&entregadorId=${entregadorId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    $('#atribuirModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Erro: ' + result.message);
                 }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                $('#atribuirModal').modal('hide');
-                location.reload();
-            } else {
-                alert('Erro: ' + result.message);
+            } catch (error) {
+                alert('Falha ao atribuir entregador: ' + error.message);
             }
         }
+
 
         // Atualizar status
         async function atualizarStatus(entregaId, status) {
@@ -370,8 +364,8 @@
         }
 
         // Auto-refresh a cada 30 segundos
-        setInterval(() => {
-            location.reload();
-        }, 30000);
+        // setInterval(() => {
+        //     location.reload();
+        // }, 30000);
     </script>
 }

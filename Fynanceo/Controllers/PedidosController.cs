@@ -36,19 +36,7 @@ namespace Fynanceo.Controllers
             return View(pedidos);
         }
 
-        // GET: Pedidos/Create
-        //public async Task<IActionResult> Create()
-        //{
-        //    var viewModel = new PedidoViewModel
-        //    {
-        //        MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre"),
-        //        ProdutosDisponiveis = await _produtoService.ObterTodosAsync(),
-        //        Clientes = await _clienteService.ObterTodosAsync()
-
-        //    }; 
-
-        //    return View(viewModel);
-        //}
+       
         public async Task<IActionResult> Create()
         {
             var viewModel = new PedidoViewModel
@@ -156,9 +144,24 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Pedidos/GetEnderecosCliente/5
+        //public async Task<JsonResult> GetEnderecosCliente(int clienteId)
+        //{
+        //    var enderecos = await _clienteService.ObterPorIdAsync(clienteId);
+
+        //    return Json(enderecos);
+        //}
+        // GET: Pedidos/GetEnderecosCliente/5
         public async Task<JsonResult> GetEnderecosCliente(int clienteId)
         {
-            var enderecos = await _clienteService.ObterPorIdAsync(clienteId);
+            var cliente = await _clienteService.ObterPorIdAsync(clienteId);
+            if (cliente == null || cliente.Enderecos == null)
+                return Json(new List<object>());
+
+            var enderecos = cliente.Enderecos.Select(e => new
+            {
+                id = e.Id,
+                enderecoCompleto = $"{e.Logradouro}, {e.Numero} - {e.Bairro} - {e.Cidade}/{e.Estado}"
+            });
 
             return Json(enderecos);
         }

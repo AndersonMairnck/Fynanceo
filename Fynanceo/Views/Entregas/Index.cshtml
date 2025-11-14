@@ -83,7 +83,7 @@
                             <td>
                                 <strong>@entrega.Pedido?.NumeroPedido</strong>
                                 <br>
-                                <small class="text-muted">@entrega.DataCriacao.ToString("HH:mm")</small>
+                                <small class="text-muted">@entrega.DataCriacao.ToLocalTime().ToString("HH:mm")</small>
                             </td>
                             <td>
                                 @entrega.Pedido?.Cliente?.NomeCompleto
@@ -91,7 +91,10 @@
                                 <small class="text-muted">@entrega.Pedido?.Cliente?.Telefone</small>
                             </td>
                             <td>
-                                <small>@entrega.EnderecoCompleto</small>
+                                <small>Cidade: @entrega.EnderecoEntrega.Cidade</small><br>
+                                <small>Rua/Av.: @entrega.EnderecoEntrega.Logradouro</small><br>
+                                <small>Bairro: @entrega.EnderecoEntrega.Bairro</small>
+
                                 @if (!string.IsNullOrEmpty(entrega.Complemento))
                                 {
                                     <br>
@@ -149,7 +152,7 @@
                             </td>
                             <td>
                                 @{
-                                    var tempo = DateTime.Now - entrega.DataCriacao;
+                                    var tempo = DateTime.UtcNow - entrega.DataCriacao.ToLocalTime();
                                     <small>@((int)tempo.TotalMinutes)m</small>
                                 }
                             </td>
@@ -353,8 +356,8 @@
         }
 
         // Auto-refresh a cada 30 segundos
-        setInterval(() => {
+       @*  setInterval(() => {
             location.reload();
-        }, 30000);
+        }, 300000); *@
     </script>
 }

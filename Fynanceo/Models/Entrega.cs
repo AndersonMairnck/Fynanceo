@@ -23,6 +23,9 @@ namespace Fynanceo.Models
         // Informações de entrega
         [Required]
         public string EnderecoCompleto { get; set; }
+        [Required]
+        public int EnderecoEntregaId { get; set; }
+        public EnderecoCliente EnderecoEntrega { get; set; }
 
         public string? Complemento { get; set; }
         public string? Referencia { get; set; }
