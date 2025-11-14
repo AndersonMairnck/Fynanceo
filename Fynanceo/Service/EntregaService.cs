@@ -36,6 +36,7 @@ namespace Fynanceo.Services
             var entrega = new Entrega
             {
                 PedidoId = pedidoId,
+                EnderecoEntregaId = pedido.EnderecoEntrega.Id,
                 Status = StatusEntrega.AguardandoEntregador,
                 EnderecoCompleto = pedido.EnderecoEntrega.ToString(),
                 Complemento = pedido.EnderecoEntrega.Complemento,
@@ -140,7 +141,9 @@ namespace Fynanceo.Services
             {
                 return await _context.Entregas
                     .Include(e => e.Pedido)
+                     .Include(e => e.EnderecoEntrega)
                         .ThenInclude(p => p.Cliente)
+                      
                     .Include(e => e.Entregador)
                     .Where(e => e.Status == statusEnum)
                     .OrderBy(e => e.DataCriacao)
@@ -152,12 +155,17 @@ namespace Fynanceo.Services
 
         public async Task<List<Entrega>> ObterEntregasDoDia()
         {
+        
+
             var hoje = DateTime.Today;
+            var amanha = hoje.AddDays(1);
+
             return await _context.Entregas
                 .Include(e => e.Pedido)
+                .Include(e => e.EnderecoEntrega)
                     .ThenInclude(p => p.Cliente)
                 .Include(e => e.Entregador)
-                .Where(e => e.DataCriacao.Date == hoje)
+                .Where(e => e.DataCriacao >= hoje && e.DataCriacao < amanha)
                 .OrderByDescending(e => e.DataCriacao)
                 .ToListAsync();
         }
@@ -189,9 +197,12 @@ namespace Fynanceo.Services
         public async Task<DashboardDeliveryViewModel> ObterDashboardDelivery()
         {
             var hoje = DateTime.Today;
+            var amanha = hoje.AddDays(1);
 
             var totalEntregasHoje = await _context.Entregas
-                .CountAsync(e => e.DataCriacao.Date == hoje);
+                .CountAsync(e => e.DataCriacao >= hoje && e.DataCriacao < amanha);
+
+            
 
             var entregasPendentes = await _context.Entregas
                 .CountAsync(e => e.Status == StatusEntrega.AguardandoEntregador);
@@ -203,13 +214,13 @@ namespace Fynanceo.Services
                 .CountAsync(e => e.Status == StatusEntregador.Disponivel && e.Ativo);
 
             var faturamentoDelivery = await _context.Entregas
-                .Where(e => e.DataCriacao.Date == hoje && e.Status == StatusEntrega.Entregue)
+                .Where(e => e.DataCriacao == hoje && e.Status == StatusEntrega.Entregue)
                 .SumAsync(e => e.TaxaEntrega);
 
             var entregasRecentes = await _context.Entregas
                 .Include(e => e.Pedido)
                 .Include(e => e.Entregador)
-                .Where(e => e.DataCriacao.Date == hoje)
+                .Where(e => e.DataCriacao >= hoje && e.DataCriacao < amanha)
                 .OrderByDescending(e => e.DataCriacao)
                 .Take(10)
                 .ToListAsync();
@@ -221,6 +232,7 @@ namespace Fynanceo.Services
 
             var entregasUrgentes = await _context.Entregas
                 .Include(e => e.Pedido)
+                .Include(e => e.EnderecoEntrega)
                 .Where(e => e.Status == StatusEntrega.AguardandoEntregador &&
                            e.DataCriacao < DateTime.UtcNow.AddMinutes(-10))
                 .OrderBy(e => e.DataCriacao)

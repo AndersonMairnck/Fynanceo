@@ -56,7 +56,7 @@
         <div class="card bg-danger text-white">
             <div class="card-body text-center">
                 <h3 class="mb-0">
-                    @Model.Count(e => e.DataPrevisao.HasValue && e.DataPrevisao < DateTime.Now)
+                    @Model.Count(e => e.DataPrevisao.HasValue && e.DataPrevisao < DateTime.UtcNow)
                 </h3>
                 <small>Atrasadas</small>
             </div>
@@ -89,10 +89,10 @@
                     <tbody>
                         @foreach (var entrega in Model.OrderBy(e => e.DataSaiuEntrega))
                         {
-                            var tempoEntrega = DateTime.Now - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
-                            var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.Now;
+                            var tempoEntrega = DateTime.UtcNow - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
+                            var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.UtcNow;
                             var tempoAtraso = entrega.DataPrevisao.HasValue ?
-                            (DateTime.Now - entrega.DataPrevisao.Value).TotalMinutes : 0;
+                            (DateTime.UtcNow - entrega.DataPrevisao.Value).TotalMinutes : 0;
 
                             <tr class="@(isAtrasada ? "table-warning" : "")">
                                 <td>
@@ -127,7 +127,7 @@
                                     </small>
                                     <br>
                                     <small class="text-muted">
-                                        @entrega.EnderecoCompleto
+                                        @entrega.EnderecoEntrega.Logradouro
                                     </small>
                                 </td>
                                 <td>
@@ -232,8 +232,8 @@
             <div class="d-md-none">
                 @foreach (var entrega in Model.OrderBy(e => e.DataSaiuEntrega))
                 {
-                    var tempoEntrega = DateTime.Now - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
-                    var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.Now;
+                    var tempoEntrega = DateTime.UtcNow - (entrega.DataSaiuEntrega ?? entrega.DataCriacao);
+                    var isAtrasada = entrega.DataPrevisao.HasValue && entrega.DataPrevisao < DateTime.UtcNow;
 
                     <div class="card mb-3 @(isAtrasada ? "border-warning" : "border-primary")">
                         <div class="card-body">

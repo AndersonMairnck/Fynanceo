@@ -179,14 +179,13 @@
                                 <tr>
                                     <th>Pedido</th>
                                     <th>Data</th>
-                                    <th>Endereço</th>
                                     <th>Status</th>
                                     <th>Comissão</th>
                                     <th>Avaliação</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var entrega in Model.Entregas.OrderByDescending(e => e.DataCriacao).Take(10))
+                                @foreach (var entrega in Model.Entregas.OrderByDescending(e => e.DataCriacao.ToLocalTime()).Take(10))
                                 {
                                     <tr>
                                         <td>
@@ -195,10 +194,8 @@
                                                 @entrega.Pedido?.NumeroPedido
                                             </a>
                                         </td>
-                                        <td>@entrega.DataCriacao.ToString("dd/MM HH:mm")</td>
-                                        <td>
-                                            <small>@entrega.EnderecoCompleto</small>
-                                        </td>
+                                        <td>@entrega.DataCriacao.ToLocalTime()</td>
+                                       
                                         <td>
                                             <span class="badge @GetEntregaStatusBadgeClass(entrega.Status)">
                                                 @entrega.Status

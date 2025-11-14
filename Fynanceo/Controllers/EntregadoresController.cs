@@ -32,6 +32,9 @@ namespace Fynanceo.Controllers
         {
             var entregador = await _context.Entregadores
                 .Include(e => e.Entregas)
+              
+               
+                
                     .ThenInclude(ent => ent.Pedido)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
@@ -65,7 +68,7 @@ namespace Fynanceo.Controllers
                     ModeloVeiculo = viewModel.ModeloVeiculo,
                     CorVeiculo = viewModel.CorVeiculo,
                     Observacoes = viewModel.Observacoes,
-                    Ativo = viewModel.Ativo,
+                    Ativo = true,
                     Status = Fynanceo.Models.Enums.StatusEntregador.Disponivel
                 };
 

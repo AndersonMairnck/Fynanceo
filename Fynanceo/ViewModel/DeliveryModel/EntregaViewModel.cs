@@ -24,8 +24,8 @@ namespace Fynanceo.ViewModel.DeliveryModel
         public string? ClienteNome { get; set; }
         public string? ClienteTelefone { get; set; }
 
-        [Display(Name = "Endereço Completo")]
-        public string EnderecoCompleto { get; set; }
+        //[Display(Name = "Endereço Completo")]
+        //public string EnderecoCompleto { get; set; }
 
         [Display(Name = "Complemento")]
         public string? Complemento { get; set; }

@@ -104,9 +104,7 @@
                                             @entrega.Status
                                         </span>
                                     </h6>
-                                    <small class="text-muted">
-                                        @entrega.EnderecoCompleto
-                                    </small>
+                                    
                                     <br>
                                     <small>
                                         <i class="fas fa-clock me-1"></i>
@@ -205,13 +203,17 @@
                                 <div>
                                     <h6 class="mb-1 text-danger">@entrega.Pedido?.NumeroPedido</h6>
                                     <small class="text-muted">
-                                        @entrega.EnderecoCompleto
-                                    </small>
+                                      Rua/Av.: @entrega.EnderecoEntrega.Logradouro
+                                     </small><br />
+                                    <small class="text-muted">
+                                        Numero.: @entrega.EnderecoEntrega.Numero
+                                    </small><br />
+                                    <small>Bairro: @entrega.EnderecoEntrega.Bairro</small>
                                     <br>
                                     <small class="text-danger">
                                         <i class="fas fa-clock me-1"></i>
                                         @{
-                                            var tempoEspera = DateTime.Now - entrega.DataCriacao;
+                                            var tempoEspera = DateTime.UtcNow - entrega.DataCriacao;
                                         }
                                         @((int)tempoEspera.TotalMinutes)m esperando
                                     </small>

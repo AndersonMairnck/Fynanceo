@@ -1,4 +1,4 @@
-﻿@using Fynanceo.ViewModel
+﻿﻿@using Fynanceo.ViewModel
 @using Fynanceo.ViewModel.DeliveryModel
 <!-- Views/Entregas/Create.cshtml -->
 @model EntregaViewModel
@@ -16,145 +16,466 @@
     </a>
 </div>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Informações da Entrega</h5>
+<!-- Form Principal -->
+<form id="formCriarEntrega" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" id="PedidoId" name="PedidoId" />
+    <input type="hidden" id="EntregadorId" name="EntregadorId" />
+    <input type="hidden" id="EnderecoCompleto" name="EnderecoCompleto" />
+
+
+    <div class="row">
+        <!-- Lista de Pedidos Pendentes em Cards -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Pedidos Prontos para Entrega
+                        <span class="badge bg-primary ms-2">@(Model.PedidosPendentes?.Count ?? 0)</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PedidosPendentes != null && Model.PedidosPendentes.Any())
+                    {
+                        <div class="row" id="pedidosContainer">
+                            @foreach (var pedido in Model.PedidosPendentes)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100 pedido-card"
+                                         data-pedido-id="@pedido.Id"
+                                         data-cliente="@pedido.Cliente?.NomeCompleto"
+                                         data-telefone="@pedido.Cliente?.Telefone"
+                                       
+                                         data-complemento="@pedido.EnderecoEntrega?.Complemento"
+                                         data-referencia="@pedido.EnderecoEntrega?.Referencia"
+                                         data-taxa="@pedido.TaxaEntrega"
+                                         data-total="@pedido.Total">
+                                        <div class="card-header">
+                                            <div class="form-check">
+                                                <input class="form-check-input pedido-checkbox"
+                                                       type="radio"
+                                                       name="pedidoSelecionado"
+                                                       value="@pedido.Id"
+                                                       id="pedido_@pedido.Id">
+                                                <label class="form-check-label fw-bold" for="pedido_@pedido.Id">
+                                                    Pedido #@pedido.NumeroPedido
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Cliente -->
+                                            <div class="mb-2">
+                                                <strong>
+                                                    <i class="fas fa-user me-1"></i>
+                                                    @pedido.Cliente?.NomeCompleto
+                                                </strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-phone me-1"></i>
+                                                    @pedido.Cliente?.Telefone
+                                                </small>
+                                            </div>
+
+                                            <!-- Endereço -->
+                                            <div class="mb-2">
+                                                <small>
+                                                    <strong>Endereço:</strong><br>
+                                                 
+                                                    <span class="text-muted">
+                                                        Rua/Av.: @pedido.EnderecoEntrega.Logradouro
+                                                    </span>
+                                                    <br>
+                                                    <span class="text-muted">
+                                                        Número: @pedido.EnderecoEntrega.Numero
+                                                    </span>
+                                                    <br>
+                                                    <span class="text-muted">
+                                                        Bairro: @pedido.EnderecoEntrega.Bairro
+                                                    </span>
+                                                    <br>
+                                                    <span class="text-muted">
+                                                        Cidade: @pedido.EnderecoEntrega.Cidade
+                                                    </span>
+                                                    @if (!string.IsNullOrEmpty(pedido.EnderecoEntrega?.Complemento))
+                                                    {
+                                                        <br>
+                                                        <span class="text-muted">
+                                                            Complemento: @pedido.EnderecoEntrega.Complemento
+                                                        </span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(pedido.EnderecoEntrega?.Referencia))
+                                                    {
+                                                        <br>
+                                                        <span class="text-muted">
+                                                            Referência: @pedido.EnderecoEntrega.Referencia
+                                                        </span>
+                                                    }
+                                                </small>
+                                            </div>
+
+                                            <!-- Itens do Pedido -->
+                                            <div class="mb-2">
+                                                <strong>Itens:</strong>
+                                                <div class="mt-1">
+                                                    @if (pedido.Itens != null && pedido.Itens.Any())
+                                                    {
+                                                        foreach (var item in pedido.Itens.Take(3))
+                                                        {
+                                                            <small class="d-block text-muted">
+                                                                • @item.Quantidade x @item.Produto?.Nome
+                                                                @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                                {
+                                                                    <span class="text-danger">(@item.Observacoes)</span>
+                                                                }
+                                                                <span class="text-primary ms-1">
+                                                                    R$ @((item.Quantidade * item.PrecoUnitario).ToString("N2"))
+                                                                </span>
+                                                            </small>
+                                                        }
+                                                        @if (pedido.Itens.Count > 3)
+                                                        {
+                                                            <small class="text-muted">
+                                                                • +@(pedido.Itens.Count - 3) outros itens
+                                                            </small>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <small class="text-muted">Nenhum item encontrado</small>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <!-- Valores -->
+                                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                                <div>
+                                                    <strong class="text-success">R$ @pedido.Total.ToString("N2")</strong>
+                                                    <br>
+                                                    <small class="text-muted">Total</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <strong class="text-primary">R$ @pedido.TaxaEntrega.ToString("N2")</strong>
+                                                    <br>
+                                                    <small class="text-muted">Taxa</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                Criado em: @pedido.DataAbertura.ToString("dd/MM HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
+                            <h5>Nenhum pedido pendente!</h5>
+                            <p class="mb-0">Todos os pedidos já foram atribuídos a entregas.</p>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="card-body">
-                <form asp-action="Create">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="PedidoId" class="form-label">Pedido *</label>
-                                <select asp-for="PedidoId" class="form-select" required id="pedidoSelect">
-                                    <option value="">Selecione um pedido...</option>
-                                    @foreach (var pedido in Model.PedidosPendentes ?? new List<Fynanceo.Models.Pedido>())
-                                    {
-                                        <option value="@pedido.Id"
-                                                data-cliente="@pedido.Cliente?.NomeCompleto"
-                                                data-telefone="@pedido.Cliente?.Telefone"
-                                                data-endereco="@pedido.EnderecoEntrega?.ToString()"
-                                                data-complemento="@pedido.EnderecoEntrega?.Complemento"
-                                                data-taxa="@pedido.TaxaEntrega">
-                                            @pedido.NumeroPedido - @pedido.Cliente?.NomeCompleto - R$ @pedido.Total.ToString("N2")
-                                        </option>
-                                    }
-                                </select>
-                                <span asp-validation-for="PedidoId" class="text-danger"></span>
-                            </div>
+        </div>
+
+        <!-- Painel de Ação e Entregadores -->
+        <div class="col-md-4">
+            <!-- Resumo da Entrega -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Resumo da Entrega
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resumoVazio" class="text-center text-muted">
+                        <i class="fas fa-mouse-pointer fa-2x mb-3"></i>
+                        <p>Selecione um pedido para criar a entrega</p>
+                    </div>
+                    <div id="resumoPedido" style="display: none;">
+                        <div class="mb-3">
+                            <h6 id="resumoNumeroPedido" class="text-primary"></h6>
+                            <p class="mb-1" id="resumoCliente"></p>
+                            <p class="mb-1 text-muted" id="resumoTelefone"></p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="EntregadorId" class="form-label">Entregador</label>
-                                <select asp-for="EntregadorId" class="form-select" id="entregadorSelect">
-                                    <option value="">Não atribuir agora</option>
-                                    @foreach (var entregador in Model.EntregadoresDisponiveis ?? new List<Fynanceo.Models.Entregador>())
-                                    {
-                                        <option value="@entregador.Id">
-                                            @entregador.Nome - @entregador.Telefone (@entregador.TipoVeiculo)
-                                        </option>
-                                    }
-                                </select>
-                                <span asp-validation-for="EntregadorId" class="text-danger"></span>
+
+                        <div class="mb-3">
+                            <strong>Endereço:</strong>
+                            <p class="mb-1 small" id="resumoEndereco"></p>
+                            <p class="mb-1 small text-muted" id="resumoComplemento"></p>
+                            <p class="mb-1 small text-muted" id="resumoReferencia"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Valores:</strong>
+                            <div class="d-flex justify-content-between">
+                                <span>Taxa de Entrega:</span>
+                                <strong id="resumoTaxa" class="text-success"></strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Total do Pedido:</span>
+                                <strong id="resumoTotal" class="text-primary"></strong>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Informações do Pedido Selecionado -->
-                    <div id="pedidoInfo" class="alert alert-info" style="display: none;">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>Cliente:</strong> <span id="infoCliente"></span><br>
-                                <strong>Telefone:</strong> <span id="infoTelefone"></span>
+            <!-- Seleção de Entregador -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Atribuir Entregador
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="entregadoresContainer">
+                        @if (Model.EntregadoresDisponiveis != null && Model.EntregadoresDisponiveis.Any())
+                        {
+                            foreach (var entregador in Model.EntregadoresDisponiveis)
+                            {
+                                <div class="entregador-card mb-3 p-3 border rounded">
+                                    <div class="form-check">
+                                        <input class="form-check-input entregador-checkbox"
+                                               type="radio"
+                                               name="entregadorSelecionado"
+                                               value="@entregador.Id"
+                                               id="entregador_@entregador.Id">
+                                        <label class="form-check-label w-100" for="entregador_@entregador.Id">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong class="d-block">@entregador.Nome</strong>
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-phone me-1"></i>@entregador.Telefone
+                                                    </small>
+                                                    <small class="text-muted">
+                                                        <i class="fas @GetVeiculoIcon(entregador.TipoVeiculo) me-1"></i>
+                                                        @entregador.TipoVeiculo
+                                                        @if (!string.IsNullOrEmpty(entregador.Placa))
+                                                        {
+                                                            <span class="ms-1">• @entregador.Placa</span>
+                                                        }
+                                                    </small>
+                                                </div>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check me-1"></i>Disponível
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Nenhum entregador disponível no momento.
                             </div>
-                            <div class="col-md-6">
-                                <strong>Endereço:</strong> <span id="infoEndereco"></span><br>
-                                <strong>Complemento:</strong> <span id="infoComplemento"></span><br>
-                                <strong>Taxa:</strong> R$ <span id="infoTaxa"></span>
-                            </div>
-                        </div>
+                        }
                     </div>
 
+                    <!-- Opção sem entregador -->
+                    <div class="entregador-card p-3 border rounded">
+                        <div class="form-check">
+                            <input class="form-check-input entregador-checkbox"
+                                   type="radio"
+                                   name="entregadorSelecionado"
+                                   value=""
+                                   id="entregador_nenhum" checked>
+                            <label class="form-check-label w-100" for="entregador_nenhum">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong class="d-block">Não atribuir agora</strong>
+                                        <small class="text-muted">
+                                            A entrega ficará na lista de pendentes para atribuição posterior.
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-clock me-1"></i>Pendente
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instruções e Ação -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Configurações
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="mb-3">
                         <label asp-for="Instrucoes" class="form-label">Instruções Especiais</label>
-                        <textarea asp-for="Instrucoes" class="form-control" rows="3" placeholder="Instruções para a entrega..."></textarea>
+                        <textarea asp-for="Instrucoes" class="form-control" rows="3"
+                                  placeholder="Instruções para a entrega..."></textarea>
                         <span asp-validation-for="Instrucoes" class="text-danger"></span>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">
+                        <button type="submit" class="btn btn-success btn-lg" id="btnCriarEntrega" disabled>
                             <i class="fas fa-check me-2"></i>Criar Entrega
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <!-- Resumo -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Resumo</h5>
-            </div>
-            <div class="card-body">
-                <div id="resumoEntrega">
-                    <p class="text-muted">Selecione um pedido para ver as informações</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ajuda -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">Como Funciona</h5>
-            </div>
-            <div class="card-body">
-                <ol class="small">
-                    <li>Selecione um pedido do tipo delivery</li>
-                    <li>Escolha um entregador disponível (opcional)</li>
-                    <li>Adicione instruções especiais se necessário</li>
-                    <li>Clique em "Criar Entrega"</li>
-                </ol>
-                <div class="alert alert-warning small">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Pedidos sem entregador atribuído ficarão na lista de pendentes
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>
 
 @section Scripts {
     <script>
-        $('#pedidoSelect').change(function() {
-            const selectedOption = $(this).find('option:selected');
-            const cliente = selectedOption.data('cliente');
-            const telefone = selectedOption.data('telefone');
-            const endereco = selectedOption.data('endereco');
-            const complemento = selectedOption.data('complemento');
-            const taxa = selectedOption.data('taxa');
+        $(document).ready(function() {
+            let pedidoSelecionado = null;
 
-            if (cliente) {
-                $('#pedidoInfo').show();
-                $('#infoCliente').text(cliente);
-                $('#infoTelefone').text(telefone || 'Não informado');
-                $('#infoEndereco').text(endereco);
-                $('#infoComplemento').text(complemento || 'Não informado');
-                $('#infoTaxa').text(parseFloat(taxa).toFixed(2));
+            // Seleção de pedido
+            $('.pedido-checkbox').change(function() {
+                const pedidoId = $(this).val();
+                const pedidoCard = $(this).closest('.pedido-card');
 
-                $('#resumoEntrega').html(`
-                    <p><strong>Pedido:</strong> ${selectedOption.text()}</p>
-                    <p><strong>Cliente:</strong> ${cliente}</p>
-                    <p><strong>Endereço:</strong> ${endereco}</p>
-                    <p><strong>Taxa de Entrega:</strong> R$ ${parseFloat(taxa).toFixed(2)}</p>
-                `);
-            } else {
-                $('#pedidoInfo').hide();
-                $('#resumoEntrega').html('<p class="text-muted">Selecione um pedido para ver as informações</p>');
+                // Remove seleção anterior
+                $('.pedido-card').removeClass('border-primary bg-light');
+                $('.pedido-checkbox').prop('checked', false);
+
+                // Seleciona atual
+                $(this).prop('checked', true);
+                pedidoCard.addClass('border-primary bg-light');
+
+                // Atualiza campos hidden
+                $('#PedidoId').val(pedidoId);
+                    $('#EnderecoCompleto').val(pedidoCard.data('endereco')); // 👈 adiciona aqui
+
+                // Atualiza resumo
+                pedidoSelecionado = {
+                    id: pedidoId,
+                    numero: pedidoCard.find('.form-check-label').text().trim(),
+                    cliente: pedidoCard.data('cliente'),
+                    telefone: pedidoCard.data('telefone'),
+                    endereco: pedidoCard.data('endereco'),
+                    complemento: pedidoCard.data('complemento'),
+                    referencia: pedidoCard.data('referencia'),
+                    taxa: pedidoCard.data('taxa'),
+                    total: pedidoCard.data('total')
+                };
+
+                atualizarResumo();
+                verificarFormulario();
+            });
+
+            // Seleção de entregador
+            $('.entregador-checkbox').change(function() {
+                $('.entregador-card').removeClass('border-primary bg-light');
+                $(this).closest('.entregador-card').addClass('border-primary bg-light');
+
+                // Atualiza campo hidden
+                const entregadorId = $(this).val();
+                $('#EntregadorId').val(entregadorId);
+
+                verificarFormulario();
+            });
+
+            function atualizarResumo() {
+                if (pedidoSelecionado) {
+                    $('#resumoVazio').hide();
+                    $('#resumoPedido').show();
+
+                    $('#resumoNumeroPedido').text(pedidoSelecionado.numero);
+                    $('#resumoCliente').text(pedidoSelecionado.cliente);
+                    $('#resumoTelefone').text(pedidoSelecionado.telefone);
+                    $('#resumoEndereco').text(pedidoSelecionado.endereco);
+                    $('#resumoComplemento').text(pedidoSelecionado.complemento ? `Complemento: ${pedidoSelecionado.complemento}` : '');
+                    $('#resumoReferencia').text(pedidoSelecionado.referencia ? `Referência: ${pedidoSelecionado.referencia}` : '');
+                    $('#resumoTaxa').text('R$ ' + parseFloat(pedidoSelecionado.taxa).toFixed(2));
+                    $('#resumoTotal').text('R$ ' + parseFloat(pedidoSelecionado.total).toFixed(2));
+                  
+
+                }
             }
+
+            function verificarFormulario() {
+                const temPedido = pedidoSelecionado !== null;
+                $('#btnCriarEntrega').prop('disabled', !temPedido);
+            }
+
+            // Submit do form
+            $('#formCriarEntrega').on('submit', function(e) {
+                if (!pedidoSelecionado) {
+                    e.preventDefault();
+                    alert('Selecione um pedido para continuar');
+                    return;
+                }
+
+                // Mostra loading no botão
+                $('#btnCriarEntrega').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Criando...');
+            });
+
+            // Efeitos visuais nos cards
+            $('.pedido-card').hover(
+                function() { $(this).addClass('shadow-sm'); },
+                function() {
+                    if (!$(this).hasClass('border-primary')) {
+                        $(this).removeClass('shadow-sm');
+                    }
+                }
+            );
+
+            $('.entregador-card').hover(
+                function() { $(this).addClass('shadow-sm'); },
+                function() {
+                    if (!$(this).hasClass('border-primary')) {
+                        $(this).removeClass('shadow-sm');
+                    }
+                }
+            );
+
+            // Inicializa com o primeiro entregador selecionado
+            $('#entregador_nenhum').prop('checked', true);
+            $('.entregador-card').first().addClass('border-primary bg-light');
         });
     </script>
+
+    <style>
+        .pedido-card, .entregador-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .pedido-card:hover, .entregador-card:hover {
+                transform: translateY(-2px);
+            }
+
+            .pedido-card.border-primary, .entregador-card.border-primary {
+                border-width: 2px !important;
+            }
+
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+}
+
+@functions {
+    public string GetVeiculoIcon(Fynanceo.Models.Enums.TipoVeiculo tipo)
+    {
+        return tipo switch
+        {
+            Fynanceo.Models.Enums.TipoVeiculo.Moto => "fa-motorcycle",
+            Fynanceo.Models.Enums.TipoVeiculo.Carro => "fa-car",
+            Fynanceo.Models.Enums.TipoVeiculo.Bicicleta => "fa-bicycle",
+            _ => "fa-truck"
+        };
+    }
+
+   
 }
