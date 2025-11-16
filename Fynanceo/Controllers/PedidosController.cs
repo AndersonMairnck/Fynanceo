@@ -1,12 +1,14 @@
 ﻿// Controllers/PedidosController.cs
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
+using Fynanceo.Migrations;
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
+using Fynanceo.Services;
 using Fynanceo.ViewModel.PedidosModel;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fynanceo.Controllers
 {
@@ -18,8 +20,9 @@ namespace Fynanceo.Controllers
         private readonly IProdutoService _produtoService;
         private readonly IClienteService _clienteService;
         private readonly IConfigService _configService;
+        private readonly IEntregaService _entregaService;
 
-        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService, IConfigService configService)
+        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService, IConfigService configService, IEntregaService entregaService)
         {
 
             _pedidoService = pedidoService;
@@ -27,6 +30,7 @@ namespace Fynanceo.Controllers
             _produtoService = produtoService;
             _clienteService = clienteService;
             _configService = configService;
+            _entregaService = entregaService;
         }
 
         // GET: Pedidos
@@ -135,6 +139,7 @@ namespace Fynanceo.Controllers
                 var usuario = "Usuário"; // Temporário - depois pegar do usuário logado
                 var pedido = await _pedidoService.AtualizarStatus(id, novoStatus, usuario);
 
+
                 return Json(new { success = true, message = "Status atualizado com sucesso!" });
             }
             catch (Exception ex)
@@ -218,6 +223,8 @@ namespace Fynanceo.Controllers
                 var item = await _pedidoService.MarcarProntoItemAsync(itemId);
                 if (item == null)
                     return Json(new { success = false, message = "Item não encontrado" });
+
+
 
                 return Json(new { success = true, message = "Item marcado como pronto", item });
             }

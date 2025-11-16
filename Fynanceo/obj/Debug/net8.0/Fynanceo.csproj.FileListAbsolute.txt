@@ -105,7 +105,6 @@ D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\staticwebass
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\staticwebassets.development.json
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\Fynanceo.csproj.Up2Date
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\Fynanceo.dll
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\refint\Fynanceo.dll

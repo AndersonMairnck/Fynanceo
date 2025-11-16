@@ -27,7 +27,7 @@
                 <select class="form-select" id="statusFilter" onchange="filterEntregas()">
                     <option value="all">Todos os Status</option>
                     <option value="AguardandoEntregador">Pendentes</option>
-                    <option value="SaiuParaEntrega">Saiu para Entrega</option>
+                    <option value="RetirouParaEntrega">Saiu para Entrega</option>
                     <option value="EmRota">Em Rota</option>
                     <option value="Entregue">Entregues</option>
                     <option value="Cancelada">Canceladas</option>
@@ -123,7 +123,7 @@
                                             statusClass = "bg-warning text-dark";
                                             statusText = "Pendente";
                                             break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega:
+                                        case Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega:
                                             statusClass = "bg-info text-white";
                                             statusText = "Saiu";
                                             break;
@@ -227,7 +227,7 @@
                 <div class="mb-3">
                     <label class="form-label">Novo Status</label>
                     <select class="form-select" id="statusSelect">
-                        <option value="SaiuParaEntrega">Saiu para Entrega</option>
+                        <option value="RetirouParaEntrega">Saiu para Entrega</option>
                         <option value="EmRota">Em Rota</option>
                         <option value="Entregue">Entregue</option>
                         <option value="Cancelada">Cancelada</option>

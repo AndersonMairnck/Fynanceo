@@ -169,7 +169,7 @@ namespace Fynanceo.Controllers
             // Verificar se tem entregas em andamento
             var entregasAtivas = await _context.Entregas
                 .AnyAsync(e => e.EntregadorId == id &&
-                              (e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ||
+                              (e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
                                e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota));
 
             if (entregasAtivas)

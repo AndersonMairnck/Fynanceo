@@ -36,7 +36,7 @@
         <div class="card bg-info text-white">
             <div class="card-body text-center">
                 <h3 class="mb-0">
-                    @Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                    @Model.Count(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega)
                 </h3>
                 <small>Saiu para Entrega</small>
             </div>
@@ -136,9 +136,9 @@
                                         var statusText = "";
                                         switch (entrega.Status)
                                         {
-                                            case Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega:
+                                            case Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega:
                                                 statusClass = "bg-info text-white";
-                                                statusText = "Saiu";
+                                                statusText = "Retirado";
                                                 break;
                                             case Fynanceo.Models.Enums.StatusEntrega.EmRota:
                                                 statusClass = "bg-primary text-white";
@@ -199,7 +199,7 @@
                                            class="btn btn-outline-primary" title="Detalhes">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                                        @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega)
                                         {
                                             <button class="btn btn-outline-info"
                                                     title="Marcar em Rota"
@@ -245,7 +245,7 @@
                                         <span class="badge bg-danger ms-1">ATRASADA</span>
                                     }
                                 </h6>
-                                <span class="badge @(entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ? "bg-info" : "bg-primary")">
+                                <span class="badge @(entrega.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ? "bg-info" : "bg-primary")">
                                     @entrega.Status
                                 </span>
                             </div>
@@ -294,7 +294,7 @@
                                        class="btn btn-outline-primary btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                                    @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega)
                                     {
                                         <button class="btn btn-outline-info btn-sm"
                                                 onclick="atualizarStatus(@entrega.Id, 'EmRota')">

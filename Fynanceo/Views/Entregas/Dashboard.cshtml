@@ -108,7 +108,8 @@
                                     <br>
                                     <small>
                                         <i class="fas fa-clock me-1"></i>
-                                        @entrega.DataCriacao.ToString("HH:mm")
+                                        Hora Registro:
+                                        @entrega.DataCriacao.ToLocalTime().ToString("HH:mm")
                                         @if (entrega.Entregador != null)
                                         {
                                             <span class="ms-2">
@@ -213,7 +214,7 @@
                                     <small class="text-danger">
                                         <i class="fas fa-clock me-1"></i>
                                         @{
-                                            var tempoEspera = DateTime.UtcNow - entrega.DataCriacao;
+                                            var tempoEspera = DateTime.UtcNow - entrega.DataCriacao.ToLocalTime();
                                         }
                                         @((int)tempoEspera.TotalMinutes)m esperando
                                     </small>
@@ -278,7 +279,7 @@
         return status switch
         {
             Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "bg-warning text-dark",
-            Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "bg-info text-white",
+            Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega => "bg-info text-white",
             Fynanceo.Models.Enums.StatusEntrega.EmRota => "bg-primary text-white",
             Fynanceo.Models.Enums.StatusEntrega.Entregue => "bg-success text-white",
             Fynanceo.Models.Enums.StatusEntrega.Cancelada => "bg-danger text-white",

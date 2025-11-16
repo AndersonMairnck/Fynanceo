@@ -173,7 +173,7 @@
                         <i class="fas fa-user-plus me-2"></i>Atribuir Entregador
                     </button>
                 }
-                else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega)
                 {
                     <button class="btn btn-primary w-100 mb-2" onclick="marcarEmRota()">
                         <i class="fas fa-road me-2"></i>Marcar em Rota
@@ -299,9 +299,9 @@
                     <select class="form-select" id="statusSelect">
                         @if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
                         {
-                            <option value="SaiuParaEntrega">Saiu para Entrega</option>
+                            <option value="RetirouParaEntrega">Saiu para Entrega</option>
                         }
-                        else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega)
+                        else if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega)
                         {
                             <option value="EmRota">Em Rota</option>
                         }
@@ -385,14 +385,14 @@
         }
 
         // Auto-refresh a cada 30 segundos se a entrega não estiver finalizada
-        @if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue && Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
-        {
-                <text>
-                setInterval(() => {
-                    location.reload();
-                }, 30000);
-                </text>
-        }
+        //@@if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue && Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+        // {
+        //         <text>
+        //         setInterval(() => {
+        //             location.reload();
+        //         }, 30000);
+        //         </text>
+        // }
     </script>
 }
 
@@ -402,7 +402,7 @@
         return status switch
         {
             Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador => "bg-warning text-dark",
-            Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega => "bg-info text-white",
+            Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega => "bg-info text-white",
             Fynanceo.Models.Enums.StatusEntrega.EmRota => "bg-primary text-white",
             Fynanceo.Models.Enums.StatusEntrega.Entregue => "bg-success text-white",
             Fynanceo.Models.Enums.StatusEntrega.Cancelada => "bg-danger text-white",
