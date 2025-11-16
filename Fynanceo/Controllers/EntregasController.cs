@@ -20,10 +20,27 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Entregas
+        // public async Task<IActionResult> Index()
+        // {
+        //     var entregas = await _entregaService.ObterEntregasDoDia();
+        //     return View(entregas);
+        // }
         public async Task<IActionResult> Index()
         {
             var entregas = await _entregaService.ObterEntregasDoDia();
-            return View(entregas);
+            var entregadores = entregas
+                .Where(e => e.Entregador != null)
+                .Select(e => e.Entregador)
+                .Distinct()
+                .ToList();
+
+            var vm = new EntregasIndexViewModel
+            {
+                Entregas = entregas,
+                Entregadores = entregadores
+            };
+
+            return View(vm);
         }
 
         // GET: Entregas/Dashboard

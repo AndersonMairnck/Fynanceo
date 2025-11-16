@@ -1,6 +1,4 @@
-﻿<!-- Views/Entregas/Index.cshtml -->
-@model IEnumerable<Fynanceo.Models.Entrega>
-
+﻿@model Fynanceo.ViewModel.DeliveryModel.EntregasIndexViewModel
 @{
     ViewData["Title"] = "Entregas do Dia";
 }
@@ -27,19 +25,20 @@
                 <select class="form-select" id="statusFilter" onchange="filterEntregas()">
                     <option value="all">Todos os Status</option>
                     <option value="AguardandoEntregador">Pendentes</option>
-                    <option value="RetirouParaEntrega">Saiu para Entrega</option>
+                    <option value="RetiradoParaEntrega">Retirado para Entrega</option>
                     <option value="EmRota">Em Rota</option>
                     <option value="Entregue">Entregues</option>
                     <option value="Cancelada">Canceladas</option>
                 </select>
             </div>
             <div class="col-md-3">
-                <input type="text" class="form-control" id="searchFilter" placeholder="Buscar por pedido ou endereço..." onkeyup="filterEntregas()">
+                <input type="text" class="form-control" id="searchFilter"
+                       placeholder="Buscar por pedido ou endereço..." onkeyup="filterEntregas()">
             </div>
             <div class="col-md-3">
                 <select class="form-select" id="entregadorFilter" onchange="filterEntregas()">
                     <option value="all">Todos os Entregadores</option>
-                    @foreach (var entregador in ViewBag.Entregadores as List<Fynanceo.Models.Entregador> ?? new List<Fynanceo.Models.Entregador>())
+                    @foreach (var entregador in Model.Entregadores)
                     {
                         <option value="@entregador.Id">@entregador.Nome</option>
                     }
@@ -74,7 +73,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var entrega in Model)
+                    @foreach (var entrega in Model.Entregas)
                     {
                         <tr class="entrega-row"
                             data-status="@entrega.Status"
@@ -125,7 +124,7 @@
                                             break;
                                         case Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega:
                                             statusClass = "bg-info text-white";
-                                            statusText = "Saiu";
+                                            statusText = "Retirado";
                                             break;
                                         case Fynanceo.Models.Enums.StatusEntrega.EmRota:
                                             statusClass = "bg-primary text-white";
@@ -171,7 +170,7 @@
                                         </button>
                                     }
                                     @if (entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
-                                                                    entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
+                                         entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
                                     {
                                         <button class="btn btn-outline-info"
                                                 title="Atualizar Status"
@@ -189,80 +188,23 @@
     </div>
 </div>
 
-<!-- Modal Atribuir Entregador -->
-<div class="modal fade" id="atribuirModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Atribuir Entregador</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="entregaId">
-                <div class="mb-3">
-                    <label class="form-label">Selecionar Entregador</label>
-                    <select class="form-select" id="entregadorSelect">
-                        <option value="">Selecione um entregador...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmarAtribuicao()">Atribuir</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Atualizar Status -->
-<div class="modal fade" id="statusModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Atualizar Status da Entrega</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="entregaStatusId">
-                <div class="mb-3">
-                    <label class="form-label">Novo Status</label>
-                    <select class="form-select" id="statusSelect">
-                        <option value="RetirouParaEntrega">Saiu para Entrega</option>
-                        <option value="EmRota">Em Rota</option>
-                        <option value="Entregue">Entregue</option>
-                        <option value="Cancelada">Cancelada</option>
-                        <option value="Problema">Problema</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Observação</label>
-                    <textarea class="form-control" id="observacaoStatus" rows="3" placeholder="Observação opcional..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="confirmarStatus()">Atualizar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script>
-        // Filtros
         function filterEntregas() {
-            const status = $('#statusFilter').val();
-            const search = $('#searchFilter').val().toLowerCase();
-            const entregador = $('#entregadorFilter').val();
+            const status = ($('#statusFilter').val() || '').toString().trim();
+            const search = ($('#searchFilter').val() || '').toString().toLowerCase().trim();
+            const entregador = ($('#entregadorFilter').val() || '').toString().trim();
 
             $('.entrega-row').each(function() {
                 const row = $(this);
-                const rowStatus = row.data('status');
-                const rowPedido = row.data('pedido').toLowerCase();
-                const rowEntregador = row.data('entregador')?.toString();
+
+                const rowStatus = (row.data('status') || '').toString().trim();
+                const rowPedido = (row.data('pedido') || '').toString().toLowerCase().trim();
+                const rowEndereco = row.find('td').eq(2).text().toLowerCase().trim();
+                const rowEntregador = (row.data('entregador') || '').toString().trim();
 
                 const statusMatch = status === 'all' || rowStatus === status;
-                const searchMatch = rowPedido.includes(search) || row.find('td').eq(2).text().toLowerCase().includes(search);
+                const searchMatch = search === '' || rowPedido.includes(search) || rowEndereco.includes(search);
                 const entregadorMatch = entregador === 'all' || rowEntregador === entregador;
 
                 row.toggle(statusMatch && searchMatch && entregadorMatch);
@@ -275,89 +217,5 @@
             $('#entregadorFilter').val('all');
             filterEntregas();
         }
-
-        // Atribuir entregador
-        async function atribuirEntregador(entregaId) {
-            $('#entregaId').val(entregaId);
-
-            // Carregar entregadores disponíveis
-            const response = await fetch('@Url.Action("ObterEntregadoresDisponiveis", "Entregas")');
-            const entregadores = await response.json();
-
-            const select = $('#entregadorSelect');
-            select.empty().append('<option value="">Selecione um entregador...</option>');
-
-            entregadores.forEach(entregador => {
-                select.append(`<option value="${entregador.id}">${entregador.nome} - ${entregador.telefone}</option>`);
-            });
-
-            $('#atribuirModal').modal('show');
-        }
-
-        async function confirmarAtribuicao() {
-            const entregaId = $('#entregaId').val();
-            const entregadorId = $('#entregadorSelect').val();
-
-            if (!entregadorId) {
-                alert('Selecione um entregador');
-                return;
-            }
-
-            const response = await fetch(`@Url.Action("AtribuirEntregador", "Entregas")?id=${entregaId}&entregadorId=${entregadorId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                $('#atribuirModal').modal('hide');
-                location.reload();
-            } else {
-                alert('Erro: ' + result.message);
-            }
-        }
-
-        // Atualizar status
-        function atualizarStatus(entregaId) {
-            $('#entregaStatusId').val(entregaId);
-            $('#statusSelect').val('');
-            $('#observacaoStatus').val('');
-            $('#statusModal').modal('show');
-        }
-
-        async function confirmarStatus() {
-            const entregaId = $('#entregaStatusId').val();
-            const status = $('#statusSelect').val();
-            const observacao = $('#observacaoStatus').val();
-
-            if (!status) {
-                alert('Selecione um status');
-                return;
-            }
-
-            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=${entregaId}&novoStatus=${status}&observacao=${encodeURIComponent(observacao)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                $('#statusModal').modal('hide');
-                location.reload();
-            } else {
-                alert('Erro: ' + result.message);
-            }
-        }
-
-        // Auto-refresh a cada 30 segundos
-       @*  setInterval(() => {
-            location.reload();
-        }, 300000); *@
     </script>
 }
