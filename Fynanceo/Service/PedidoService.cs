@@ -14,11 +14,14 @@ namespace Fynanceo.Services
     {
         private readonly AppDbContext _context;
         private readonly IMesaService _mesaService;
+        private readonly IEntregaService _entregaService;
 
-        public PedidoService(AppDbContext context, IMesaService mesaService)
+        public PedidoService(AppDbContext context, IMesaService mesaService, IEntregaService entregaService)
         {
             _context = context;
             _mesaService = mesaService;
+            _entregaService = entregaService;
+           
         }
         public async Task<Pedido> FecharPedidoAsync(int pedidoId)
         {
@@ -228,11 +231,13 @@ namespace Fynanceo.Services
 
                     // 🔹 Registra histórico
                     await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario);
-
+                  
                     // 🔹 Confirma a transação
                     await transaction.CommitAsync();
-                }
 
+                   
+                }
+              
                 // 🔹 Retorna o pedido completo e atualizado
                 return await ObterPedidoCompleto(pedidoId);
             }
@@ -392,7 +397,7 @@ namespace Fynanceo.Services
             if (item.Status == PedidoStatus.Pronto)
                 throw new InvalidOperationException("O item já está marcado como pronto.");
 
-            // 3️⃣ Atualiza o status e a data
+            // 3️⃣ Atualiza o status do item para pronto e a data
             item.Status = PedidoStatus.Pronto;
             item.DataPronto = DateTime.UtcNow;
 
@@ -407,13 +412,18 @@ namespace Fynanceo.Services
             if (todosProntos)
             {
                 var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
+
                 if (pedido != null)
                 {
-                    AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema").Wait();
+                    // 🔥 SEM Wait() e sem bloquear thread!
+                    await AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema");
+                    await _context.Entry(pedido).ReloadAsync();
 
-                    //pedido.Status = PedidoStatus.Pronto;  // Enum do pedido
-                    //pedido.DataPronto = DateTime.UtcNow;
-                    //await _context.SaveChangesAsync();
+                    // 🔥 Somente depois do await, o pedido está salvo e atualizado
+                    if (pedido.TipoPedido == TipoPedido.Delivery && pedido.Status == PedidoStatus.Pronto)
+                    {
+                        await _entregaService.CriarEntrega(pedido.Id);
+                    }
                 }
             }
 

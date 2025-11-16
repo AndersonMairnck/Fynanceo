@@ -12,7 +12,7 @@ namespace Fynanceo.Models.Enums
     public enum StatusEntrega
     {
         AguardandoEntregador = 1,
-        SaiuParaEntrega = 2,
+        RetiradoParaEntrega = 2,
         EmRota = 3,
         Entregue = 4,
         Cancelada = 5,

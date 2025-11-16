@@ -19,6 +19,10 @@ namespace Fynanceo.Services
 
         public async Task<Entrega> CriarEntrega(int pedidoId)
         {
+            try
+            {
+
+           
             var pedido = await _context.Pedidos
                 .Include(p => p.Cliente)
                 .Include(p => p.EnderecoEntrega)
@@ -54,6 +58,12 @@ namespace Fynanceo.Services
             await AdicionarHistoricoEntrega(entrega.Id, "Nova", entrega.Status.ToString(), "Sistema");
 
             return entrega;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<Entrega> AtribuirEntregador(int entregaId, int entregadorId)
@@ -66,15 +76,15 @@ namespace Fynanceo.Services
 
             if (entregador.Status != StatusEntregador.Disponivel)
                 throw new ArgumentException("Entregador não está disponível");
-
+            // status da entrega
             var statusAnterior = entrega.Status.ToString();
 
             entrega.EntregadorId = entregadorId;
-            entrega.Status = StatusEntrega.SaiuParaEntrega;
+            entrega.Status = StatusEntrega.RetiradoParaEntrega;
             entrega.DataSaiuEntrega = DateTime.UtcNow;
             entrega.DataPrevisao = DateTime.UtcNow.AddMinutes(30); // Baseado na distância
 
-            entregador.Status = StatusEntregador.Entregando;
+           // entregador.Status = StatusEntregador.Entregando;
 
             await _context.SaveChangesAsync();
 
@@ -99,6 +109,19 @@ namespace Fynanceo.Services
                 // Atualizar timestamps
                 switch (status)
                 {
+                    case StatusEntrega.EmRota:
+                       
+                       // ocupar entregador
+                        if (entrega.EntregadorId.HasValue)
+                        {
+                            var entregador = await _context.Entregadores.FindAsync(entrega.EntregadorId.Value);
+                            if (entregador != null)
+                            {
+                                entregador.Status = StatusEntregador.Entregando;
+                            
+                            }
+                        }
+                        break;
                     case StatusEntrega.Entregue:
                         entrega.DataEntrega = DateTime.UtcNow;
                         // Liberar entregador
@@ -208,7 +231,7 @@ namespace Fynanceo.Services
                 .CountAsync(e => e.Status == StatusEntrega.AguardandoEntregador);
 
             var entregasEmAndamento = await _context.Entregas
-                .CountAsync(e => e.Status == StatusEntrega.SaiuParaEntrega || e.Status == StatusEntrega.EmRota);
+                .CountAsync(e => e.Status == StatusEntrega.RetiradoParaEntrega || e.Status == StatusEntrega.EmRota);
 
             var entregadoresDisponiveis = await _context.Entregadores
                 .CountAsync(e => e.Status == StatusEntregador.Disponivel && e.Ativo);

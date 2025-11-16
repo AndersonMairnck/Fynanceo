@@ -148,7 +148,7 @@ namespace Fynanceo.Controllers
             var entregas = await _context.Entregas
                 .Include(e => e.Pedido)
                 .Include(e => e.Entregador)
-                .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ||
+                .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
                            e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
                 .ToListAsync();
 
@@ -179,7 +179,7 @@ namespace Fynanceo.Controllers
           .Include(e => e.EnderecoEntrega)
             .ThenInclude(p => p.Cliente)
         .Include(e => e.Entregador)
-        .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.SaiuParaEntrega ||
+        .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
                    e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
         .OrderBy(e => e.DataSaiuEntrega)
         .ToListAsync();
