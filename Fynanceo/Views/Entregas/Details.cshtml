@@ -169,7 +169,7 @@
             <div class="card-body">
                 @if (Model.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
                 {
-                    <button class="btn btn-warning w-100 mb-2" onclick="atribuirEntregador()">
+                    <button class="btn btn-warning w-100 mb-2" onclick="atribuirEntregador(@Model.Id)">
                         <i class="fas fa-user-plus me-2"></i>Atribuir Entregador
                     </button>
                 }
@@ -284,7 +284,7 @@
         }
     </div>
 </div>
-
+<input type="hidden" id="entregaIdHidden" value="@Model.Id">
 <!-- Modal Atualizar Status -->
 <div class="modal fade" id="statusModal" tabindex="-1">
     <div class="modal-dialog">
@@ -326,75 +326,34 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        function atualizarStatus() {
-            $('#statusSelect').val('');
-            $('#observacaoStatus').val('');
-            $('#statusModal').modal('show');
-        }
+<!-- Modal Atribuir Entregador -->
+<div class="modal fade" id="atribuirModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-        function atribuirEntregador() {
-            // Implementar atribuição de entregador
-            alert('Funcionalidade de atribuição de entregador');
-        }
+            <div class="modal-header">
+                <h5 class="modal-title">Atribuir Entregador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
-        function marcarEmRota() {
-            confirmarStatusAcao('EmRota', 'Marcar entrega como Em Rota?');
-        }
+            <div class="modal-body">
 
-        function marcarEntregue() {
-            confirmarStatusAcao('Entregue', 'Marcar entrega como Entregue?');
-        }
+                <input type="hidden" id="entregaId" />
 
-        function reportarProblema() {
-            confirmarStatusAcao('Problema', 'Reportar problema na entrega?');
-        }
+                <div id="entregadoresDisponiveis" class="mb-3">
+                    <p class="text-muted">Carregando entregadores...</p>
+                </div>
 
-        function confirmarStatusAcao(status, mensagem) {
-            if (confirm(mensagem)) {
-                $('#statusSelect').val(status);
-                confirmarStatus();
-            }
-        }
+            </div>
 
-        async function confirmarStatus() {
-            const status = $('#statusSelect').val();
-            const observacao = $('#observacaoStatus').val();
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
 
-            if (!status) {
-                alert('Selecione um status');
-                return;
-            }
+        </div>
+    </div>
+</div>
 
-            const response = await fetch(`@Url.Action("AtualizarStatus", "Entregas")?id=@Model.Id&novoStatus=${status}&observacao=${encodeURIComponent(observacao)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                $('#statusModal').modal('hide');
-                location.reload();
-            } else {
-                alert('Erro: ' + result.message);
-            }
-        }
-
-        // Auto-refresh a cada 30 segundos se a entrega não estiver finalizada
-        //@@if (Model.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue && Model.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
-        // {
-        //         <text>
-        //         setInterval(() => {
-        //             location.reload();
-        //         }, 30000);
-        //         </text>
-        // }
-    </script>
-}
 
 @functions {
     public string GetStatusBadgeClass(Fynanceo.Models.Enums.StatusEntrega status)
@@ -410,4 +369,7 @@
             _ => "bg-secondary text-white"
         };
     }
+    
+    
 }
+<script src="/js/Entregas/entrega.js" ></script>

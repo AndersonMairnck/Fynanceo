@@ -61,161 +61,158 @@
         <div class="table-responsive">
             <table class="table table-hover">
                 <thead>
-                    <tr>
-                        <th>Pedido</th>
-                        <th>Cliente</th>
-                        <th>Endereço</th>
-                        <th>Entregador</th>
-                        <th>Status</th>
-                        <th>Taxa</th>
-                        <th>Tempo</th>
-                        <th>Ações</th>
-                    </tr>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Endereço</th>
+                    <th>Entregador</th>
+                    <th>Status</th>
+                    <th>Taxa</th>
+                    <th>Tempo</th>
+                    <th>Ações</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var entrega in Model.Entregas)
-                    {
-                        <tr class="entrega-row"
-                            data-status="@entrega.Status"
-                            data-pedido="@entrega.Pedido?.NumeroPedido"
-                            data-entregador="@entrega.EntregadorId">
-                            <td>
-                                <strong>@entrega.Pedido?.NumeroPedido</strong>
-                                <br>
-                                <small class="text-muted">@entrega.DataCriacao.ToLocalTime().ToString("HH:mm")</small>
-                            </td>
-                            <td>
-                                @entrega.Pedido?.Cliente?.NomeCompleto
-                                <br>
-                                <small class="text-muted">@entrega.Pedido?.Cliente?.Telefone</small>
-                            </td>
-                            <td>
-                                <small>Cidade: @entrega.EnderecoEntrega.Cidade</small><br>
-                                <small>Rua/Av.: @entrega.EnderecoEntrega.Logradouro</small><br>
-                                <small>Bairro: @entrega.EnderecoEntrega.Bairro</small>
+                @foreach (var entrega in Model.Entregas)
+                {
+                    <tr class="entrega-row"
+                        data-status="@entrega.Status"
+                        data-pedido="@entrega.Pedido?.NumeroPedido"
+                        data-entregador="@entrega.EntregadorId">
+                        <td>
+                            <strong>@entrega.Pedido?.NumeroPedido</strong>
+                            <br>
+                            <small class="text-muted">@entrega.DataCriacao.ToLocalTime().ToString("HH:mm")</small>
+                        </td>
+                        <td>
+                            @entrega.Pedido?.Cliente?.NomeCompleto
+                            <br>
+                            <small class="text-muted">@entrega.Pedido?.Cliente?.Telefone</small>
+                        </td>
+                        <td>
+                            <small>Cidade: @entrega.EnderecoEntrega.Cidade</small><br>
+                            <small>Rua/Av.: @entrega.EnderecoEntrega.Logradouro</small><br>
+                            <small>Bairro: @entrega.EnderecoEntrega.Bairro</small>
 
-                                @if (!string.IsNullOrEmpty(entrega.Complemento))
+                            @if (!string.IsNullOrEmpty(entrega.Complemento))
+                            {
+                                <br>
+                                <small class="text-muted">@entrega.Complemento</small>
+                            }
+                        </td>
+                        <td>
+                            @if (entrega.Entregador != null)
+                            {
+                                <text>@entrega.Entregador.Nome</text>
+                                <br>
+                                <small class="text-muted">@entrega.Entregador.Telefone</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Não atribuído</span>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var statusClass = "";
+                                var statusText = "";
+                                switch (entrega.Status)
                                 {
-                                    <br>
-                                    <small class="text-muted">@entrega.Complemento</small>
+                                    case Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador:
+                                        statusClass = "bg-warning text-dark";
+                                        statusText = "Pendente";
+                                        break;
+                                    case Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega:
+                                        statusClass = "bg-info text-white";
+                                        statusText = "Retirado";
+                                        break;
+                                    case Fynanceo.Models.Enums.StatusEntrega.EmRota:
+                                        statusClass = "bg-primary text-white";
+                                        statusText = "Em Rota";
+                                        break;
+                                    case Fynanceo.Models.Enums.StatusEntrega.Entregue:
+                                        statusClass = "bg-success text-white";
+                                        statusText = "Entregue";
+                                        break;
+                                    case Fynanceo.Models.Enums.StatusEntrega.Cancelada:
+                                        statusClass = "bg-danger text-white";
+                                        statusText = "Cancelada";
+                                        break;
+                                    case Fynanceo.Models.Enums.StatusEntrega.Problema:
+                                        statusClass = "bg-dark text-white";
+                                        statusText = "Problema";
+                                        break;
                                 }
-                            </td>
-                            <td>
-                                @if (entrega.Entregador != null)
+                            }
+                            <span class="badge @statusClass">@statusText</span>
+                        </td>
+                        <td>
+                            <strong>R$ @entrega.TaxaEntrega.ToString("N2")</strong>
+                        </td>
+                        <td>
+                            @{
+                                var tempo = DateTime.UtcNow - entrega.DataCriacao.ToLocalTime();
+                                <small>@((int)tempo.TotalMinutes)m</small>
+                            }
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="@Url.Action("Details", new { id = entrega.Id })"
+                                   class="btn btn-outline-primary" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
                                 {
-                                    <text>@entrega.Entregador.Nome</text>
-                                    <br>
-                                    <small class="text-muted">@entrega.Entregador.Telefone</small>
+                                    <button class="btn btn-outline-success"
+                                            title="Atribuir Entregador"
+                                            onclick="atribuirEntregador(@entrega.Id)">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
                                 }
-                                else
+                                @if (entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
+                                     entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
                                 {
-                                    <span class="text-muted">Não atribuído</span>
+                                    <button class="btn btn-outline-info"
+                                            title="Atualizar Status"
+                                            onclick="atualizarStatus(@entrega.Id)">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
                                 }
-                            </td>
-                            <td>
-                                @{
-                                    var statusClass = "";
-                                    var statusText = "";
-                                    switch (entrega.Status)
-                                    {
-                                        case Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador:
-                                            statusClass = "bg-warning text-dark";
-                                            statusText = "Pendente";
-                                            break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega:
-                                            statusClass = "bg-info text-white";
-                                            statusText = "Retirado";
-                                            break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.EmRota:
-                                            statusClass = "bg-primary text-white";
-                                            statusText = "Em Rota";
-                                            break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.Entregue:
-                                            statusClass = "bg-success text-white";
-                                            statusText = "Entregue";
-                                            break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.Cancelada:
-                                            statusClass = "bg-danger text-white";
-                                            statusText = "Cancelada";
-                                            break;
-                                        case Fynanceo.Models.Enums.StatusEntrega.Problema:
-                                            statusClass = "bg-dark text-white";
-                                            statusText = "Problema";
-                                            break;
-                                    }
-                                }
-                                <span class="badge @statusClass">@statusText</span>
-                            </td>
-                            <td>
-                                <strong>R$ @entrega.TaxaEntrega.ToString("N2")</strong>
-                            </td>
-                            <td>
-                                @{
-                                    var tempo = DateTime.UtcNow - entrega.DataCriacao.ToLocalTime();
-                                    <small>@((int)tempo.TotalMinutes)m</small>
-                                }
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="@Url.Action("Details", new { id = entrega.Id })"
-                                       class="btn btn-outline-primary" title="Detalhes">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
-                                    {
-                                        <button class="btn btn-outline-success"
-                                                title="Atribuir Entregador"
-                                                onclick="atribuirEntregador(@entrega.Id)">
-                                            <i class="fas fa-user-plus"></i>
-                                        </button>
-                                    }
-                                    @if (entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
-                                         entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
-                                    {
-                                        <button class="btn btn-outline-info"
-                                                title="Atualizar Status"
-                                                onclick="atualizarStatus(@entrega.Id)">
-                                            <i class="fas fa-sync-alt"></i>
-                                        </button>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
+                            </div>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+<!-- Modal Atribuir Entregador -->
+<div class="modal fade" id="atribuirModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
 
-@section Scripts {
-    <script>
-        function filterEntregas() {
-            const status = ($('#statusFilter').val() || '').toString().trim();
-            const search = ($('#searchFilter').val() || '').toString().toLowerCase().trim();
-            const entregador = ($('#entregadorFilter').val() || '').toString().trim();
+            <div class="modal-header">
+                <h5 class="modal-title">Atribuir Entregador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
-            $('.entrega-row').each(function() {
-                const row = $(this);
+            <div class="modal-body">
 
-                const rowStatus = (row.data('status') || '').toString().trim();
-                const rowPedido = (row.data('pedido') || '').toString().toLowerCase().trim();
-                const rowEndereco = row.find('td').eq(2).text().toLowerCase().trim();
-                const rowEntregador = (row.data('entregador') || '').toString().trim();
+                <input type="hidden" id="entregaId" />
 
-                const statusMatch = status === 'all' || rowStatus === status;
-                const searchMatch = search === '' || rowPedido.includes(search) || rowEndereco.includes(search);
-                const entregadorMatch = entregador === 'all' || rowEntregador === entregador;
+                <div id="entregadoresDisponiveis" class="mb-3">
+                    <p class="text-muted">Carregando entregadores...</p>
+                </div>
 
-                row.toggle(statusMatch && searchMatch && entregadorMatch);
-            });
-        }
+            </div>
 
-        function resetFilters() {
-            $('#statusFilter').val('all');
-            $('#searchFilter').val('');
-            $('#entregadorFilter').val('all');
-            filterEntregas();
-        }
-    </script>
-}
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="/js/Entregas/entrega.js"></script>
