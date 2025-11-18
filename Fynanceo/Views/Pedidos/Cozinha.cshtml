@@ -518,7 +518,7 @@
 
        
 
-        // ✅ CORREÇÃO DA NOMENCLATURA - Funções renomeadas
+     
         function entregaIndividualCozinha(itemId, pedidoId) {
             if (!confirm('Marcar este item como entregue?')) return;
             $.post('@Url.Action("EntregaIndividualCozinha", "Pedidos")', { itemId: itemId, pedidoId: pedidoId })

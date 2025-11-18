@@ -187,3 +187,73 @@ async function confirmarStatus() {
     $('#entregadorFilter').val('all');
     filterEntregas();
 }
+
+
+// ===============================
+// Atualiza visibilidade do botão "Marcar em Rota"
+// ===============================
+     
+        function updateMarcarButtonVisibility() {
+        const entregador = ($('#entregadorFilter').val() || '').toString();
+        const status = ($('#statusFilter').val() || '').toString();
+
+        // condição: entregador diferente de 'all' E status igual 'RetiradoParaEntrega'
+        const condicaoFiltro = entregador !== 'all' && status === 'RetiradoParaEntrega';
+
+        // também exige que existam linhas visíveis que correspondam
+        const visibleCount = $('.entrega-row:visible').filter(function () {
+        // opcional: garantir que row realmente tem status RetiradoParaEntrega
+        return $(this).data('status') == 'RetiradoParaEntrega';
+    }).length;
+
+        if (condicaoFiltro && visibleCount > 0) {
+        $('#btnMarcarEmRota').removeClass('d-none');
+    } else {
+        $('#btnMarcarEmRota').addClass('d-none');
+    }
+    }
+    
+// ===============================
+// coleta ids das linhas visíveis (filtradas)
+// ===============================
+    function updateMarcarButtonVisibility() {
+    const status = document.getElementById("statusFilter").value;
+    const entregador = document.getElementById("entregadorFilter").value;
+    const btn = document.getElementById("btnMarcarEmRota");
+
+    if (status === "RetiradoParaEntrega" && entregador !== "all") {
+    btn.classList.remove("d-none");
+} else {
+    btn.classList.add("d-none");
+}
+}
+
+    function marcarEntregasEmRota() {
+    const rows = document.querySelectorAll(".entrega-row");
+    let ids = [];
+
+    rows.forEach(r => {
+    const status = r.getAttribute("data-status");
+    const entregador = r.getAttribute("data-entregador");
+    const filtroEntregador = document.getElementById("entregadorFilter").value;
+
+    if (
+    status === "RetiradoParaEntrega" &&
+    entregador === filtroEntregador
+    ) {
+    ids.push(r.getAttribute("data-id"));
+}
+});
+
+    if (ids.length === 0) {
+    alert("Nenhuma entrega encontrada para marcar como 'Em Rota'.");
+    return;
+}
+
+    if (!confirm(`Marcar ${ids.length} entrega(s) como 'Em Rota'?`)) {
+    return;
+}
+
+    document.getElementById("marcarIds").value = ids.join(",");
+    document.getElementById("formMarcarEmRota").submit();
+}

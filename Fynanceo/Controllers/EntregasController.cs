@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
-using Fynanceo.Models;
+
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.DeliveryModel;
+using Fynanceo.Models.Enums;
 
 namespace Fynanceo.Controllers
 {
@@ -12,11 +13,13 @@ namespace Fynanceo.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IEntregaService _entregaService;
+        private readonly IPedidoService _pedidoService;
 
-        public EntregasController(AppDbContext context, IEntregaService entregaService)
+        public EntregasController(AppDbContext context, IEntregaService entregaService, IPedidoService pedidoService)
         {
             _context = context;
             _entregaService = entregaService;
+            _pedidoService = pedidoService;
         }
 
         // GET: Entregas
@@ -75,8 +78,8 @@ namespace Fynanceo.Controllers
             var viewModel = new EntregaViewModel
             {
                 PedidosPendentes = await _context.Pedidos
-                    .Where(p => p.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery &&
-                               p.Status == Fynanceo.Models.Enums.PedidoStatus.Pronto &&
+                    .Where(p => p.TipoPedido == TipoPedido.Delivery &&
+                               p.Status == PedidoStatus.Pronto &&
                                !_context.Entregas.Any(e => e.PedidoId == p.Id))
                     .Include(p => p.Cliente)
                      .Include(p => p.EnderecoEntrega)  // ← ADICIONAR ESTE INCLUDE
@@ -118,8 +121,8 @@ namespace Fynanceo.Controllers
 
             // Recarregar dados se houver erro
             viewModel.PedidosPendentes = await _context.Pedidos
-                .Where(p => p.TipoPedido == Fynanceo.Models.Enums.TipoPedido.Delivery &&
-                           p.Status == Fynanceo.Models.Enums.PedidoStatus.Pronto &&
+                .Where(p => p.TipoPedido == TipoPedido.Delivery &&
+                           p.Status == PedidoStatus.Pronto &&
                            !_context.Entregas.Any(e => e.PedidoId == p.Id))
                 .Include(p => p.Cliente)
                 .ToListAsync();
@@ -165,12 +168,12 @@ namespace Fynanceo.Controllers
             var entregas = await _context.Entregas
                 .Include(e => e.Pedido)
                 .Include(e => e.Entregador)
-                .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
-                           e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+                .Where(e => e.Status == StatusEntrega.RetiradoParaEntrega ||
+                           e.Status == StatusEntrega.EmRota)
                 .ToListAsync();
 
             var entregadores = await _context.Entregadores
-                .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntregador.Entregando &&
+                .Where(e => e.Status == StatusEntregador.Entregando &&
                            e.Latitude.HasValue && e.Longitude.HasValue)
                 .ToListAsync();
 
@@ -196,8 +199,8 @@ namespace Fynanceo.Controllers
           .Include(e => e.EnderecoEntrega)
             .ThenInclude(p => p.Cliente)
         .Include(e => e.Entregador)
-        .Where(e => e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
-                   e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota)
+        .Where(e => e.Status == StatusEntrega.RetiradoParaEntrega ||
+                   e.Status == StatusEntrega.EmRota)
         .OrderBy(e => e.DataSaiuEntrega)
         .ToListAsync();
 
@@ -220,5 +223,28 @@ namespace Fynanceo.Controllers
 
             return Json(result);
         }
+
+        // POST: MarcarEmRota mais de um para o mesmo entregador
+        [HttpPost]
+        public async Task<IActionResult> MarcarEmRota(string ids)
+        {
+            if (string.IsNullOrWhiteSpace(ids))
+                return RedirectToAction("Index");
+
+            var listaIds = ids
+                .Split(',')
+                .Select(id => int.Parse(id))
+                .ToList();
+
+            await _entregaService.MarcarComoEmRotaAsync(listaIds);
+          
+        
+          
+
+
+            TempData["Success"] = $"{listaIds.Count} entrega(s) marcadas como 'Em Rota'.";
+            return RedirectToAction("Index");
+        }
+
     }
 }

@@ -20,9 +20,9 @@
 <!-- Filtros -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="row">
+        <div class="row g-2 align-items-center">
             <div class="col-md-3">
-                <select class="form-select" id="statusFilter" onchange="filterEntregas()">
+                <select class="form-select" id="statusFilter" onchange="filterEntregas(); updateMarcarButtonVisibility();">
                     <option value="all">Todos os Status</option>
                     <option value="AguardandoEntregador">Pendentes</option>
                     <option value="RetiradoParaEntrega">Retirado para Entrega</option>
@@ -31,12 +31,15 @@
                     <option value="Cancelada">Canceladas</option>
                 </select>
             </div>
+
             <div class="col-md-3">
                 <input type="text" class="form-control" id="searchFilter"
-                       placeholder="Buscar por pedido ou endereço..." onkeyup="filterEntregas()">
+                       placeholder="Buscar por pedido ou endereço..." 
+                       onkeyup="filterEntregas(); updateMarcarButtonVisibility();">
             </div>
+
             <div class="col-md-3">
-                <select class="form-select" id="entregadorFilter" onchange="filterEntregas()">
+                <select class="form-select" id="entregadorFilter" onchange="filterEntregas(); updateMarcarButtonVisibility();">
                     <option value="all">Todos os Entregadores</option>
                     @foreach (var entregador in Model.Entregadores)
                     {
@@ -44,10 +47,22 @@
                     }
                 </select>
             </div>
-            <div class="col-md-3">
-                <button class="btn btn-outline-secondary w-100" onclick="resetFilters()">
-                    <i class="fas fa-redo me-2"></i>Limpar Filtros
-                </button>
+
+            <div class="col-md-3 d-flex flex-column">
+                <div class="mb-2">
+                    <button class="btn btn-outline-secondary w-100" id="btnResetFilters" 
+                            onclick="resetFilters(); updateMarcarButtonVisibility();">
+                        <i class="fas fa-redo me-2"></i>Limpar Filtros
+                    </button>
+                </div>
+
+                <!-- Botão Marcar em Rota -->
+                <div>
+                    <button class="btn btn-warning w-100 d-none" id="btnMarcarEmRota" onclick="marcarEntregasEmRota()">
+                        <i class="fas fa-road me-2"></i>Marcar em Rota
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
@@ -76,19 +91,23 @@
                 @foreach (var entrega in Model.Entregas)
                 {
                     <tr class="entrega-row"
+                        data-id="@entrega.Id"
                         data-status="@entrega.Status"
                         data-pedido="@entrega.Pedido?.NumeroPedido"
                         data-entregador="@entrega.EntregadorId">
+
                         <td>
                             <strong>@entrega.Pedido?.NumeroPedido</strong>
                             <br>
                             <small class="text-muted">@entrega.DataCriacao.ToLocalTime().ToString("HH:mm")</small>
                         </td>
+
                         <td>
                             @entrega.Pedido?.Cliente?.NomeCompleto
                             <br>
                             <small class="text-muted">@entrega.Pedido?.Cliente?.Telefone</small>
                         </td>
+
                         <td>
                             <small>Cidade: @entrega.EnderecoEntrega.Cidade</small><br>
                             <small>Rua/Av.: @entrega.EnderecoEntrega.Logradouro</small><br>
@@ -100,6 +119,7 @@
                                 <small class="text-muted">@entrega.Complemento</small>
                             }
                         </td>
+
                         <td>
                             @if (entrega.Entregador != null)
                             {
@@ -112,6 +132,7 @@
                                 <span class="text-muted">Não atribuído</span>
                             }
                         </td>
+
                         <td>
                             @{
                                 var statusClass = "";
@@ -146,40 +167,41 @@
                             }
                             <span class="badge @statusClass">@statusText</span>
                         </td>
+
+                        <td><strong>R$ @entrega.TaxaEntrega.ToString("N2")</strong></td>
+
                         <td>
-                            <strong>R$ @entrega.TaxaEntrega.ToString("N2")</strong>
+                            @(
+                                (int)(DateTime.UtcNow - entrega.DataCriacao.ToLocalTime()).TotalMinutes
+                            )m
                         </td>
-                        <td>
-                            @{
-                                var tempo = DateTime.UtcNow - entrega.DataCriacao.ToLocalTime();
-                                <small>@((int)tempo.TotalMinutes)m</small>
-                            }
-                        </td>
+
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a href="@Url.Action("Details", new { id = entrega.Id })"
                                    class="btn btn-outline-primary" title="Detalhes">
                                     <i class="fas fa-eye"></i>
                                 </a>
+
                                 @if (entrega.Status == Fynanceo.Models.Enums.StatusEntrega.AguardandoEntregador)
                                 {
-                                    <button class="btn btn-outline-success"
-                                            title="Atribuir Entregador"
+                                    <button class="btn btn-outline-success" 
                                             onclick="atribuirEntregador(@entrega.Id)">
                                         <i class="fas fa-user-plus"></i>
                                     </button>
                                 }
+
                                 @if (entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Entregue &&
                                      entrega.Status != Fynanceo.Models.Enums.StatusEntrega.Cancelada)
                                 {
-                                    <button class="btn btn-outline-info"
-                                            title="Atualizar Status"
+                                    <button class="btn btn-outline-info" 
                                             onclick="atualizarStatus(@entrega.Id)">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 }
                             </div>
                         </td>
+
                     </tr>
                 }
                 </tbody>
@@ -187,6 +209,12 @@
         </div>
     </div>
 </div>
+
+<!-- Formulário oculto para envio em massa -->
+<form id="formMarcarEmRota" method="post" action="/Entregas/MarcarEmRota">
+    <input type="hidden" name="ids" id="marcarIds" />
+</form>
+
 <!-- Modal Atribuir Entregador -->
 <div class="modal fade" id="atribuirModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -198,13 +226,10 @@
             </div>
 
             <div class="modal-body">
-
                 <input type="hidden" id="entregaId" />
-
                 <div id="entregadoresDisponiveis" class="mb-3">
                     <p class="text-muted">Carregando entregadores...</p>
                 </div>
-
             </div>
 
             <div class="modal-footer">
@@ -216,3 +241,4 @@
 </div>
 
 <script src="/js/Entregas/entrega.js"></script>
+

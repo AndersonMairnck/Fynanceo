@@ -7,10 +7,11 @@ namespace Fynanceo.Models.Enums
         EnviadoCozinha = 2,
         EmPreparo = 3,
         Pronto = 4,
-        Entregue = 5,
-        Fechado = 6,
-        Cancelado = 7,
-            Finalizado = 8
+        EmRota = 5,
+        Entregue = 6,
+        Fechado = 7,
+        Cancelado = 8,
+            Finalizado = 9
     }
 
     public enum TipoPedido
