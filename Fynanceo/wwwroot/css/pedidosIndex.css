@@ -1,0 +1,49 @@
+.table-active {
+    background-color: #fff3cd !important;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.status-aberto {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.status-cozinha {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-preparo {
+    background-color: #ffc107;
+    color: black;
+}
+
+.status-pronto {
+
+
+    background-color: #198754;
+    color: white;
+
+
+
+}
+
+.status-entregue {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.status-fechado {
+    background-color: #6c757d;
+    color: white;
+}
+.status-rota {
+    background-color: #0d6efd;
+    color: white;
+}

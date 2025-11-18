@@ -15,5 +15,9 @@ namespace Fynanceo.Service.Interface
         Task<decimal> CalcularTaxaEntrega(string endereco, decimal subtotalPedido);
         Task<DashboardDeliveryViewModel> ObterDashboardDelivery();
         Task<bool> AtualizarLocalizacaoEntregador(int entregadorId, decimal latitude, decimal longitude);
+        Task MarcarComoEmRotaAsync(List<int> entregaIds);
+       
+
+
     }
 }

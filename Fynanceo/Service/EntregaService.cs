@@ -11,10 +11,15 @@ namespace Fynanceo.Services
     public class EntregaService : IEntregaService
     {
         private readonly AppDbContext _context;
+        private readonly IPedidoService _pedidoService;
+     
 
-        public EntregaService(AppDbContext context)
+
+        public EntregaService(AppDbContext context, IPedidoService pedidoService)
         {
             _context = context;
+            _pedidoService = pedidoService;
+
         }
 
         public async Task<Entrega> CriarEntrega(int pedidoId)
@@ -105,7 +110,7 @@ namespace Fynanceo.Services
             if (Enum.TryParse<StatusEntrega>(novoStatus, out var status))
             {
                 entrega.Status = status;
-
+                
                 // Atualizar timestamps
                 switch (status)
                 {
@@ -133,6 +138,7 @@ namespace Fynanceo.Services
                                 entregador.Status = StatusEntregador.Disponivel;
                                 entregador.TotalEntregas++;
                                 entregador.UltimaAtualizacao = DateTime.UtcNow;
+                                
                             }
                         }
                         break;
@@ -151,6 +157,17 @@ namespace Fynanceo.Services
                         break;
                 }
 
+              
+                // --- Atualizar pedido ----------------------
+                if (entrega.PedidoId > 0)
+                {
+                    await  _pedidoService.AtualizarStatus(entrega.PedidoId,novoStatus , usuario);
+                }
+
+                if (entrega.Pedido.TipoPedido == TipoPedido.Delivery && novoStatus =="Entregue" )
+                {
+                  await  _pedidoService.EntregaTodosCozinha(entrega.PedidoId);
+                }
                 await _context.SaveChangesAsync();
                 await AdicionarHistoricoEntrega(entregaId, statusAnterior, novoStatus, usuario, observacao);
             }
@@ -285,6 +302,47 @@ namespace Fynanceo.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task MarcarComoEmRotaAsync(List<int> entregaIds)
+        {
+            if (entregaIds == null || entregaIds.Count == 0)
+                return;
+
+            var entregas = await _context.Entregas
+                .Where(e => entregaIds.Contains(e.Id))
+                .ToListAsync();
+
+            foreach (var entrega in entregas)
+            {
+                if (entrega.Status == StatusEntrega.RetiradoParaEntrega)
+                {
+                    entrega.Status = StatusEntrega.EmRota;
+                    entrega.DataCriacao = DateTime.UtcNow;
+                    string usuario = "Usuario";
+                    string status = "EmRota";
+                    // ocupar entregador
+                 
+                        var entregador = await _context.Entregadores.FindAsync(entrega.EntregadorId.Value);
+                        
+                        if (entregador != null)
+                        {
+                            entregador.Status = StatusEntregador.Entregando;
+                            
+                        }
+                        
+                        // --- Atualizar pedido ----------------------
+                        if (entrega.PedidoId > 0)
+                        {
+                          await  _pedidoService.AtualizarStatus(entrega.PedidoId,status , usuario);
+                        }
+                  
+                    // Se tiver histórico de status
+                    // _context.HistoricoEntregas.Add(new HistoricoEntrega { ... });
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         private async Task<decimal> CalcularComissao(decimal taxaEntrega)

@@ -148,14 +148,7 @@ namespace Fynanceo.Controllers
             }
         }
 
-        // GET: Pedidos/GetEnderecosCliente/5
-        //public async Task<JsonResult> GetEnderecosCliente(int clienteId)
-        //{
-        //    var enderecos = await _clienteService.ObterPorIdAsync(clienteId);
-
-        //    return Json(enderecos);
-        //}
-        // GET: Pedidos/GetEnderecosCliente/5
+        
         public async Task<JsonResult> GetEnderecosCliente(int clienteId)
         {
             var cliente = await _clienteService.ObterPorIdAsync(clienteId);

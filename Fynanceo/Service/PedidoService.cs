@@ -14,14 +14,16 @@ namespace Fynanceo.Services
     {
         private readonly AppDbContext _context;
         private readonly IMesaService _mesaService;
-        private readonly IEntregaService _entregaService;
+      //  private readonly IEntregaService _entregaService;
+      private readonly IServiceProvider _serviceProvider;
 
-        public PedidoService(AppDbContext context, IMesaService mesaService, IEntregaService entregaService)
+        public PedidoService(AppDbContext context, IMesaService mesaService, IServiceProvider serviceProvider)
         {
             _context = context;
             _mesaService = mesaService;
-            _entregaService = entregaService;
-           
+          //  _entregaService = entregaService;
+          _serviceProvider = serviceProvider;
+
         }
         public async Task<Pedido> FecharPedidoAsync(int pedidoId)
         {
@@ -383,8 +385,6 @@ namespace Fynanceo.Services
             return item;
         }
 
-
-
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
         {
@@ -422,7 +422,11 @@ namespace Fynanceo.Services
                     // 🔥 Somente depois do await, o pedido está salvo e atualizado
                     if (pedido.TipoPedido == TipoPedido.Delivery && pedido.Status == PedidoStatus.Pronto)
                     {
-                        await _entregaService.CriarEntrega(pedido.Id);
+            //             //para evitar conflitos entre o entregaservice e o pedidoservice ou invez de colocar
+            //             no inicio    private readonly IEntregaService _entregaService; ele so inicia neste momento
+            // para nao quebrar na hora de executar?
+                        var entregaService = _serviceProvider.GetRequiredService<IEntregaService>();
+                        await entregaService.CriarEntrega(pedido.Id);
                     }
                 }
             }
@@ -430,9 +434,7 @@ namespace Fynanceo.Services
             return item;
         }
 
-        // 🔹 Iniciar preparo de todos os itens de um pedido
-
-
+    
         /// Inicia o preparo de todos os itens de um pedido e atualiza o status do pedido.
         /// </summary>
         // <returns>Retorna true se algum item foi iniciado, false se não houver itens disponíveis</returns>
@@ -543,8 +545,6 @@ namespace Fynanceo.Services
                 throw;
             }
         }
-
-
 
         // 🔹 Marcar todos os itens como prontos e atualizar o status do pedido
         public async Task<bool> MarcarProntoTodosAsync(int pedidoId)
@@ -751,7 +751,7 @@ namespace Fynanceo.Services
             return itensPendentes.Count;
         }
 
-        private async Task AtualizarStatusPedidoAsync(int pedidoId)
+        public async Task AtualizarStatusPedidoAsync(int pedidoId)
         {
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
@@ -782,6 +782,11 @@ namespace Fynanceo.Services
             {
                 pedido.Status = PedidoStatus.EnviadoCozinha;
                 pedido.DataEnvioCozinha = DateTime.UtcNow;
+            }
+            else if (pedido.TipoPedido == TipoPedido.Delivery)
+            {
+                pedido.Status = PedidoStatus.EmRota;
+                
             }
 
             await _context.SaveChangesAsync();
@@ -863,6 +868,8 @@ namespace Fynanceo.Services
 
             return item;
         }
+        
+        
 
     }
 
