@@ -43,7 +43,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
         public decimal PercentualLucro => CustoUnitario > 0 ? (ValorVenda - CustoUnitario) / CustoUnitario * 100 : 0;
 
         [Required(ErrorMessage = "Tempo de preparo é obrigatório")]
-        [Range(1, 480, ErrorMessage = "Tempo deve ser entre 1 e 480 minutos")]
+        [Range(0, 480, ErrorMessage = "Tempo deve ser entre 1 e 480 minutos")]
         [Display(Name = "Tempo de Preparo (minutos)")]
         public int TempoPreparoMinutos { get; set; }
 

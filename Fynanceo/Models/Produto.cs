@@ -30,7 +30,7 @@ namespace Fynanceo.Models
 
         public decimal MargemLucro => ValorVenda - CustoUnitario;
 
-        [Range(1, 480)]
+        [Range(0, 480)]
         public int TempoPreparoMinutos { get; set; }
 
         public int TempoExtraPico { get; set; } = 0;
@@ -51,13 +51,13 @@ namespace Fynanceo.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
+       
         public string Nome { get; set; }
 
         [Range(0.001, double.MaxValue)]
         public decimal Quantidade { get; set; }
 
-       [Required]
+
         public string? UnidadeMedida { get; set; } // g, kg, ml, L, un
 
         public int ProdutoId { get; set; }

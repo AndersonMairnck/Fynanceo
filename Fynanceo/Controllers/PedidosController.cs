@@ -45,7 +45,7 @@ namespace Fynanceo.Controllers
         {
             var viewModel = new PedidoViewModel
             {
-                MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre"),
+               // MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre"),
                 Clientes = await _clienteService.ObterTodosAsync(),
                 ProdutosDisponiveis = await _produtoService.ObterProdutosPopularesAsync(10),
                 CategoriasDisponiveis = await _produtoService.ObterCategoriasAsync()
@@ -78,7 +78,7 @@ namespace Fynanceo.Controllers
             }
 
             //Recarregar dados se houver erro
-            viewModel.MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre");
+           // viewModel.MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre");
             viewModel.Clientes = await _clienteService.ObterTodosAsync();
 
             viewModel.ProdutosDisponiveis = await _produtoService.ObterTodosAsync();
