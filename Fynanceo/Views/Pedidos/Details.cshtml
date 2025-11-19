@@ -200,74 +200,165 @@
                     <table class="table table-hover">
 
                         <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th width="100" class="text-center">Quantidade</th>
-                                <th width="120" class="text-end">Unitário</th>
-                                <th width="120" class="text-end">Total</th>
-                                <th width="100" class="text-center">Status</th>
-                            </tr>
+                        <tr>
+                            <th>Produto</th>
+                            <th width="100" class="text-center">Quantidade</th>
+                            <th width="120" class="text-end">Unitário</th>
+                            <th width="120" class="text-end">Total</th>
+                            <th width="100" class="text-center">Status</th>
+                        </tr>
                         </thead>
+                        
+                          <tbody>
+                                    @foreach (var item in Model.Itens)
+                                    {
+                                        var isProdutoPronto = item.Produto?.TempoPreparoMinutos == 0;
+                                        var badgeClass = item.Status == PedidoStatus.Aberto ? "secondary" :
+                                        item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
+                                        item.Status == PedidoStatus.EmPreparo ? "info" :
+                                        item.Status == PedidoStatus.Pronto ? "success" :
+                                        item.Status == PedidoStatus.Entregue ? "primary" :
+                                        item.Status == PedidoStatus.Cancelado ? "danger" : "secondary";
 
-                        <tbody>
-                            @foreach (var item in Model.Itens)
-                            {
-                                <tr>
-                                    <td>
-                                        <!-- Nome do produto -->
-                                        <strong>@item.Produto.Nome</strong>
+                                        <tr data-item-id="@item.Id" class="@(isProdutoPronto ? "table-success" : "") @(item.Status == PedidoStatus.Cancelado ? "cancelado" : "")">
+                                            <td>
+                                                <div>
+                                                    <strong>@item.Produto.Nome</strong>
+                                                    @if (isProdutoPronto)
+                                                    {
+                                                        <span class="badge bg-success ms-1" title="Produto Pronto">
+                                                            <i class="fas fa-bolt"></i>
+                                                        </span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(item.Observacoes))
+                                                    {
+                                                        <br>
+                                                        <small class="text-muted">@item.Observacoes</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>@item.Quantidade</td>
+                                            <td>R$ @item.PrecoUnitario.ToString("N2")</td>
+                                            <td>R$ @item.Total.ToString("N2")</td>
+                                            <td>
+                                                <span class="badge bg-@badgeClass status-item">
+                                                    @item.Status
+                                                </span>
+                                                @if (isProdutoPronto && item.Status == PedidoStatus.Aberto)
+                                                {
+                                                    <br>
+                                                    <small class="text-success">
+                                                        <i class="fas fa-info-circle"></i> Pronto para servir
+                                                    </small>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (item.Status == PedidoStatus.Cancelado)
+                                                {
+                                                    <span class="badge bg-danger">Cancelado</span>
+                                                }
+                                                else if (item.Status == PedidoStatus.Aberto || item.Status == PedidoStatus.EnviadoCozinha)
+                                                {
+                                                    <!-- Botão Cancelar Item -->
+                                                    <button class="btn btn-sm btn-outline-danger cancelar-item ms-1"
+                                                            data-item-id="@item.Id"
+                                                            title="Cancelar item">
+                                                        <i class="fas fa-ban"></i>
+                                                    </button>
 
-                                        <!-- Observações do item -->
-                                        @if (!string.IsNullOrEmpty(item.Observacoes))
-                                        {
-                                            <br>
-                                            <small class="text-muted"><strong>Obs:</strong> @item.Observacoes</small>
-                                        }
+                                                    @if (item.Status == PedidoStatus.Aberto && !isProdutoPronto)
+                                                    {
+                                                        <button class="btn btn-sm btn-warning enviar-item-cozinha"
+                                                                data-item-id="@item.Id"
+                                                                title="Enviar para cozinha">
+                                                            <i class="fas fa-utensils"></i>
+                                                        </button>
+                                                    }
+                                                    else if (item.Status == PedidoStatus.Aberto && isProdutoPronto)
+                                                    {
+                                                        <button class="btn btn-sm btn-success marcar-entregue"
+                                                                data-item-id="@item.Id"
+                                                                title="Marcar como entregue">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    }
+                                                }
+                                                else if (item.Status == PedidoStatus.Pronto)
+                                                {
+                                                    <button class="btn btn-sm btn-success marcar-entregue"
+                                                            data-item-id="@item.Id"
+                                                            title="Marcar como entregue">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
 
-                                        <!-- Personalizações -->
-                                        @if (!string.IsNullOrEmpty(item.Personalizacoes))
-                                        {
-                                            <br>
-                                            <small class="text-muted"><strong>Personalizações:</strong> @item.Personalizacoes</small>
-                                        }
-                                    </td>
-
-                                    <!-- Quantidade -->
-                                    <td class="text-center">@item.Quantidade</td>
-
-                                    <!-- Preço unitário -->
-                                    <td class="text-end">R$ @item.PrecoUnitario.ToString("N2")</td>
-
-                                    <!-- Total -->
-                                    <td class="text-end">R$ @item.Total.ToString("N2")</td>
-
-                                    <!-- Status do item -->
-                                    <td class="text-center">
-                                        @switch (item.Status)
-                                        {
-                                            case PedidoStatus.EnviadoCozinha:
-                                                <span class="badge bg-secondary">Cozinha</span>;
-                                                break;
-                                            case PedidoStatus.EmPreparo:
-                                                <span class="badge bg-warning text-dark">Preparo</span>;
-                                                break;
-                                            case PedidoStatus.Pronto:
-                                                <span class="badge bg-info">Pronto</span>;
-                                                break;
-                                            case PedidoStatus.Entregue:
-                                                <span class="badge bg-success">Entregue</span>;
-                                                break;
-                                            case PedidoStatus.Cancelado:
-                                                <span class="badge bg-danger">Cancelado</span>;
-                                                break;
-                                            default:
-                                                <span class="badge bg-light text-dark">Pendente</span>;
-                                                break;
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
+                        @* <tbody> *@
+                        @*     @foreach (var item in Model.Itens) *@
+                        @*     { *@
+                        @*         <tr> *@
+                        @*             <td> *@
+                        @*                 <!-- Nome do produto --> *@
+                        @*                 <strong>@item.Produto.Nome</strong> *@
+                        @* *@
+                        @*                 <!-- Observações do item --> *@
+                        @*                 @if (!string.IsNullOrEmpty(item.Observacoes)) *@
+                        @*                 { *@
+                        @*                     <br> *@
+                        @*                     <small class="text-muted"><strong>Obs:</strong> @item.Observacoes</small> *@
+                        @*                 } *@
+                        @* *@
+                        @*                 <!-- Personalizações --> *@
+                        @*                 @if (!string.IsNullOrEmpty(item.Personalizacoes)) *@
+                        @*                 { *@
+                        @*                     <br> *@
+                        @*                     <small class="text-muted"><strong>Personalizações:</strong> @item.Personalizacoes</small> *@
+                        @*                 } *@
+                        @*             </td> *@
+                        @* *@
+                        @*             <!-- Quantidade --> *@
+                        @*             <td class="text-center">@item.Quantidade</td> *@
+                        @* *@
+                        @*             <!-- Preço unitário --> *@
+                        @*             <td class="text-end">R$ @item.PrecoUnitario.ToString("N2")</td> *@
+                        @* *@
+                        @*             <!-- Total --> *@
+                        @*             <td class="text-end">R$ @item.Total.ToString("N2")</td> *@
+                        @* *@
+                        @*             <!-- Status do item --> *@
+                        @*             <td class="text-center"> *@
+                        @*                 @switch (item.Status) *@
+                        @*                 { *@
+                        @*                     case PedidoStatus.EnviadoCozinha: *@
+                        @*                         <span class="badge bg-secondary">Cozinha</span>; *@
+                        @*                         break; *@
+                        @*                     case PedidoStatus.EmPreparo: *@
+                        @*                         <span class="badge bg-warning text-dark">Preparo</span>; *@
+                        @*                         break; *@
+                        @*                     case PedidoStatus.Pronto: *@
+                        @*                         <span class="badge bg-info">Pronto</span>; *@
+                        @*                         break; *@
+                        @*                     case PedidoStatus.Entregue: *@
+                        @*                         <span class="badge bg-success">Entregue</span>; *@
+                        @*                         break; *@
+                        @*                     case PedidoStatus.Cancelado: *@
+                        @*                         <span class="badge bg-danger">Cancelado</span>; *@
+                        @*                         break; *@
+                        @*                     default: *@
+                        @*                         <span class="badge bg-light text-dark">Pendente</span>; *@
+                        @*                         break; *@
+                        @*                 } *@
+                        @*             </td> *@
+                        @*         </tr> *@
+                        @*     } *@
+                        @* </tbody> *@
 
                         <tfoot>
                             <!-- Subtotal -->

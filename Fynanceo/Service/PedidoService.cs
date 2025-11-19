@@ -135,9 +135,13 @@ namespace Fynanceo.Services
                 PrecoUnitario = produto.ValorVenda,
                 Observacoes = itemVm.Observacoes,
                 Personalizacoes = itemVm.Personalizacoes,
+             
+                
+                
                    //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
             };
-
+            if (pedido.TipoPedido == TipoPedido.Delivery && produto.TempoPreparoMinutos == 0)
+                itemPedido.Status = PedidoStatus.Pronto;
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();
 
@@ -161,6 +165,9 @@ namespace Fynanceo.Services
 
         public async Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus, string usuario)
         {
+            if (usuario == null)
+                usuario = "nao tratado";
+          
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -180,8 +187,9 @@ namespace Fynanceo.Services
 
                     // 🔹 Busca todos os itens do pedido (para sincronizar o status)
                     var itens = await _context.ItensPedido
-                        .Where(i => i.PedidoId == pedidoId)
-                        .ToListAsync();
+                        .Where(i => i.PedidoId == pedidoId &&
+                                    i.Produto.TempoPreparoMinutos > 0) // Apenas itens que precisam de preparo)
+                         .ToListAsync();
 
                     // 🔹 Atualiza campos conforme o novo status
                     switch (status)
