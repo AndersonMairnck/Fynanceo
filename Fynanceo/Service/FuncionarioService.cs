@@ -5,7 +5,7 @@ using Fynanceo.Utils;
 using Fynanceo.ViewModel.FuncionariosModel;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class FuncionarioService : IFuncionarioService
     {

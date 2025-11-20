@@ -4,7 +4,7 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.MesasModel;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class MesaService : IMesaService
     {

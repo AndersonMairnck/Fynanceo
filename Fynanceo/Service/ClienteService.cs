@@ -6,7 +6,7 @@ using Fynanceo.Utils;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ClientesModel;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class ClienteService : IClienteService
     {

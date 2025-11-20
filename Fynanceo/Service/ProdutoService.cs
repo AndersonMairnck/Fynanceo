@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class ProdutoService : IProdutoService
     {

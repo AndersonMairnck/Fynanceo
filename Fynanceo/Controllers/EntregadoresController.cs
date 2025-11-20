@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
-using Fynanceo.Services;
 using Fynanceo.ViewModel.DeliveryModel;
+using Fynanceo.Models.Enums;
 
 namespace Fynanceo.Controllers
 {
@@ -69,7 +69,7 @@ namespace Fynanceo.Controllers
                     CorVeiculo = viewModel.CorVeiculo,
                     Observacoes = viewModel.Observacoes,
                     Ativo = true,
-                    Status = Fynanceo.Models.Enums.StatusEntregador.Disponivel
+                    Status = StatusEntregador.Disponivel
                 };
 
                 _context.Add(entregador);
@@ -169,8 +169,8 @@ namespace Fynanceo.Controllers
             // Verificar se tem entregas em andamento
             var entregasAtivas = await _context.Entregas
                 .AnyAsync(e => e.EntregadorId == id &&
-                              (e.Status == Fynanceo.Models.Enums.StatusEntrega.RetiradoParaEntrega ||
-                               e.Status == Fynanceo.Models.Enums.StatusEntrega.EmRota));
+                              (e.Status == StatusEntrega.RetiradoParaEntrega ||
+                               e.Status == StatusEntrega.EmRota));
 
             if (entregasAtivas)
             {

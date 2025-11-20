@@ -208,97 +208,98 @@
                             <th width="100" class="text-center">Status</th>
                         </tr>
                         </thead>
-                        
-                          <tbody>
-                                    @foreach (var item in Model.Itens)
-                                    {
-                                        var isProdutoPronto = item.Produto?.TempoPreparoMinutos == 0;
-                                        var badgeClass = item.Status == PedidoStatus.Aberto ? "secondary" :
-                                        item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
-                                        item.Status == PedidoStatus.EmPreparo ? "info" :
-                                        item.Status == PedidoStatus.Pronto ? "success" :
-                                        item.Status == PedidoStatus.Entregue ? "primary" :
-                                        item.Status == PedidoStatus.Cancelado ? "danger" : "secondary";
 
-                                        <tr data-item-id="@item.Id" class="@(isProdutoPronto ? "table-success" : "") @(item.Status == PedidoStatus.Cancelado ? "cancelado" : "")">
-                                            <td>
-                                                <div>
-                                                    <strong>@item.Produto.Nome</strong>
-                                                    @if (isProdutoPronto)
-                                                    {
-                                                        <span class="badge bg-success ms-1" title="Produto Pronto">
+                        <tbody>
+                        @foreach (var item in Model.Itens)
+                        {
+                            var isProdutoPronto = item.Produto?.TempoPreparoMinutos == 0;
+                            var badgeClass = item.Status == PedidoStatus.Aberto ? "secondary" :
+                                item.Status == PedidoStatus.EnviadoCozinha ? "warning" :
+                                item.Status == PedidoStatus.EmPreparo ? "info" :
+                                item.Status == PedidoStatus.Pronto ? "success" :
+                                item.Status == PedidoStatus.Entregue ? "primary" :
+                                item.Status == PedidoStatus.Cancelado ? "danger" : "secondary";
+
+                            <tr data-item-id="@item.Id"
+                                class="@(isProdutoPronto ? "table-success" : "") @(item.Status == PedidoStatus.Cancelado ? "cancelado" : "")">
+                                <td>
+                                    <div>
+                                        <strong>@item.Produto.Nome</strong>
+                                        @if (isProdutoPronto)
+                                        {
+                                            <span class="badge bg-success ms-1" title="Produto Pronto">
                                                             <i class="fas fa-bolt"></i>
                                                         </span>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(item.Observacoes))
-                                                    {
-                                                        <br>
-                                                        <small class="text-muted">@item.Observacoes</small>
-                                                    }
-                                                </div>
-                                            </td>
-                                            <td>@item.Quantidade</td>
-                                            <td>R$ @item.PrecoUnitario.ToString("N2")</td>
-                                            <td>R$ @item.Total.ToString("N2")</td>
-                                            <td>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Observacoes))
+                                        {
+                                            <br>
+                                            <small class="text-muted">@item.Observacoes</small>
+                                        }
+                                    </div>
+                                </td>
+                                <td>@item.Quantidade</td>
+                                <td>R$ @item.PrecoUnitario.ToString("N2")</td>
+                                <td>R$ @item.Total.ToString("N2")</td>
+                                <td>
                                                 <span class="badge bg-@badgeClass status-item">
                                                     @item.Status
                                                 </span>
-                                                @if (isProdutoPronto && item.Status == PedidoStatus.Aberto)
-                                                {
-                                                    <br>
-                                                    <small class="text-success">
-                                                        <i class="fas fa-info-circle"></i> Pronto para servir
-                                                    </small>
-                                                }
-                                            </td>
-                                            <td class="text-center">
-                                                @if (item.Status == PedidoStatus.Cancelado)
-                                                {
-                                                    <span class="badge bg-danger">Cancelado</span>
-                                                }
-                                                else if (item.Status == PedidoStatus.Aberto || item.Status == PedidoStatus.EnviadoCozinha)
-                                                {
-                                                    <!-- Botão Cancelar Item -->
-                                                    <button class="btn btn-sm btn-outline-danger cancelar-item ms-1"
-                                                            data-item-id="@item.Id"
-                                                            title="Cancelar item">
-                                                        <i class="fas fa-ban"></i>
-                                                    </button>
-
-                                                    @if (item.Status == PedidoStatus.Aberto && !isProdutoPronto)
-                                                    {
-                                                        <button class="btn btn-sm btn-warning enviar-item-cozinha"
-                                                                data-item-id="@item.Id"
-                                                                title="Enviar para cozinha">
-                                                            <i class="fas fa-utensils"></i>
-                                                        </button>
-                                                    }
-                                                    else if (item.Status == PedidoStatus.Aberto && isProdutoPronto)
-                                                    {
-                                                        <button class="btn btn-sm btn-success marcar-entregue"
-                                                                data-item-id="@item.Id"
-                                                                title="Marcar como entregue">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                    }
-                                                }
-                                                else if (item.Status == PedidoStatus.Pronto)
-                                                {
-                                                    <button class="btn btn-sm btn-success marcar-entregue"
-                                                            data-item-id="@item.Id"
-                                                            title="Marcar como entregue">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                        </tr>
+                                    @if (isProdutoPronto && item.Status == PedidoStatus.Aberto)
+                                    {
+                                        <br>
+                                        <small class="text-success">
+                                            <i class="fas fa-info-circle"></i> Pronto para servir
+                                        </small>
                                     }
-                                </tbody>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Status == PedidoStatus.Cancelado)
+                                    {
+                                        <span class="badge bg-danger">Cancelado</span>
+                                    }
+                                    else if (item.Status == PedidoStatus.Aberto || item.Status == PedidoStatus.EnviadoCozinha)
+                                    {
+                                        <!-- Botão Cancelar Item -->
+                                        <button class="btn btn-sm btn-outline-danger cancelar-item ms-1"
+                                                data-item-id="@item.Id"
+                                                title="Cancelar item">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+
+                                        @if (item.Status == PedidoStatus.Aberto && !isProdutoPronto)
+                                        {
+                                            <button class="btn btn-sm btn-warning enviar-item-cozinha"
+                                                    data-item-id="@item.Id"
+                                                    title="Enviar para cozinha">
+                                                <i class="fas fa-utensils"></i>
+                                            </button>
+                                        }
+                                        else if (item.Status == PedidoStatus.Aberto && isProdutoPronto)
+                                        {
+                                            <button class="btn btn-sm btn-success marcar-entregue"
+                                                    data-item-id="@item.Id"
+                                                    title="Marcar como entregue">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                    }
+                                    else if (item.Status == PedidoStatus.Pronto)
+                                    {
+                                        <button class="btn btn-sm btn-success marcar-entregue"
+                                                data-item-id="@item.Id"
+                                                title="Marcar como entregue">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
 
                         @* <tbody> *@
                         @*     @foreach (var item in Model.Itens) *@
@@ -361,29 +362,29 @@
                         @* </tbody> *@
 
                         <tfoot>
-                            <!-- Subtotal -->
+                        <!-- Subtotal -->
+                        <tr>
+                            <th colspan="3" class="text-end">Subtotal:</th>
+                            <th class="text-end">R$ @Model.Subtotal.ToString("N2")</th>
+                            <td></td>
+                        </tr>
+
+                        <!-- Taxa de entrega (se houver) -->
+                        @if (Model.TaxaEntrega > 0)
+                        {
                             <tr>
-                                <th colspan="3" class="text-end">Subtotal:</th>
-                                <th class="text-end">R$ @Model.Subtotal.ToString("N2")</th>
+                                <th colspan="3" class="text-end">Taxa de Entrega:</th>
+                                <th class="text-end">R$ @Model.TaxaEntrega.ToString("N2")</th>
                                 <td></td>
                             </tr>
+                        }
 
-                            <!-- Taxa de entrega (se houver) -->
-                            @if (Model.TaxaEntrega > 0)
-                            {
-                                <tr>
-                                    <th colspan="3" class="text-end">Taxa de Entrega:</th>
-                                    <th class="text-end">R$ @Model.TaxaEntrega.ToString("N2")</th>
-                                    <td></td>
-                                </tr>
-                            }
-
-                            <!-- Total geral -->
-                            <tr>
-                                <th colspan="3" class="text-end">Total:</th>
-                                <th class="text-end">R$ @Model.Total.ToString("N2")</th>
-                                <td></td>
-                            </tr>
+                        <!-- Total geral -->
+                        <tr>
+                            <th colspan="3" class="text-end">Total:</th>
+                            <th class="text-end">R$ @Model.Total.ToString("N2")</th>
+                            <td></td>
+                        </tr>
                         </tfoot>
 
                     </table>
@@ -422,7 +423,8 @@
 
                                     <!-- Texto: De X para Y -->
                                     <small class="text-muted">
-                                        De <strong>@historico.StatusAnterior</strong> para <strong>@historico.StatusNovo</strong>
+                                        De <strong>@historico.StatusAnterior</strong> para
+                                        <strong>@historico.StatusNovo</strong>
                                         por @historico.UsuarioNome
                                     </small>
 
@@ -458,35 +460,52 @@
             <div class="card-body">
 
                 <!-- Botões de ação mudam conforme o status atual -->
+               
                 @if (Model.TipoPedido == TipoPedido.Delivery)
                 {
-                    @if (Model.Status == PedidoStatus.Aberto)
+                    @* Verifica se existe pelo menos um item com tempo de preparo *@
+                    @if (Model.Itens.Any(i => i.Produto.TempoPreparoMinutos > 0))
                     {
-                        <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
-                            <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
-                        </button>
+                        @if (Model.Status == PedidoStatus.Aberto)
+                        {
+                            <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
+                            </button>
+                        }
+                        else if (Model.Status == PedidoStatus.Entregue)
+                        {
+                            <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')">
+                                <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido
+                            </button>
+                        }
+                       
                     }
-               
-                   
-                    else if (Model.Status == PedidoStatus.Entregue)
+                    else
                     {
-                        <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')">
-                            <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido
-                        </button>
+                        
+                            @if (Model.Status == PedidoStatus.Aberto)
+                        {
+                            <button class="btn btn-secondary w-100 mb-2"
+                                    onclick="enviaParaEntrega(@Model.Id, '@Model.NumeroPedido','Pronto')">
+                                <i class="fas fa-flag-checkered me-2"></i>Produtos Prontos Enviar Para Entrega
+                            </button>
+                        }
+                            else if (Model.Status == PedidoStatus.Entregue)
+                        {
+                            <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')">
+                                <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido
+                            </button>
+                        }
                     }
                 }
-
                 else
                 {
-
-
                     @if (Model.Status == PedidoStatus.Aberto)
                     {
                         <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
                             <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
                         </button>
                     }
-
                     else if (Model.Status == PedidoStatus.Pronto)
                     {
                         <button class="btn btn-info w-100 mb-2" onclick="atualizarStatus('Entregue')">
@@ -506,6 +525,7 @@
                         </button>
                     }
                 }
+
                 <!-- Botão cancelar aparece em qualquer status não fechado -->
                 @if (Model.Status != PedidoStatus.Fechado)
                 {
@@ -596,7 +616,7 @@
 <!-- JavaScript responsável por atualizar status do pedido -->
 
 <script>
-        var pedidoId = '@Model.Id';
-    </script>
-    <script src="~/js/Pedidos/Pedidos.js"></script>
+    var pedidoId = '@Model.Id';
+</script>
+<script src="~/js/Pedidos/Pedidos.js"></script>
 

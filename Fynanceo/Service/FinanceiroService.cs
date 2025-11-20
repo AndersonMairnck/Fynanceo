@@ -8,7 +8,7 @@ using Fynanceo.ViewModel.ContasModel;
 using Fynanceo.ViewModel.CaixaModel;
 using Fynanceo.ViewModel.FinanceirosModel;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class FinanceiroService : IFinanceiroService
     {

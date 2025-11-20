@@ -1,7 +1,6 @@
 ﻿using Fynanceo.Data;
 using Fynanceo.Service;
 using Fynanceo.Service.Interface;
-using Fynanceo.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 
