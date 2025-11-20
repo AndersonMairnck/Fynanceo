@@ -1,32 +1,35 @@
-﻿// Controllers/PedidosController.cs
-using Fynanceo.Data;
-using Fynanceo.Migrations;
+﻿
 using Fynanceo.Models;
-using Fynanceo.Models.Enums;
+
 using Fynanceo.Service.Interface;
-using Fynanceo.Services;
+
 using Fynanceo.ViewModel.PedidosModel;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+
+
 
 namespace Fynanceo.Controllers
 {
     public class PedidosController : Controller
     {
-        // private readonly ApplicationDbContext _context;
+      
         private readonly IPedidoService _pedidoService;
-        private readonly IMesaService _mesaService;
+     
         private readonly IProdutoService _produtoService;
         private readonly IClienteService _clienteService;
         private readonly IConfigService _configService;
         private readonly IEntregaService _entregaService;
 
-        public PedidosController(IPedidoService pedidoService, IMesaService mesaService, IProdutoService produtoService, IClienteService clienteService, IConfigService configService, IEntregaService entregaService)
+
+        public PedidosController(IPedidoService pedidoService,  
+                                    IProdutoService produtoService, 
+                                        IClienteService clienteService, 
+                                            IConfigService configService,
+                                                IEntregaService entregaService)
         {
 
             _pedidoService = pedidoService;
-            _mesaService = mesaService;
+            //_mesaService = mesaService;
             _produtoService = produtoService;
             _clienteService = clienteService;
             _configService = configService;
@@ -358,6 +361,23 @@ namespace Fynanceo.Controllers
             }
 
             return View(config);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EnviaParaEntrega(int Id,string novoStatus)
+        {
+            try
+            {
+              
+                await  _entregaService.CriarEntrega(Id);
+                await AtualizarStatus(Id, novoStatus);
+
+
+                return Json(new { success = true, message = "Status atualizado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using Fynanceo.Service.Interface;
 
 
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class EstoqueService : IEstoqueService
     {

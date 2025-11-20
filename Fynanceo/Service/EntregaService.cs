@@ -6,7 +6,7 @@ using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.DeliveryModel;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class EntregaService : IEntregaService
     {
@@ -26,9 +26,7 @@ namespace Fynanceo.Services
         {
             try
             {
-
-           
-            var pedido = await _context.Pedidos
+             var pedido = await _context.Pedidos
                 .Include(p => p.Cliente)
                 .Include(p => p.EnderecoEntrega)
                 .FirstOrDefaultAsync(p => p.Id == pedidoId);

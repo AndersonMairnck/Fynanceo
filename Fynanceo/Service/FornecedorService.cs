@@ -4,7 +4,7 @@ using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.Service.Interface;
 
-namespace Fynanceo.Services
+namespace Fynanceo.Service
 {
     public class FornecedorService : IFornecedorService
     {

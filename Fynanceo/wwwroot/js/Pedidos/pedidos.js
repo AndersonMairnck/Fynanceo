@@ -106,7 +106,29 @@
                     alert('Erro ao atualizar status. Verifique sua conexão ou o servidor.');
                 });
         }
+        function enviaParaEntrega(id, numeroPedido, novoStatus) {
+            // 1. A URL leva apenas o ID (para identificar QUEM é o pedido)
+            const url = `/Pedidos/EnviaParaEntrega/${id}`;
 
+            if (!confirm(`Confira se realmente todos os produtos do Pedido "${numeroPedido}" estão prontos?`)) {
+                return;
+            }
+
+            // 2. O novoStatus vai como OBJETO no corpo da requisição
+            // { nome_parametro_no_csharp : valor_variavel_js }
+            $.post(url, { novoStatus: novoStatus })
+                .done(function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + (response.message || 'Erro desconhecido.'));
+                    }
+                })
+                .fail(function(xhr, status, error) {
+                    console.error(error);
+                    alert('Erro ao conectar com o servidor.');
+                });
+        }
 
         // // Inicializa busca ao carregar a página
         // document.addEventListener('DOMContentLoaded', setupSearch);

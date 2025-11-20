@@ -13,13 +13,13 @@ namespace Fynanceo.Service.Interface
         Task<Pedido> ObterPedidoCompleto(int pedidoId);
         Task<List<Pedido>> ObterPedidosPorStatus(string status);
         Task<List<Pedido>> ObterPedidosDoDia();
-        Task<ItemPedido> IniciarPreparoItemAsync(int itemPedidoId);
+        Task<ItemPedido?> IniciarPreparoItemAsync(int itemPedidoId);
         Task<decimal> CalcularTotalPedido(int pedidoId);
 
-        Task<ItemPedido> MarcarProntoItemAsync(int itemPedidoId);
+        Task<ItemPedido?> MarcarProntoItemAsync(int itemPedidoId);
         Task<bool> IniciarPreparoTodosAsync(int itemPedidoId);
         Task<bool> MarcarProntoTodosAsync(int itemPedidoId);
-        Task<ItemPedido> EntregueIndividualCozinha(int pedidoId);
+        Task<ItemPedido?> EntregueIndividualCozinha(int pedidoId);
         Task<bool> EntregaTodosCozinha(int pedidoId);
 
 
