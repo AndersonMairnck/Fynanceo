@@ -130,6 +130,36 @@
                 });
         }
 
+        // NO ~/js/Pedidos/Pedidos.js - ADICIONAR FUNÇÃO PARA ENVIAR PARA ENTREGA
+
+        async function enviaParaEntrega(pedidoId, numeroPedido, status) {
+            if (!confirm(`Confirmar envio do pedido ${numeroPedido} para entrega?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Pedidos/EnviaParaEntrega?Id=${pedidoId}&novoStatus=${status}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('success', result.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert('error', result.message);
+                }
+            } catch (error) {
+                showAlert('error', 'Erro ao processar solicitação: ' + error.message);
+            }
+        }
+
         // // Inicializa busca ao carregar a página
         // document.addEventListener('DOMContentLoaded', setupSearch);
         //

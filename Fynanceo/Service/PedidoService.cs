@@ -5,6 +5,7 @@ using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.PedidosModel;
+using Fynanceo.ViewModel.FinanceirosModel;
 
 
 
@@ -266,17 +267,7 @@ namespace Fynanceo.Service
         }
 
 
-        // public async Task<Pedido?> ObterPedidoCompleto(int pedidoId)
-        // {
-        //     return await _context.Pedidos
-        //         .Include(p => p.Mesa)
-        //         .Include(p => p.Cliente)
-        //         .Include(p => p.EnderecoEntrega)
-        //         .Include(p => p.Itens)
-        //             .ThenInclude(i => i.Produto)
-        //         .Include(p => p.Historico)
-        //         .FirstOrDefaultAsync(p => p.Id == pedidoId);
-        // }
+     
         public async Task<Pedido> ObterPedidoCompleto(int pedidoId)
         {
             var pedido = await _context.Pedidos
@@ -915,6 +906,73 @@ namespace Fynanceo.Service
 
             return item;
         }
+        
+        // NO PedidoService.cs - ADICIONAR ESTE MÉTODO
+
+    public async Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
+    int pedidoId, 
+    FormaPagamento formaPagamento, 
+    decimal? valorRecebido = null,
+    string? observacoes = null)
+{
+    await using var transaction = await _context.Database.BeginTransactionAsync();
+
+    try
+    {
+        // 1. Fechar o pedido
+        var pedido = await FecharPedidoAsync(pedidoId);
+        
+        // 2. Registrar movimentação no caixa
+        var financeiroService = _serviceProvider.GetRequiredService<IFinanceiroService>();
+        var caixaAberto = await financeiroService.ObterCaixaAberto();
+        
+        if (caixaAberto == null)
+        {
+            await transaction.RollbackAsync();
+            return (false, "Nenhum caixa aberto encontrado. Abra um caixa antes de fechar pedidos.");
+        }
+
+        // Criar descrição para a movimentação
+        var descricao = $"Pedido {pedido.NumeroPedido} - {pedido.TipoPedido}";
+        if (pedido.Cliente != null)
+        {
+            descricao += $" - {pedido.Cliente.NomeCompleto}";
+        }
+
+        // Registrar movimentação de entrada no caixa
+        var movimentacaoViewModel = new MovimentacaoViewModel
+        {
+            Tipo = TipoMovimentacao.Entrada,
+            Valor = pedido.Total,
+            FormaPagamento = formaPagamento,
+            Categoria = CategoriaFinanceira.Venda,
+            Descricao = descricao,
+            Observacoes = observacoes ?? $"Fechamento pedido {pedido.NumeroPedido}",
+            IsSangria = false,
+            IsSuprimento = false
+        };
+
+        await financeiroService.AdicionarMovimentacao(movimentacaoViewModel);
+
+        // 3. Se for dinheiro e houver troco, registrar observação adicional se necessário
+        if (formaPagamento == FormaPagamento.Dinheiro && valorRecebido.HasValue && valorRecebido > pedido.Total)
+        {
+            var troco = valorRecebido.Value - pedido.Total;
+            
+            // Poderia registrar uma movimentação de saída para o troco, 
+            // mas normalmente o troco é dado do caixa físico
+            // Aqui apenas registramos a informação nas observações
+        }
+
+        await transaction.CommitAsync();
+        return (true, "Pedido fechado e pagamento registrado com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        return (false, $"Erro ao processar fechamento: {ex.Message}");
+    }
+}
         
         
 

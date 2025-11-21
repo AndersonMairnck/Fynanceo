@@ -1,10 +1,11 @@
 ﻿
 using Fynanceo.Models;
-
+using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 
 using Fynanceo.ViewModel.PedidosModel;
 using Microsoft.AspNetCore.Mvc;
+
 
 
 
@@ -246,9 +247,6 @@ namespace Fynanceo.Controllers
             }
         }
 
-
-
-
         [HttpPost]
         public async Task<JsonResult> MarcarProntoTodos(int pedidoId)
         {
@@ -379,5 +377,97 @@ namespace Fynanceo.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        
+        // NO PedidosController.cs - ADICIONAR ESTES MÉTODOS
+
+// GET: Pedidos/FecharComPagamento/5
+public async Task<IActionResult> FecharComPagamento(int id)
+{
+    var pedido = await _pedidoService.ObterPedidoCompleto(id);
+    if (pedido == null)
+    {
+        return NotFound();
+    }
+
+    // Verificar se o pedido já está fechado
+    if (pedido.Status == PedidoStatus.Fechado)
+    {
+        TempData["Warning"] = "Pedido já está fechado!";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    var viewModel = new FechamentoPedidoViewModel
+    {
+        PedidoId = pedido.Id,
+        NumeroPedido = pedido.NumeroPedido,
+        TotalPedido = pedido.Total,
+        ClienteNome = pedido.Cliente?.NomeCompleto,
+        MesaNumero = pedido.Mesa?.Numero,
+        TipoPedido = pedido.TipoPedido
+        
+    };
+
+    return View(viewModel);
+}
+
+// POST: Pedidos/FecharComPagamento
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> FecharComPagamento(FechamentoPedidoViewModel viewModel)
+{
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            // Verificar se valor recebido é suficiente para formas que precisam de troco
+            if (viewModel.FormaPagamento == FormaPagamento.Dinheiro && 
+                viewModel.ValorRecebido.HasValue && 
+                viewModel.ValorRecebido.Value < viewModel.TotalPedido)
+            {
+                ModelState.AddModelError("ValorRecebido", "Valor recebido é menor que o total do pedido");
+                return View(viewModel);
+            }
+
+            // Fechar pedido e registrar pagamento
+            var resultado = await _pedidoService.FecharPedidoComPagamentoAsync(
+                viewModel.PedidoId, 
+                viewModel.FormaPagamento, 
+                viewModel.ValorRecebido,
+                viewModel.Observacoes);
+
+            if (resultado.Success)
+            {
+                TempData["Success"] = "Pedido fechado e pagamento registrado com sucesso!";
+                
+                // Se houver troco, mostrar alerta
+                if (viewModel.Troco > 0)
+                {
+                    TempData["Info"] = $"Troco: R$ {viewModel.Troco:N2}";
+                }
+                
+                return RedirectToAction(nameof(Details), new { id = viewModel.PedidoId });
+            }
+            else
+            {
+                ModelState.AddModelError("", resultado.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", $"Erro ao fechar pedido: {ex.Message}");
+        }
+    }
+
+    // Recarregar dados se houver erro
+    var pedido = await _pedidoService.ObterPedidoCompleto(viewModel.PedidoId);
+    if (pedido != null)
+    {
+        viewModel.ClienteNome = pedido.Cliente?.NomeCompleto;
+        viewModel.MesaNumero = pedido.Mesa?.Numero;
+        viewModel.TipoPedido = pedido.TipoPedido;
+    }
+
+    return View(viewModel);
+}
     }
 }

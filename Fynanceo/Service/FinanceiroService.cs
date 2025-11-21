@@ -29,7 +29,7 @@ namespace Fynanceo.Service
 
             var caixa = new Caixa
             {
-                DataAbertura = DateTime.Now,
+                DataAbertura = DateTime.UtcNow,
                 SaldoInicial = viewModel.SaldoInicial,
                 TotalEntradas = 0,
                 TotalSaidas = 0,
@@ -110,7 +110,7 @@ namespace Fynanceo.Service
                 Observacoes = viewModel.Observacoes,
                 IsSangria = viewModel.IsSangria,
                 IsSuprimento = viewModel.IsSuprimento,
-                DataMovimentacao = DateTime.Now,
+                DataMovimentacao = DateTime.UtcNow,
                 UsuarioId = 1, // Temporário
                 UsuarioNome = "Sistema"
             };
@@ -156,7 +156,7 @@ namespace Fynanceo.Service
                 TotalParcelas = viewModel.TotalParcelas,
                 Observacoes = viewModel.Observacoes,
                 Status = StatusConta.Pendente,
-                DataCriacao = DateTime.Now
+                DataCriacao = DateTime.UtcNow
             };
 
             _context.Contas.Add(conta);
@@ -177,7 +177,7 @@ namespace Fynanceo.Service
             conta.DataPagamento = viewModel.DataPagamento;
             conta.FormaPagamento = viewModel.FormaPagamento;
             conta.Status = StatusConta.Paga;
-            conta.DataAlteracao = DateTime.Now;
+            conta.DataAlteracao = DateTime.UtcNow;
 
             // Registrar movimentação no caixa se estiver aberto
             var caixaAberto = await ObterCaixaAberto();
@@ -193,7 +193,7 @@ namespace Fynanceo.Service
                     Descricao = $"Pagamento: {conta.Descricao}",
                     Observacoes = viewModel.Observacoes,
                     Id = conta.Id,
-                    DataMovimentacao = DateTime.Now,
+                    DataMovimentacao = DateTime.UtcNow,
                     UsuarioId = 1,
                     UsuarioNome = "Sistema"
                 };
@@ -212,7 +212,7 @@ namespace Fynanceo.Service
                 Observacao = viewModel.Observacoes,
                 UsuarioId = 1,
                 UsuarioNome = "Sistema",
-                DataAlteracao = DateTime.Now
+                DataAlteracao = DateTime.UtcNow
             };
 
             _context.MovimentacaoContas.Add(historico);
@@ -234,7 +234,7 @@ namespace Fynanceo.Service
         {
             return await _context.Contas
                 .Include(c => c.Fornecedor)
-                .Where(c => c.Status == StatusConta.Pendente && c.DataVencimento < DateTime.Today)
+                .Where(c => c.Status == StatusConta.Pendente && c.DataVencimento < DateTime.UtcNow.Date)
                 .OrderBy(c => c.DataVencimento)
                 .ToListAsync();
         }
@@ -252,8 +252,8 @@ namespace Fynanceo.Service
         public async Task<DashboardFinanceiroViewModel> ObterDashboardFinanceiro()
         {
             var dashboard = new DashboardFinanceiroViewModel();
-            var hoje = DateTime.Today;
-            var inicioMes = new DateTime(hoje.Year, hoje.Month, 1);
+            var hoje = DateTime.UtcNow.Date;
+            var inicioMes = new DateTime(hoje.Year, hoje.Month, 1, 0, 0, 0, DateTimeKind.Utc);
             var fimMes = inicioMes.AddMonths(1).AddDays(-1);
 
             // Caixa
@@ -291,6 +291,12 @@ namespace Fynanceo.Service
             var movimentacoesMes = await _context.MovimentacoesCaixa
                 .Where(m => m.DataMovimentacao >= inicioMes && m.DataMovimentacao <= fimMes)
                 .ToListAsync();
+            var pedidosMesFechados = await _context.Pedidos
+                .Where(p => p.DataFechamento >= inicioMes && p.DataFechamento <= fimMes && 
+                            p.Status == PedidoStatus.Fechado)
+                .ToListAsync();
+
+            dashboard.FaturamentoMes = pedidosMesFechados.Sum(p => p.Total);
 
             dashboard.FaturamentoMes = movimentacoesMes
                 .Where(m => m.Tipo == TipoMovimentacao.Entrada)
@@ -304,6 +310,8 @@ namespace Fynanceo.Service
             var pedidosMes = await _context.Pedidos
                 .Where(p => p.DataAbertura >= inicioMes && p.DataAbertura <= fimMes && p.Status == Fynanceo.Models.Enums.PedidoStatus.Fechado)
                 .ToListAsync();
+            dashboard.TicketMedio = pedidosMesFechados.Any() ? 
+                pedidosMesFechados.Average(p => p.Total) : 0;
 
             dashboard.TicketMedio = pedidosMes.Any() ?
                 pedidosMes.Average(p => p.Total) : 0;
@@ -333,7 +341,7 @@ namespace Fynanceo.Service
 
         public async Task<List<MovimentacaoDiaria>> ObterMovimentacoesUltimos30Dias()
         {
-            var dataInicio = DateTime.Today.AddDays(-30);
+            var dataInicio = DateTime.UtcNow.Date.AddDays(-30);
             var movimentacoes = await _context.MovimentacoesCaixa
                 .Where(m => m.DataMovimentacao >= dataInicio)
                 .ToListAsync();
