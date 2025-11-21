@@ -100,7 +100,7 @@ namespace Fynanceo.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var viewModel = new FechamentoCaixaViewModel
+            var viewModel = new FechamentoCaixaViewModel()  
             {
                 CaixaId = caixa.Id,
                 SaldoFinal = caixa.SaldoFinal

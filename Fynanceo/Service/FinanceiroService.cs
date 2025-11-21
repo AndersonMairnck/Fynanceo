@@ -54,13 +54,7 @@ namespace Fynanceo.Service
             if (caixa == null)
                 throw new ArgumentException("Caixa não encontrado ou já fechado");
 
-            caixa.DataFechamento = DateTime.Now;
-            caixa.SaldoFisico = viewModel.SaldoFisico;
-            caixa.UsuarioFechamentoId = 1; // Temporário
-            caixa.UsuarioFechamentoNome = "Sistema";
-            caixa.Fechado = true;
-
-            // Atualizar totais baseado nas movimentações
+            // 🔥 CALCULAR TOTAIS BASEADO NAS MOVIMENTAÇÕES
             caixa.TotalEntradas = caixa.Movimentacoes
                 .Where(m => m.Tipo == TipoMovimentacao.Entrada)
                 .Sum(m => m.Valor);
@@ -69,7 +63,16 @@ namespace Fynanceo.Service
                 .Where(m => m.Tipo == TipoMovimentacao.Saida)
                 .Sum(m => m.Valor);
 
+            // 🔥 ATUALIZAR DADOS DE FECHAMENTO
+            caixa.DataFechamento = DateTime.UtcNow;
+            caixa.SaldoFisico = viewModel.SaldoFisico;
+            caixa.UsuarioFechamentoId = 1; // Temporário
+            caixa.UsuarioFechamentoNome = "Sistema";
+            caixa.Fechado = true;
+
+            // 🔥 SALVAR APENAS AS PROPRIEDADES MAPEADAS
             await _context.SaveChangesAsync();
+    
             return caixa;
         }
 
