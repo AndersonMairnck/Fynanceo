@@ -19,12 +19,20 @@ namespace Fynanceo.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal SaldoInicial { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TotalEntradas { get; set; }
-
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TotalSaidas { get; set; }
-
+        // [Column(TypeName = "decimal(18,2)")]
+        // public decimal TotalEntradas { get; set; }
+        //
+        // [Column(TypeName = "decimal(18,2)")]
+        // public decimal TotalSaidas { get; set; }
+        [NotMapped] // Esta propriedade não será mapeada para o banco
+        public decimal TotalSaidas => Movimentacoes?
+            .Where(m => m.Tipo == TipoMovimentacao.Saida)
+            .Sum(m => m.Valor) ?? 0;
+        [NotMapped] // Esta propriedade não será mapeada para o banco
+        public decimal TotalEntradas => Movimentacoes?
+            .Where(m => m.Tipo == TipoMovimentacao.Entrada)
+            .Sum(m => m.Valor) ?? 0;
+    
         [Column(TypeName = "decimal(18,2)")]
         [NotMapped]
         public decimal SaldoFinal => SaldoInicial + TotalEntradas - TotalSaidas;
@@ -34,7 +42,10 @@ namespace Fynanceo.Models
 
         [Column(TypeName = "decimal(18,2)")]
         [NotMapped]
-        public decimal Diferenca => SaldoFinal - SaldoFisico;
+        public decimal Diferenca =>
+            SaldoFisico > SaldoFinal
+                ? SaldoFisico - SaldoFinal
+                : SaldoFinal - SaldoFisico;
 
         [Required]
         public int UsuarioAberturaId { get; set; }

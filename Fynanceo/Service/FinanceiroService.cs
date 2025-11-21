@@ -22,27 +22,37 @@ namespace Fynanceo.Service
         // CAIXA
         public async Task<Caixa> AbrirCaixa(CaixaViewModel viewModel)
         {
-            // Verificar se já existe caixa aberto
-            var caixaAberto = await ObterCaixaAberto();
-            if (caixaAberto != null)
-                throw new InvalidOperationException("Já existe um caixa aberto");
-
-            var caixa = new Caixa
+            try
             {
-                DataAbertura = DateTime.UtcNow,
-                SaldoInicial = viewModel.SaldoInicial,
-                TotalEntradas = 0,
-                TotalSaidas = 0,
-                UsuarioAberturaId = 1, // Temporário
-                UsuarioAberturaNome = "Sistema",
-                Observacoes = viewModel.Observacoes,
-                Fechado = false
-            };
 
-            _context.Caixas.Add(caixa);
-            await _context.SaveChangesAsync();
 
-            return caixa;
+
+                // Verificar se já existe caixa aberto
+                var caixaAberto = await ObterCaixaAberto();
+                if (caixaAberto != null)
+                    throw new InvalidOperationException("Já existe um caixa aberto");
+
+                var caixa = new Caixa
+                {
+                    DataAbertura = DateTime.UtcNow,
+                    SaldoInicial = viewModel.SaldoInicial,
+
+                    UsuarioAberturaId = 1, // Temporário
+                    UsuarioAberturaNome = "Sistema",
+                    Observacoes = viewModel.Observacoes,
+                    Fechado = false
+                };
+
+                _context.Caixas.Add(caixa);
+                await _context.SaveChangesAsync();
+
+                return caixa;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task<Caixa> FecharCaixa(FechamentoCaixaViewModel viewModel)
@@ -54,14 +64,14 @@ namespace Fynanceo.Service
             if (caixa == null)
                 throw new ArgumentException("Caixa não encontrado ou já fechado");
 
-            // 🔥 CALCULAR TOTAIS BASEADO NAS MOVIMENTAÇÕES
-            caixa.TotalEntradas = caixa.Movimentacoes
-                .Where(m => m.Tipo == TipoMovimentacao.Entrada)
-                .Sum(m => m.Valor);
-
-            caixa.TotalSaidas = caixa.Movimentacoes
-                .Where(m => m.Tipo == TipoMovimentacao.Saida)
-                .Sum(m => m.Valor);
+            // // 🔥 CALCULAR TOTAIS BASEADO NAS MOVIMENTAÇÕES
+            // caixa.TotalEntradas = caixa.Movimentacoes
+            //     .Where(m => m.Tipo == TipoMovimentacao.Entrada)
+            //     .Sum(m => m.Valor);
+            //
+            // caixa.TotalSaidas = caixa.Movimentacoes
+            //     .Where(m => m.Tipo == TipoMovimentacao.Saida)
+            //     .Sum(m => m.Valor);
 
             // 🔥 ATUALIZAR DADOS DE FECHAMENTO
             caixa.DataFechamento = DateTime.UtcNow;
