@@ -1,6 +1,8 @@
 ﻿
 using Fynanceo.Models;
 using Fynanceo.ViewModel.PedidosModel;
+using Fynanceo.Models.Enums;
+
 
 namespace Fynanceo.Service.Interface
 {
@@ -38,7 +40,12 @@ namespace Fynanceo.Service.Interface
         Task<Pedido> FecharPedidoAsync(int pedidoId);
         
        // Task AtualizarStatusPedidoAsync(int pedidoId);
-   
-       
+       public Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
+           int pedidoId,
+           FormaPagamento formaPagamento,
+           decimal? valorRecebido = null,
+           string? observacoes = null);
+
+
     }
 }
