@@ -471,9 +471,50 @@
                     }
                     else if (Model.Status == PedidoStatus.Entregue)
                     {
-                        <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')">
-                            <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido
-                        </button>
+                        <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
+                           class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
+                        </a>
+                    }
+                }
+                
+               @if (Model.TipoPedido == TipoPedido.Balcao)
+                {
+                    @* Verifica se existe pelo menos um item com tempo de preparo *@
+                    @if (Model.Itens.Any(i => i.Produto.TempoPreparoMinutos > 0))
+                    {
+                        @if (Model.Status == PedidoStatus.Aberto)
+                        {
+                         
+                        }
+                        else if (Model.Status == PedidoStatus.Entregue)
+                        {
+                        
+                            <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
+                               class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
+                            </a>
+                        }
+                       
+                    }
+                    else
+                    {
+                        
+                            @if (Model.Status == PedidoStatus.Aberto)
+                        {
+                            <button class="btn btn-secondary w-100 mb-2"
+                                    onclick="enviaParaEntrega(@Model.Id, '@Model.NumeroPedido','Pronto')">
+                                <i class="fas fa-flag-checkered me-2"></i>Produtos Prontos Enviar Para Entrega
+                            </button>
+                        }
+                            else if (Model.Status == PedidoStatus.Entregue)
+                        {
+                         
+                            <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
+                               class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
+                            </a>
+                        }
                     }
                 }
 
