@@ -1,0 +1,164 @@
+@model Fynanceo.ViewModel.CaixaModel.FechamentoCaixaViewModel
+
+@{
+    ViewData["Title"] = "Fechar Caixa";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-lock text-danger me-2"></i>@ViewData["Title"]
+    </h1>
+    <a href="@Url.Action("Details", new { id = Model.CaixaId })" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmação de Fechamento
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Fechar">
+                    <input type="hidden" asp-for="CaixaId" />
+                    
+                    <!-- Informações do Caixa -->
+                    <div class="info-box border-start border-4 border-primary bg-light p-3 rounded shadow-sm">
+                        <h6><i class="fas fa-info-circle me-2"></i>Informações do Caixa</h6>
+                        <div class="row mt-2">
+                            <div class="col-6">
+                                <small><strong>Saldo Final Calculado:</strong></small>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong class="text-success">R$ @Model.SaldoFinal.ToString("N2")</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saldo Físico -->
+                    <div class="mb-3">
+                        <label asp-for="SaldoFisico" class="form-label">
+                            <strong>Saldo Físico Conferido *</strong>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input asp-for="SaldoFisico" class="form-control" 
+                                   type="number" 
+                                   step="0.01" 
+                                   min="0" 
+                                   required
+                                   placeholder="0,00">
+                        </div>
+                        <span asp-validation-for="SaldoFisico" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            Digite o valor real em dinheiro encontrado no caixa.
+                        </small>
+                    </div>
+
+                    <!-- Diferenca Calculada (Preview) -->
+                    <div id="diferencaContainer" class="mb-3" style="display: none;">
+                        <label class="form-label">Diferença Calculada</label>
+                        <div class="alert" id="diferencaAlert">
+                            <strong id="diferencaText">R$ 0,00</strong>
+                            <span id="diferencaTipo" class="ms-2"></span>
+                        </div>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="mb-4">
+                        <label asp-for="Observacoes" class="form-label">Observações do Fechamento</label>
+                        <textarea asp-for="Observacoes" class="form-control" 
+                                  rows="3" 
+                                  placeholder="Observações sobre o fechamento, diferenças encontradas, etc..."></textarea>
+                        <span asp-validation-for="Observacoes" class="text-danger"></span>
+                    </div>
+
+                    <!-- Alertas Importantes -->
+                    <div class="info-box border-start border-4 border-primary bg-light p-3 rounded shadow-sm">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Atenção!</h6>
+                        <ul class="mb-0 small">
+                            <li>Esta ação <strong>não pode ser desfeita</strong></li>
+                            <li>Verifique cuidadosamente o saldo físico</li>
+                            <li>O caixa ficará bloqueado para novas movimentações</li>
+                            <li>Será gerado um registro permanente do fechamento</li>
+                        </ul>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg" id="btnFechar">
+                            <i class="fas fa-lock me-2"></i>Confirmar Fechamento
+                        </button>
+                        <a href="@Url.Action("Details", new { id = Model.CaixaId })" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Cálculo automático da diferença
+        $('#SaldoFisico').on('input', function() {
+            const saldoFinal = @Model.SaldoFinal;
+            const saldoFisico = parseFloat($(this).val()) || 0;
+            const diferenca = saldoFisico - saldoFinal;
+            
+            if ($(this).val()) {
+                $('#diferencaContainer').show();
+                
+                const diferencaAbs = Math.abs(diferenca);
+                const diferencaFormatada = 'R$ ' + diferencaAbs.toFixed(2);
+                
+                if (diferenca === 0) {
+                    $('#diferencaAlert')
+                        .removeClass('alert-danger alert-warning')
+                        .addClass('alert-success');
+                    $('#diferencaTipo').text('(OK - Sem diferença)');
+                } else if (diferenca > 0) {
+                    $('#diferencaAlert')
+                        .removeClass('alert-success alert-warning')
+                        .addClass('alert-danger');
+                    $('#diferencaTipo').text('(SOBRA)');
+                } else {
+                    $('#diferencaAlert')
+                        .removeClass('alert-success alert-danger')
+                        .addClass('alert-warning');
+                    $('#diferencaTipo').text('(FALTA)');
+                }
+                
+                $('#diferencaText').text(diferencaFormatada);
+            } else {
+                $('#diferencaContainer').hide();
+            }
+        });
+
+        // Confirmação adicional no envio
+        $('form').on('submit', function(e) {
+            const saldoFisico = parseFloat($('#SaldoFisico').val()) || 0;
+            
+            if (saldoFisico === 0) {
+                if (!confirm('O saldo físico está R$ 0,00. Tem certeza que deseja fechar o caixa com este valor?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            return confirm('Tem certeza que deseja FECHAR o caixa? Esta ação não pode ser desfeita.');
+        });
+
+        // Formatação automática do valor
+        $('#SaldoFisico').on('blur', function() {
+            let value = parseFloat($(this).val());
+            if (!isNaN(value)) {
+                $(this).val(value.toFixed(2));
+            }
+        });
+    </script>
+}

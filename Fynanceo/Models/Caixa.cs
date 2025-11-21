@@ -26,12 +26,14 @@ namespace Fynanceo.Models
         public decimal TotalSaidas { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        [NotMapped]
         public decimal SaldoFinal => SaldoInicial + TotalEntradas - TotalSaidas;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal SaldoFisico { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
+        [NotMapped]
         public decimal Diferenca => SaldoFinal - SaldoFisico;
 
         [Required]
