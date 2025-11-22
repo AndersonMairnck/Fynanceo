@@ -362,126 +362,86 @@
                 </li>
 
                 <!-- Módulo de Cadastros -->
-                <li class="nav-item">
-                    <div class="nav-section-label">Cadastros</div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
-                       href="/Clientes">
-                        <i class="fas fa-users"></i>
-                        <span>Clientes</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
-                       href="/Produtos">
-                        <i class="fas fa-pizza-slice"></i>
-                        <span>Produtos</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
-                       href="/Mesas">
-                        <i class="fas fa-chair"></i>
-                        <span>Mesas</span>
-                    </a>
-                </li>
-                <!-- Nova Gestão de Mesas -->
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
-                       href="@Url.Action("Dashboard", "GestaoMesas")">
-                        <i class="fas fa-chair"></i>
-                        <span>Gestão de Mesas</span>
-                        <span class="badge bg-success badge-notification">Novo</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
-                       href="/Funcionarios">
-                        <i class="fas fa-user-tie"></i>
-                        <span>Funcionários</span>
-                    </a>
-                </li>
+              <!-- Menu Cadastro -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroCollapse"
+       aria-expanded="false" aria-controls="cadastroCollapse">
+        <i class="fas fa-address-book"></i>
+        <span>Cadastro</span>
+        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+    </a>
+    <div class="collapse collapse-menu" id="cadastroCollapse">
+        <div class="submenu">
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
+               href="/Clientes"><i class="fas fa-users"></i> Clientes</a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
+               href="/Produtos"><i class="fas fa-pizza-slice"></i> Produtos</a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
+               href="/Mesas"><i class="fas fa-chair"></i> Mesas</a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
+               href="/Funcionarios"><i class="fas fa-user-tie"></i> Funcionários</a>
+        </div>
+    </div>
+</li>
 
-                <!-- Módulo de Operações -->
-                <li class="nav-item">
-                    <div class="nav-section-label">Operações</div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
-                       href="/Pedidos">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Pedidos</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
-                       href="/Pedidos/Cozinha">
-                        <i class="fas fa-utensils"></i>
-                        <span>Cozinha</span>
-                    </a>
-                </li>
+<!-- Menu Operações -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#operacoesCollapse"
+       aria-expanded="false" aria-controls="operacoesCollapse">
+        <i class="fas fa-cogs"></i>
+        <span>Operações</span>
+        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+    </a>
+    <div class="collapse collapse-menu" id="operacoesCollapse">
+        <div class="submenu">
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
+               href="/Pedidos"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
+               href="/Pedidos/Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
+               href="@Url.Action("Dashboard", "Entregas")"><i class="fas fa-motorcycle"></i> Delivery <span class="badge bg-success">Novo</span></a>
+        </div>
+    </div>
+</li>
 
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" ||
-                                                                     ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
-                       href="@Url.Action("Dashboard", "Entregas")">
-                        <i class="fas fa-motorcycle"></i>
-                        <span>Delivery</span>
-                        <span class="badge bg-success badge-notification">Novo</span>
-                    </a>
-                </li>
+<!-- Menu Gestão -->
+<li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#gestaoCollapse"
+       aria-expanded="false" aria-controls="gestaoCollapse">
+        <i class="fas fa-briefcase"></i>
+        <span>Gestão</span>
+        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+    </a>
+    <div class="collapse collapse-menu" id="gestaoCollapse">
+        <div class="submenu">
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
+               href="@Url.Action("Dashboard", "GestaoMesas")"><i class="fas fa-chair"></i> Gestão de Mesas <span class="badge bg-success">Novo</span></a>
+            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
+               href="@Url.Action("Dashboard", "Caixa")"><i class="fas fa-chart-line"></i> Financeiro <span class="badge bg-success">Novo</span></a>
+            <!-- Submenu Estoque -->
+            <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#estoqueCollapse"
+               aria-expanded="false" aria-controls="estoqueCollapse">
+                <i class="fas fa-boxes"></i> Estoque <span class="badge bg-success">Novo</span>
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse collapse-menu" id="estoqueCollapse">
+                <div class="submenu">
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                       href="@Url.Action("Dashboard", "Estoque")"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                       href="@Url.Action("Index", "Estoque")"><i class="fas fa-box"></i> Produtos</a>
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
+                       href="@Url.Action("Movimentacoes", "Estoque")"><i class="fas fa-exchange-alt"></i> Movimentações</a>
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
+                       href="@Url.Action("Alertas", "Estoque")"><i class="fas fa-exclamation-triangle"></i> Alertas</a>
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
+                       href="@Url.Action("Inventario", "Estoque")"><i class="fas fa-clipboard-check"></i> Inventário</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</li>
 
-                <!-- Gestão Financeira -->
-                <li class="nav-item">
-                    <div class="nav-section-label">Gestão</div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" ||
-                                                                     ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" ||
-                                                                     ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-                       href="@Url.Action("Dashboard", "Caixa")">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Financeiro</span>
-                        <span class="badge bg-success badge-notification">Novo</span>
-                    </a>
-                </li>
-
-                <!-- Módulo de Estoque com Collapse -->
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#estoqueCollapse"
-                       aria-expanded="false" aria-controls="estoqueCollapse">
-                        <i class="fas fa-boxes"></i>
-                        <span>Estoque</span>
-                        <span class="badge bg-success badge-notification">Novo</span>
-                        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-                    </a>
-                    <div class="collapse collapse-menu" id="estoqueCollapse">
-                        <div class="submenu">
-                            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
-                               href="@Url.Action("Dashboard", "Estoque")">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                               href="@Url.Action("Index", "Estoque")">
-                                <i class="fas fa-box"></i> Produtos
-                            </a>
-                            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
-                               href="@Url.Action("Movimentacoes", "Estoque")">
-                                <i class="fas fa-exchange-alt"></i> Movimentações
-                            </a>
-                            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
-                               href="@Url.Action("Alertas", "Estoque")">
-                                <i class="fas fa-exclamation-triangle"></i> Alertas
-                                <!-- Badge será adicionado via JavaScript -->
-                            </a>
-                            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
-                               href="@Url.Action("Inventario", "Estoque")">
-                                <i class="fas fa-clipboard-check"></i> Inventário
-                            </a>
-                        </div>
-                    </div>
-                </li>
 
                 <li class="nav-item">
                     <a class="nav-link text-muted disabled" href="#" title="Em desenvolvimento">

@@ -5,7 +5,9 @@
 @{
     ViewData["Title"] = "Pedidos do Dia"; // Título da página
 }
-<link rel="stylesheet" href="/css/pedidosIndex.css">
+@* <link rel="stylesheet" href="/css/pedidosIndex.css"> *@
+<link rel="stylesheet" href="~/css/pedidosIndex.css" asp-append-version="true" />
+
 <!-- Cabeçalho com título e botão para novo pedido -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">
@@ -110,6 +112,9 @@
             </div>
         </div>
     </div>
+    
+    
+    
 </div>
 
 <!-- Tabela de pedidos -->
@@ -277,6 +282,10 @@
                                             statusClass = "status-fechado";
                                             statusText = "Fechado";
                                             break;
+                                        case PedidoStatus.Cancelado:
+                                            statusClass = "status-cancelado";
+                                            statusText = "Cancelado";
+                                            break;
                                     }
                                 }
 
@@ -327,4 +336,4 @@
 <script src="/js/Pedidos/Pedidos.js"></script>
 
 
-}
+
