@@ -51,10 +51,10 @@
                         <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
                     </button>
 
-                    <!-- Botão Fechar Pedido -->
-                    <button class="btn btn-success fechar-pedido" data-pedido-id="@Model.PedidoAtivo.Id">
-                        <i class="fas fa-check-circle me-2"></i>Fechar Pedido
-                    </button>
+                    @* <!-- Botão Fechar Pedido --> *@
+                    @* <button class="btn btn-success fechar-pedido" data-pedido-id="@Model.PedidoAtivo.Id"> *@
+                    @*     <i class="fas fa-check-circle me-2"></i>Fechar Pedido *@
+                    @* </button> *@
 
                     <!-- Botão Cancelar Pedido -->
                     <button class="btn btn-danger cancelar-pedido" data-pedido-id="@Model.PedidoAtivo.Id">
@@ -479,30 +479,30 @@
                 cancelarItem(itemId);
             });
                   // Fechar pedido
-        $(document).on('click', '.fechar-pedido', function(e) {
-            e.stopPropagation();
-            const pedidoId = $(this).data('pedido-id');
-            fecharPedido(pedidoId);
-        });
-        }
-                // Fechar pedido
-        function fecharPedido(pedidoId) {
-            if (!confirm('Tem certeza que deseja fechar este pedido? A mesa será liberada.')) {
-                return;
-            }
-
-            $.post('@Url.Action("FecharPedido", "GestaoMesas")', { pedidoId: pedidoId })
-                .done(function(response) {
-                    if (response.success) {
-                        mostrarMensagemSucesso('Pedido fechado com sucesso! Mesa liberada.');
-                        setTimeout(() => window.location.href = '@Url.Action("Dashboard")', 1500);
-                    } else {
-                        mostrarMensagemErro('Erro: ' + response.message);
-                    }
-                })
-                .fail(function() {
-                    mostrarMensagemErro('Erro ao fechar pedido');
-                });
+        // $(document).on('click', '.fechar-pedido', function(e) {
+        //     e.stopPropagation();
+        //     const pedidoId = $(this).data('pedido-id');
+        //     fecharPedido(pedidoId);
+        // });
+       //}
+        //         // Fechar pedido
+        // function fecharPedido(pedidoId) {
+        //     if (!confirm('Tem certeza que deseja fechar este pedido? A mesa será liberada.')) {
+        //         return;
+        //     }
+        //
+        //     $.post('@Url.Action("FecharPedido", "GestaoMesas")', { pedidoId: pedidoId })
+        //         .done(function(response) {
+        //             if (response.success) {
+        //                 mostrarMensagemSucesso('Pedido fechado com sucesso! Mesa liberada.');
+        //                 setTimeout(() => window.location.href = '@Url.Action("Dashboard")', 1500);
+        //             } else {
+        //                 mostrarMensagemErro('Erro: ' + response.message);
+        //             }
+        //         })
+        //         .fail(function() {
+        //             mostrarMensagemErro('Erro ao fechar pedido');
+        //         });
         }
         function buscarProdutos(termo, categoria) {
             const $container = $('#container-produtos');
@@ -793,5 +793,6 @@
         function mostrarMensagemErro(mensagem) {
             alert(mensagem); // Temporário - substituir por toast
         }
+            
     </script>
 }
