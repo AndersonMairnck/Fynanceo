@@ -89,7 +89,10 @@
                                 {
                                     <br>
                                     <small>
-                                        (@(Model.Diferenca > 0 ? "Sobra" : "Falta"))
+                                        (@(Model.SaldoFinal > Model.SaldoFisico ? "Falta" : "Sobra"))
+                                        @* @($"{Model.Diferenca} ({(Model.SaldoFinal > Model.SaldoFisico ? "Sobra" : "Falta")})") *@
+                                      
+
                                     </small>
                                 }
                             </td>
@@ -228,7 +231,7 @@
         </div>
 
         <!-- Resumo por Categoria -->
-        @if (Model.Movimentacoes.Any())
+       @if (Model.Movimentacoes.Any())
         {
             <div class="card mt-4">
                 <div class="card-header">
@@ -237,11 +240,11 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6 class="text-success">Entradas</h6>
+                            <h6 class="text-success border-bottom pb-2">Entradas</h6>
                             @foreach (var grupo in Model.Movimentacoes
-                                                    .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada)
-                                                    .GroupBy(m => m.Categoria)
-                                                    .OrderByDescending(g => g.Sum(m => m.Valor)))
+                                            .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada)
+                                            .GroupBy(m => m.Categoria)
+                                            .OrderByDescending(g => g.Sum(m => m.Valor)))
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small>@grupo.Key</small>
@@ -250,11 +253,11 @@
                             }
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-danger">Saídas</h6>
+                            <h6 class="text-danger border-bottom pb-2">Saídas</h6>
                             @foreach (var grupo in Model.Movimentacoes
-                                                    .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida)
-                                                    .GroupBy(m => m.Categoria)
-                                                    .OrderByDescending(g => g.Sum(m => m.Valor)))
+                                            .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida)
+                                            .GroupBy(m => m.Categoria)
+                                            .OrderByDescending(g => g.Sum(m => m.Valor)))
                             {
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <small>@grupo.Key</small>
@@ -265,9 +268,78 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-wallet me-2"></i>Resumo por Forma de Pagamento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success border-bottom pb-2">Entradas (Recebimentos)</h6>
+                            @foreach (var grupo in Model.Movimentacoes
+                                            .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada)
+                                            .GroupBy(m => m.FormaPagamento)
+                                            .OrderByDescending(g => g.Sum(m => m.Valor)))
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-dark"><small>@grupo.Key</small></span>
+                                    <strong class="text-success">R$ @grupo.Sum(m => m.Valor).ToString("N2")</strong>
+                                </div>
+                            }
+                            @if (!Model.Movimentacoes.Any(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada))
+                            {
+                                <p class="text-muted small fst-italic mt-2">Nenhuma entrada registrada.</p>
+                            }
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="text-danger border-bottom pb-2">Saídas (Pagamentos)</h6>
+                            @foreach (var grupo in Model.Movimentacoes
+                                            .Where(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida)
+                                            .GroupBy(m => m.FormaPagamento)
+                                            .OrderByDescending(g => g.Sum(m => m.Valor)))
+                            {
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-secondary"><small>@grupo.Key</small></span>
+                                    <strong class="text-danger">R$ @grupo.Sum(m => m.Valor).ToString("N2")</strong>
+                                </div>
+                            }
+                            @if (!Model.Movimentacoes.Any(m => m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida))
+                            {
+                                <p class="text-muted small fst-italic mt-2">Nenhuma saída registrada.</p>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="text-primary mb-3">Saldo Líquido por Forma (Entrada - Saída)</h6>
+                        <div class="row g-2">
+                             @foreach (var forma in Model.Movimentacoes.Select(m => m.FormaPagamento).Distinct().OrderBy(x => x))
+                             {
+                                 var totalEntrada = Model.Movimentacoes.Where(m => m.FormaPagamento == forma && m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Entrada).Sum(m => m.Valor);
+                                 var totalSaida = Model.Movimentacoes.Where(m => m.FormaPagamento == forma && m.Tipo == Fynanceo.Models.Enums.TipoMovimentacao.Saida).Sum(m => m.Valor);
+                                 var liquido = totalEntrada - totalSaida;
+                                 
+                                 <div class="col-6 col-md-4">
+                                     <div class="border rounded p-2 text-center bg-light">
+                                         <small class="d-block text-muted">@forma</small>
+                                         <span class="@(liquido >= 0 ? "text-success" : "text-danger") fw-bold">
+                                             R$ @liquido.ToString("N2")
+                                         </span>
+                                     </div>
+                                 </div>
+                             }
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     </div>
 </div>
+        
+        
+ 
 
 <!-- Modais para Movimentações -->
 @if (!Model.Fechado)
@@ -285,7 +357,12 @@
                         <input type="hidden" name="Tipo" value="1">
                         <div class="mb-3">
                             <label class="form-label">Valor *</label>
-                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="Valor" 
+                                   data-mask="moeda" 
+                                   required />
+
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Forma de Pagamento *</label>
@@ -339,8 +416,15 @@
                         <input type="hidden" name="Tipo" value="2">
                         <div class="mb-3">
                             <label class="form-label">Valor *</label>
-                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
-                        </div>
+                            @* <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required> *@
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="Valor" 
+                                   data-mask="moeda" 
+                                   required />
+
+
+                            </div>
                         <div class="mb-3">
                             <label class="form-label">Forma de Pagamento *</label>
                             <select class="form-select" name="FormaPagamento" required>
@@ -402,7 +486,11 @@
                         <input type="hidden" name="Categoria" value="11">
                         <div class="mb-3">
                             <label class="form-label">Valor da Sangria *</label>
-                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="Valor" 
+                                   data-mask="moeda" 
+                                   required />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descrição *</label>
@@ -442,7 +530,11 @@
                         <input type="hidden" name="Categoria" value="11">
                         <div class="mb-3">
                             <label class="form-label">Valor do Suprimento *</label>
-                            <input type="number" class="form-control" name="Valor" step="0.01" min="0.01" required>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="Valor" 
+                                   data-mask="moeda" 
+                                   required />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descrição *</label>

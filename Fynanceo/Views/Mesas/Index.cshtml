@@ -12,8 +12,12 @@
         <a href="@Url.Action("Cadastrar")" class="btn btn-warning">
             <i class="fas fa-plus me-2"></i>Nova Mesa
         </a>
+        <a href="@Url.Action("Dashboard", "GestaoMesas")" class="btn btn-success">
+            <i class="fas fa-plus me-2"></i>Gestão de Mesas
+        </a>
+        
     </div>
-
+    
     <!-- Alertas -->
     @await Html.PartialAsync("_AlertasPartial")
 

@@ -101,6 +101,26 @@ namespace Fynanceo.Service
                 .OrderByDescending(c => c.DataAbertura)
                 .ToListAsync();
         }
+        public async Task<Caixa> ObterCaixaPorId(int id)
+        {
+            try
+            {
+                var caixa=   await _context.Caixas
+                    .Include(c => c.Movimentacoes)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            
+                if (caixa == null)
+                    throw new InvalidOperationException($"Caixa com id {id} não encontrado.");
+
+                return caixa;
+            
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
         // MOVIMENTAÇÕES
         public async Task<MovimentacaoCaixa> AdicionarMovimentacao(MovimentacaoViewModel viewModel)

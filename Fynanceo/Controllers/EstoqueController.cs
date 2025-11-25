@@ -31,7 +31,7 @@ namespace Fynanceo.Controllers
         public async Task<IActionResult> Index(string search, int? categoriaId, StatusEstoque? status)
         {
             var query = _context.Estoques
-                .Include(e => e.CategoriaEstoque)
+               
                 .Include(e => e.Fornecedor)
                 .AsQueryable();
 
@@ -43,7 +43,7 @@ namespace Fynanceo.Controllers
 
             if (categoriaId.HasValue)
             {
-                query = query.Where(e => e.CategoriaEstoqueId == categoriaId.Value);
+              //  query = query.Where(e => e.Categorias == categoriaId.Value);
             }
 
             if (status.HasValue)
@@ -85,7 +85,12 @@ namespace Fynanceo.Controllers
         {
             var model = new EstoqueViewModel
             {
-                Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync(),
+                Categorias = await _context.Estoques
+                    .Select(e => e.Categorias)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync(),
+
                 Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync(),
                 Status = StatusEstoque.Ativo
             };
@@ -113,7 +118,7 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-            model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
+          //  model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
             model.Fornecedores = await _context.Fornecedores.Where(f => f.Status ==  StatusFornecedor.Ativo).ToListAsync();
 
             return View(model);
@@ -140,9 +145,13 @@ namespace Fynanceo.Controllers
                 CustoUnitario = estoque.CustoUnitario,
                 UnidadeMedida = estoque.UnidadeMedida,
                 Status = estoque.Status,
-                CategoriaEstoqueId = estoque.CategoriaEstoqueId,
+               // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
                 FornecedorId = estoque.FornecedorId,
-                Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync(),
+                Categorias = await _context.Estoques
+                    .Select(e => e.Categorias)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToListAsync(),
                 Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync()
             };
 
@@ -174,7 +183,7 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-            model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
+         //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
             model.Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync();
 
             return View(model);

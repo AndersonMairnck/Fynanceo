@@ -1,0 +1,212 @@
+@model Fynanceo.ViewModel.EstoquesModel.EstoqueViewModel
+@{
+    ViewData["Title"] = "Editar Produto";
+    ViewData["ActivePage"] = "estoque-produtos";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-edit me-2"></i>Editar Produto
+        </h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+            <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-outline-primary">
+                <i class="fas fa-eye me-2"></i>Ver Detalhes
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Editar Dados do Produto</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" id="produtoForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Nome" class="form-label">Nome do Produto *</label>
+                                    <input asp-for="Nome" type="text" class="form-control" required>
+                                    <span asp-validation-for="Nome" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Codigo" class="form-label">Código</label>
+                                    <input asp-for="Codigo" type="text" class="form-control">
+                                    <span asp-validation-for="Codigo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Descricao" class="form-label">Descrição</label>
+                                    <textarea asp-for="Descricao" class="form-control" rows="2"></textarea>
+                                    <span asp-validation-for="Descricao" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="UnidadeMedida" class="form-label">Unidade de Medida *</label>
+                                    <select asp-for="UnidadeMedida" class="form-select" required>
+                                        <option value="0">Unidade</option>
+                                        <option value="1">Quilograma (Kg)</option>
+                                        <option value="2">Grama (g)</option>
+                                        <option value="3">Litro (L)</option>
+                                        <option value="4">Mililitro (ml)</option>
+                                        <option value="5">Metro (m)</option>
+                                        <option value="6">Centímetro (cm)</option>
+                                        <option value="7">Pacote</option>
+                                        <option value="8">Caixa</option>
+                                    </select>
+                                    <span asp-validation-for="UnidadeMedida" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CustoUnitario" class="form-label">Custo Unitário (R$) *</label>
+                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control" required min="0">
+                                    <span asp-validation-for="CustoUnitario" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Status" class="form-label">Status *</label>
+                                    <select asp-for="Status" class="form-select" required>
+                                        <option value="0">Ativo</option>
+                                        <option value="1">Inativo</option>
+                                        <option value="2">Bloqueado</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EstoqueAtual" class="form-label">Estoque Atual *</label>
+                                    <input asp-for="EstoqueAtual" type="number" step="0.001" class="form-control" required min="0">
+                                    <span asp-validation-for="EstoqueAtual" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EstoqueMinimo" class="form-label">Estoque Mínimo *</label>
+                                    <input asp-for="EstoqueMinimo" type="number" step="0.001" class="form-control" required min="0">
+                                    <span asp-validation-for="EstoqueMinimo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EstoqueMaximo" class="form-label">Estoque Máximo</label>
+                                    <input asp-for="EstoqueMaximo" type="number" step="0.001" class="form-control" min="0">
+                                    <span asp-validation-for="EstoqueMaximo" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CategoriaEstoqueId" class="form-label">Categoria</label>
+                                    <select asp-for="CategoriaEstoqueId" class="form-select">
+                                        <option value="">Selecione uma categoria...</option>
+                                        @if (Model.Categorias != null)
+                                        {
+                                            @foreach (var categoria in Model.Categorias)
+                                            {
+                                               // <option value="@categoria.Id">@categoria.Nome</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="CategoriaEstoqueId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="FornecedorId" class="form-label">Fornecedor</label>
+                                    <select asp-for="FornecedorId" class="form-select">
+                                        <option value="">Selecione um fornecedor...</option>
+                                        @if (Model.Fornecedores != null)
+                                        {
+                                            @foreach (var fornecedor in Model.Fornecedores)
+                                            {
+                                                <option value="@fornecedor.Id">@fornecedor.Nome</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="FornecedorId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Atenção:</strong> Alterações no estoque atual devem ser feitas através de movimentações para manter o histórico.
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary me-2" id="btnSalvar">
+                                <i class="fas fa-save me-2"></i>Salvar Alterações
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Informações do Produto -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-2"></i>Informações
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>ID do Produto:</strong> #@Model.Id
+                    </div>
+                    <div class="mb-3">
+                        <strong>Última Atualização:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                    <hr>
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Use o módulo de <strong>Movimentações</strong> para registrar entradas e saídas de estoque.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Validações similares à view Create
+            $('#produtoForm').on('submit', function(e) {
+                // Validações aqui (similar ao Create)
+                $('#btnSalvar').html('<i class="fas fa-spinner fa-spin me-2"></i>Salvando...');
+                $('#btnSalvar').prop('disabled', true);
+            });
+        });
+    </script>
+}

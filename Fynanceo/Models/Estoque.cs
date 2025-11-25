@@ -1,6 +1,7 @@
 ﻿// Models/Estoque/Estoque.cs
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Fynanceo.Models.Enums;
 
 namespace Fynanceo.Models
 {
@@ -39,12 +40,13 @@ namespace Fynanceo.Models
         [Required]
         public UnidadeMedida UnidadeMedida { get; set; }
 
-        [Required]
+        
         public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
 
         // Relacionamentos
-        public int? CategoriaEstoqueId { get; set; }
-        public CategoriaEstoque CategoriaEstoque { get; set; }
+        // public int? CategoriaEstoqueId { get; set; }
+        // public CategoriaEstoque CategoriaEstoque { get; set; }
+        public string Categorias { get; set; }
 
         public int? FornecedorId { get; set; }
         public Fornecedor Fornecedor { get; set; }
@@ -114,7 +116,7 @@ namespace Fynanceo.Models
         [StringLength(200)]
         public string Descricao { get; set; }
 
-        [Required]
+
         public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
 
         // Navegação
@@ -131,7 +133,7 @@ namespace Fynanceo.Models
         [StringLength(100)]
         public string Descricao { get; set; }
 
-        [Required]
+       
         public StatusInventario Status { get; set; } = StatusInventario.Aberto;
 
         public DateTime DataAbertura { get; set; } = DateTime.Now;
@@ -205,62 +207,5 @@ namespace Fynanceo.Models
         public string Observacao { get; set; }
     }
 
-    // Enums para Estoque
-    public enum UnidadeMedida
-    {
-        [Display(Name = "Unidade")]
-        Unidade,
-        [Display(Name = "Quilograma")]
-        Kg,
-        [Display(Name = "Grama")]
-        g,
-        [Display(Name = "Litro")]
-        Litro,
-        [Display(Name = "Mililitro")]
-        ml,
-        [Display(Name = "Metro")]
-        Metro,
-        [Display(Name = "Centímetro")]
-        cm,
-        [Display(Name = "Pacote")]
-        Pacote,
-        [Display(Name = "Caixa")]
-        Caixa
-    }
-
-    public enum TipoMovimentacaoEstoque
-    {
-        [Display(Name = "Entrada")]
-        Entrada,
-        [Display(Name = "Saída")]
-        Saida,
-        [Display(Name = "Ajuste")]
-        Ajuste,
-        [Display(Name = "Perda")]
-        Perda,
-        [Display(Name = "Transferência")]
-        Transferencia
-    }
-
-    public enum StatusEstoque
-    {
-        [Display(Name = "Ativo")]
-        Ativo,
-        [Display(Name = "Inativo")]
-        Inativo,
-        [Display(Name = "Bloqueado")]
-        Bloqueado
-    }
-
-    public enum StatusInventario
-    {
-        [Display(Name = "Aberto")]
-        Aberto,
-        [Display(Name = "Em Andamento")]
-        EmAndamento,
-        [Display(Name = "Concluído")]
-        Concluido,
-        [Display(Name = "Cancelado")]
-        Cancelado
-    }
+   
 }
