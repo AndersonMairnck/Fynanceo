@@ -1,0 +1,102 @@
+@model Fynanceo.ViewModel.FornecedorModel.DetailsFornecedorViewModel
+@{
+    ViewData["Title"] = "Detalhes do Fornecedor";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">
+        <i class="fas fa-info-circle text-primary me-2"></i>@ViewData["Title"]
+    </h1>
+
+    <div>
+        <a href="@Url.Action("Edit", new { id = Model.idFornecedor })" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-2"></i>Editar
+        </a>
+
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Informações Gerais</h5>
+            </div>
+
+            <div class="card-body">
+
+                <dl class="row">
+
+                    <dt class="col-sm-4">Nome / Razão Social</dt>
+                    <dd class="col-sm-8">@Model.Nome</dd>
+
+                    <dt class="col-sm-4">CPF / CNPJ</dt>
+                    <dd class="col-sm-8" j>@Model.CpfCnpj</dd>
+
+                    <dt class="col-sm-4">Telefone</dt>
+                    <dd class="col-sm-8">@Model.Telefone</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8">@Model.Email</dd>
+
+                    <dt class="col-sm-4">Endereço</dt>
+                    <dd class="col-sm-8">@Model.Endereco</dd>
+
+                    <dt class="col-sm-4">Pessoa de Contato</dt>
+                    <dd class="col-sm-8">@Model.Contato</dd>
+
+                    
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.Status)
+                        {
+                            case StatusFornecedor.Ativo:
+                                <span class="badge bg-success">Ativo</span>
+                                break;
+                            case StatusFornecedor.Bloqueado:
+                                <span class="badge bg-danger">Bloqueado</span>
+                                break;
+                            case StatusFornecedor.Inativo:
+                                <span class="badge bg-secondary">Inativo</span>
+                                break;
+                            case StatusFornecedor.Pendente:
+                                <span class="badge bg-warning">Pendente</span>
+                                break;
+                                        
+                                        
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Observações</dt>
+                    <dd class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.Observacoes))
+                        {
+                            @Model.Observacoes
+                        }
+                        else
+                        {
+                            <span class="text-muted">Nenhuma observação informada.</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4">Data de Criação</dt>
+                    <dd class="col-sm-8">@Model.DataCriacao.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">Última Atualização</dt>
+                    <dd class="col-sm-8">
+                        @(Model.DataAtualizacao.HasValue 
+                            ? Model.DataAtualizacao.Value.ToString("dd/MM/yyyy HH:mm") 
+                            : "Nunca atualizado")
+                    </dd>
+
+                </dl>
+
+            </div>
+        </div>
+    </div>
+</div>
