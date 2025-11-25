@@ -45,12 +45,14 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text">R$</span>
-                            <input asp-for="SaldoFisico" class="form-control" 
-                                   type="number" 
-                                   step="0.01" 
-                                   min="0" 
-                                   required
-                                   placeholder="0,00">
+                          
+                            
+                            <input  asp-for="SaldoFisico" type="text" 
+                                   class="form-control" 
+                                 
+                                   data-mask="moeda" 
+                                   required />
+                            
                         </div>
                         <span asp-validation-for="SaldoFisico" class="text-danger"></span>
                         <small class="form-text text-muted">
@@ -154,11 +156,6 @@
         });
 
         // Formatação automática do valor
-        $('#SaldoFisico').on('blur', function() {
-            let value = parseFloat($(this).val());
-            if (!isNaN(value)) {
-                $(this).val(value.toFixed(2));
-            }
-        });
+
     </script>
 }

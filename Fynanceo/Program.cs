@@ -2,7 +2,7 @@
 using Fynanceo.Service;
 using Fynanceo.Service.Interface;
 using Microsoft.EntityFrameworkCore;
-using System;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

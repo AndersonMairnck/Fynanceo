@@ -14,11 +14,12 @@ namespace Fynanceo.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IFinanceiroService _financeiroService;
-
-        public CaixaController(AppDbContext context, IFinanceiroService financeiroService)
+       
+        public CaixaController(AppDbContext context, IFinanceiroService financeiroService )
         {
             _context = context;
             _financeiroService = financeiroService;
+          
         }
 
         // GET: Caixa/Dashboard
@@ -41,9 +42,11 @@ namespace Fynanceo.Controllers
         // GET: Caixa/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var caixa = await _context.Caixas
-                .Include(c => c.Movimentacoes)
-                .FirstOrDefaultAsync(c => c.Id == id);
+
+            var caixa = await _financeiroService.ObterCaixaPorId(id);
+            // var caixa = await _context.Caixas
+            //     .Include(c => c.Movimentacoes)
+            //     .FirstOrDefaultAsync(c => c.Id == id);
 
             if (caixa == null)
             {

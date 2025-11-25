@@ -125,10 +125,10 @@ namespace Fynanceo.Data
                 entity.Property(e => e.CustoUnitario).HasColumnType("decimal(18,2)");
 
                 // Relacionamentos
-                entity.HasOne(e => e.CategoriaEstoque)
-                      .WithMany(c => c.Estoques)
-                      .HasForeignKey(e => e.CategoriaEstoqueId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                // entity.HasOne(e => e.CategoriaEstoque)
+                //       .WithMany(c => c.Estoques)
+                //       .HasForeignKey(e => e.CategoriaEstoqueId)
+                //       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Fornecedor)
                       .WithMany()

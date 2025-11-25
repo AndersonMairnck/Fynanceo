@@ -43,19 +43,24 @@ namespace Fynanceo.Service
                 throw new InvalidOperationException("Pedido já está " + pedido.Status);
             }
 
-            // Verifica se todos os itens estão entregues ou cancelados
-            var itensPendentes = pedido.Itens.Where(i =>
-                i.Status != PedidoStatus.Entregue &&
-                i.Status != PedidoStatus.Cancelado
-            ).ToList();
+         
+                // Verifica se todos os itens estão entregues ou cancelados
+                var itensPendentes = pedido.Itens.Where(i =>
+                    i.Status != PedidoStatus.Entregue &&
+                    i.Status != PedidoStatus.Cancelado
+                ).ToList();
 
-            if (itensPendentes.Any())
-            {
-                var itensPendentesNomes = string.Join(", ", itensPendentes.Select(i => i.Produto.Nome));
-                throw new InvalidOperationException($"Não é possível fechar o pedido. Itens pendentes: {itensPendentesNomes}");
-            }
+                if (pedido.TipoPedido != TipoPedido.Balcao)
+                {
+                    if (itensPendentes.Any())
+                    {
+                        var itensPendentesNomes = string.Join(", ", itensPendentes.Select(i => i.Produto.Nome));
+                        throw new InvalidOperationException(
+                            $"Não é possível fechar o pedido. Itens pendentes: {itensPendentesNomes}");
+                    }
+                }
 
-            // Fecha o pedido
+                // Fecha o pedido
             pedido.Status = PedidoStatus.Fechado;
             pedido.DataFechamento = DateTime.UtcNow;
 
@@ -145,6 +150,8 @@ namespace Fynanceo.Service
                    //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
             };
             if (pedido.TipoPedido == TipoPedido.Delivery && produto.TempoPreparoMinutos == 0)
+                itemPedido.Status = PedidoStatus.Pronto;
+            if (pedido.TipoPedido == TipoPedido.Balcao && produto.TempoPreparoMinutos == 0)
                 itemPedido.Status = PedidoStatus.Pronto;
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();

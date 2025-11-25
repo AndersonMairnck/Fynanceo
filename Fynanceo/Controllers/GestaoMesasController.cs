@@ -1,5 +1,5 @@
 ﻿// Controllers/GestaoMesasController.cs
-using Fynanceo.Migrations;
+
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;

@@ -402,13 +402,11 @@
             <div class="card-body">
 
                 <!-- Botões de ação mudam conforme o status atual -->
-               
-                @if (Model.TipoPedido == TipoPedido.Delivery)
-                {
-                    @* Verifica se existe pelo menos um item com tempo de preparo *@
+                @* Verifica se existe pelo menos um item com tempo de preparo *@
                     @if (Model.Itens.Any(i => i.Produto.TempoPreparoMinutos > 0))
                     {
-                        @if (Model.Status == PedidoStatus.Aberto)
+                      
+                       @if (Model.Status == PedidoStatus.Aberto)
                         {
                             <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
                                 <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
@@ -425,18 +423,53 @@
                                 <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
                             </a>
                         }
-                       
+                  
+
                     }
                     else
                     {
-                        
-                            @if (Model.Status == PedidoStatus.Aberto)
+                        @if (Model.TipoPedido == TipoPedido.Delivery)
                         {
+                            @if (Model.Status == PedidoStatus.Aberto)
+                          {
                             <button class="btn btn-secondary w-100 mb-2"
                                     onclick="enviaParaEntrega(@Model.Id, '@Model.NumeroPedido','Pronto')">
                                 <i class="fas fa-flag-checkered me-2"></i>Produtos Prontos Enviar Para Entrega
                             </button>
+                         }
+                           
+
+                            else if (Model.Status == PedidoStatus.Entregue)
+                         {
+                            @* <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')"> *@
+                            @*     <i class="fas fa-flag-checkered me-2"></i>Finalizar Pedido *@
+                            @* </button> *@
+                            <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
+                               class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
+                            </a>
+                         }
                         }
+                      
+                      else
+                      {
+                              @if (Model.Status == PedidoStatus.Aberto)
+                        {
+                            if (Model.TipoPedido == TipoPedido.Mesa)
+                            {
+                                <button class="btn btn-info w-100 mb-2"
+                                    onclick="">
+                                <i class="fas fa-flag-checkered me-2"></i> Tratar no Gestão de Mesas
+                                  </button>
+                              }
+                            
+                            else if(Model.Status == PedidoStatus.Aberto && Model.TipoPedido == TipoPedido.Balcao)
+                            {
+                                <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('Entregue')">
+                                    <i class="fas fa-paper-plane me-2"></i>Pedido entregue Balcão
+                                </button>
+                            }
+                      }
                             else if (Model.Status == PedidoStatus.Entregue)
                         {
                             @* <button class="btn btn-secondary w-100 mb-2" onclick="atualizarStatus('Fechado')"> *@
@@ -445,78 +478,10 @@
                             <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
                                class="btn btn-success w-100 mb-2">
                                 <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
-                            </a>
+                          </a>
                         }
+                      }
                     }
-                }
-                else
-                {
-                    @if (Model.Status == PedidoStatus.Aberto)
-                    {
-                        <button class="btn btn-warning w-100 mb-2" onclick="atualizarStatus('EnviadoCozinha')">
-                            <i class="fas fa-paper-plane me-2"></i>Enviar para Cozinha
-                        </button>
-                    }
-                    else if (Model.Status == PedidoStatus.Pronto)
-                    {
-                        <button class="btn btn-info w-100 mb-2" onclick="atualizarStatus('Entregue')">
-                            <i class="fas fa-truck me-2"></i>Marcar como Entregue
-                        </button>
-                    }
-                    else if (Model.Status == PedidoStatus.EmRota)
-                    {
-                        <button class="btn btn-info w-100 mb-2" onclick="atualizarStatus('Entregue')">
-                            <i class="fas fa-truck me-2"></i>Marcar como Entregue
-                        </button>
-                    }
-                    else if (Model.Status == PedidoStatus.Entregue)
-                    {
-                        <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
-                           class="btn btn-success w-100 mb-2">
-                            <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
-                        </a>
-                    }
-                }
-                
-               @if (Model.TipoPedido == TipoPedido.Balcao)
-                {
-                    @* Verifica se existe pelo menos um item com tempo de preparo *@
-                    @if (Model.Itens.Any(i => i.Produto.TempoPreparoMinutos > 0))
-                    {
-                        @if (Model.Status == PedidoStatus.Aberto)
-                        {
-                         
-                        }
-                        else if (Model.Status == PedidoStatus.Entregue)
-                        {
-                        
-                            <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
-                               class="btn btn-success w-100 mb-2">
-                                <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
-                            </a>
-                        }
-                       
-                    }
-                    else
-                    {
-                        
-                            @if (Model.Status == PedidoStatus.Aberto)
-                        {
-                            <button class="btn btn-secondary w-100 mb-2"
-                                    onclick="enviaParaEntrega(@Model.Id, '@Model.NumeroPedido','Pronto')">
-                                <i class="fas fa-flag-checkered me-2"></i>Produtos Prontos Enviar Para Entrega
-                            </button>
-                        }
-                            else if (Model.Status == PedidoStatus.Entregue)
-                        {
-                         
-                            <a href="@Url.Action("FecharComPagamento", new { id = Model.Id })" 
-                               class="btn btn-success w-100 mb-2">
-                                <i class="fas fa-cash-register me-2"></i>Fechar e Registrar Pagamento
-                            </a>
-                        }
-                    }
-                }
 
                 <!-- Botão cancelar aparece em qualquer status não fechado -->
                 @if (Model.Status != PedidoStatus.Fechado)

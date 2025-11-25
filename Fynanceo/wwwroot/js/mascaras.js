@@ -43,6 +43,31 @@
                 if (v.length > 5) v = v.replace(/(\d{5})(\d{1,3})/, '$1-$2');
             }
 
+
+            // ➕➕➕ MÁSCARA DE MOEDA AQUI ➕➕➕
+            else if (tipo === 'moeda') {
+                // Limita a 15 dígitos (opcional)
+                if (v.length > 15) v = v.slice(0, 15);
+
+                // Se não tiver nada, retorna vazio
+                if (v === "") {
+                    e.target.value = "";
+                    return;
+                }
+
+                // Torna o valor decimal: últimos 2 dígitos são centavos
+                v = (Number(v) / 100).toFixed(2) + '';
+
+                // Troca ponto por vírgula
+                v = v.replace('.', ',');
+
+                // Adiciona separador de milhar
+                v = v.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                e.target.value = v;
+                return;
+            }
+
             e.target.value = v;
         });
     });

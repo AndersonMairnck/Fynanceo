@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Fynanceo.Models.Estoque>
+﻿@using Fynanceo.Models.Enums
+@model IEnumerable<Fynanceo.Models.Estoque>
 @{
     ViewData["Title"] = "Gestão de Estoque";
     ViewData["ActivePage"] = "estoque-produtos";
@@ -229,9 +230,9 @@
                                         <strong>@((item.EstoqueAtual * item.CustoUnitario).ToString("C"))</strong>
                                     </td>
                                     <td>
-                                        @if (item.CategoriaEstoque != null)
+                                        @if (item.Categorias != null)
                                         {
-                                            <span class="badge bg-secondary">@item.CategoriaEstoque.Nome</span>
+                                            <span class="badge bg-secondary">@item.Categorias</span>
                                         }
                                         else
                                         {

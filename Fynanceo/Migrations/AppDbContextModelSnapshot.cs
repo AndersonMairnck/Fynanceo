@@ -48,12 +48,6 @@ namespace Fynanceo.Migrations
                     b.Property<decimal>("SaldoInicial")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("TotalEntradas")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalSaidas")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("UsuarioAberturaId")
                         .HasColumnType("integer");
 
@@ -290,7 +284,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 11, 13, 16, 45, 24, 429, DateTimeKind.Utc).AddTicks(6215),
+                            DataAtualizacao = new DateTime(2025, 11, 24, 22, 19, 37, 589, DateTimeKind.Utc).AddTicks(6338),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -512,6 +506,10 @@ namespace Fynanceo.Migrations
 
                     b.Property<int?>("CategoriaEstoqueId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Categorias")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Codigo")
                         .IsRequired()
@@ -791,7 +789,6 @@ namespace Fynanceo.Migrations
                         .HasColumnType("numeric");
 
                     b.Property<string>("UnidadeMedida")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -1364,17 +1361,14 @@ namespace Fynanceo.Migrations
 
             modelBuilder.Entity("Fynanceo.Models.Estoque", b =>
                 {
-                    b.HasOne("Fynanceo.Models.CategoriaEstoque", "CategoriaEstoque")
+                    b.HasOne("Fynanceo.Models.CategoriaEstoque", null)
                         .WithMany("Estoques")
-                        .HasForeignKey("CategoriaEstoqueId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CategoriaEstoqueId");
 
                     b.HasOne("Fynanceo.Models.Fornecedor", "Fornecedor")
                         .WithMany()
                         .HasForeignKey("FornecedorId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CategoriaEstoque");
 
                     b.Navigation("Fornecedor");
                 });

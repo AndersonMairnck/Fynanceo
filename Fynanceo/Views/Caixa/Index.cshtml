@@ -106,10 +106,22 @@
                                     <span class="badge bg-secondary">Fechado</span>
                                     @if (caixa.Diferenca != 0)
                                     {
-                                        <br>
-                                        <small class="@(caixa.Diferenca > 0 ? "text-success" : "text-danger")">
-                                            @(caixa.Diferenca > 0 ? "+" : "")R$ @Math.Abs(caixa.Diferenca).ToString("N2")
+                                        if (caixa.SaldoFinal > caixa.SaldoFisico)
+                                        {  
+                                            <br>
+                                        <small class=text-danger>
+                                                @(caixa.Diferenca > 0 ? "-" : "")R$ @Math.Abs(caixa.Diferenca).ToString("N2")
                                         </small>
+                                        }
+                                        else
+                                        {
+                                            <br>
+                                            <small class="@(caixa.Diferenca > 0 ? "text-success" : "text-danger")">
+                                                @(caixa.Diferenca > 0 ? "+" : "")R$ @Math.Abs(caixa.Diferenca).ToString("N2")
+                                            </small>
+                                        }
+
+                                     
                                     }
                                 }
                                 else

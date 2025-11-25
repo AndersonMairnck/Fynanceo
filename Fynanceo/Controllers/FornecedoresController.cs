@@ -25,10 +25,6 @@ namespace Fynanceo.Controllers
             return View(fornecedores);
         }
 
-
-        
-
-
         // GET: Fornecedores/Details/5
         public async Task<IActionResult> Details(int id)
         {

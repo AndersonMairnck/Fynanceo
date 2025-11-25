@@ -13,7 +13,9 @@ namespace Fynanceo.Service.Interface
         Task<Caixa> FecharCaixa(FechamentoCaixaViewModel viewModel);
         Task<Caixa?> ObterCaixaAberto();
         Task<List<Caixa>> ObterCaixasPeriodo(DateTime inicio, DateTime fim);
-
+        
+      
+        Task<Caixa> ObterCaixaPorId(int id);
         // Movimentações
         Task<MovimentacaoCaixa> AdicionarMovimentacao(MovimentacaoViewModel viewModel);
         Task<List<MovimentacaoCaixa>> ObterMovimentacoesCaixa(int caixaId);

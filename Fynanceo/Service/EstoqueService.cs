@@ -4,7 +4,7 @@ using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.ViewModel.EstoquesModel;
 using Fynanceo.Service.Interface;
-
+using Fynanceo.Models.Enums;
 
 
 namespace Fynanceo.Service
@@ -24,7 +24,7 @@ namespace Fynanceo.Service
         public async Task<List<Estoque>> ObterTodosEstoquesAsync()
         {
             return await _context.Estoques
-                .Include(e => e.CategoriaEstoque)
+              
                 .Include(e => e.Fornecedor)
                 .Where(e => e.Status == StatusEstoque.Ativo)
                 .OrderBy(e => e.Nome)
@@ -34,7 +34,7 @@ namespace Fynanceo.Service
         public async Task<Estoque> ObterEstoquePorIdAsync(int id)
         {
             return await _context.Estoques
-                .Include(e => e.CategoriaEstoque)
+               
                 .Include(e => e.Fornecedor)
                 .Include(e => e.Movimentacoes)
                 .Include(e => e.ProdutoIngredientes)
@@ -54,7 +54,7 @@ namespace Fynanceo.Service
                 CustoUnitario = model.CustoUnitario,
                 UnidadeMedida = model.UnidadeMedida,
                 Status = model.Status,
-                CategoriaEstoqueId = model.CategoriaEstoqueId,
+             
                 FornecedorId = model.FornecedorId,
                 DataCriacao = DateTime.Now
             };
@@ -80,7 +80,7 @@ namespace Fynanceo.Service
             estoque.CustoUnitario = model.CustoUnitario;
             estoque.UnidadeMedida = model.UnidadeMedida;
             estoque.Status = model.Status;
-            estoque.CategoriaEstoqueId = model.CategoriaEstoqueId;
+         
             estoque.FornecedorId = model.FornecedorId;
             estoque.DataAtualizacao = DateTime.Now;
 
@@ -260,9 +260,9 @@ namespace Fynanceo.Service
 
             // Dados para gráficos
             dashboard.ValorPorCategoria = await _context.Estoques
-                .Include(e => e.CategoriaEstoque)
+              
                 .Where(e => e.Status == StatusEstoque.Ativo)
-                .GroupBy(e => e.CategoriaEstoque != null ? e.CategoriaEstoque.Nome : "Sem Categoria")
+                .GroupBy(e => e.Categorias != null ? e.Categorias : "Sem Categoria")
                 .Select(g => new { Categoria = g.Key, Valor = g.Sum(e => e.EstoqueAtual * e.CustoUnitario) })
                 .ToDictionaryAsync(x => x.Categoria, x => x.Valor);
 

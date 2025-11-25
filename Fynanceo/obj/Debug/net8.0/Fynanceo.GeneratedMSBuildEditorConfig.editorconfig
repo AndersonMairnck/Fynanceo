@@ -116,12 +116,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXN0b3F1ZVxBbGVydGFzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Mairinck/1- Projetos/Fynanceo/Fynanceo/Fynanceo/Views/Estoque/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXN0b3F1ZVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Mairinck/1- Projetos/Fynanceo/Fynanceo/Fynanceo/Views/Estoque/Dashboard.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXN0b3F1ZVxEYXNoYm9hcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Mairinck/1- Projetos/Fynanceo/Fynanceo/Fynanceo/Views/Estoque/DetalhesInventario.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXN0b3F1ZVxEZXRhbGhlc0ludmVudGFyaW8uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Mairinck/1- Projetos/Fynanceo/Fynanceo/Fynanceo/Views/Estoque/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXN0b3F1ZVxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Mairinck/1- Projetos/Fynanceo/Fynanceo/Fynanceo/Views/Estoque/Index.cshtml]

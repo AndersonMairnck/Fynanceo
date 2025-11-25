@@ -1,5 +1,6 @@
 ﻿using Fynanceo.Models;
 using System.ComponentModel.DataAnnotations;
+using Fynanceo.Models.Enums;
 
 namespace Fynanceo.ViewModel.EstoquesModel
 {
@@ -46,7 +47,7 @@ namespace Fynanceo.ViewModel.EstoquesModel
         public int? FornecedorId { get; set; }
 
         // Para dropdowns
-        public List<CategoriaEstoque> Categorias { get; set; }
+        public List<string> Categorias { get; set; }
         public List<Fornecedor> Fornecedores { get; set; }
     }
 
