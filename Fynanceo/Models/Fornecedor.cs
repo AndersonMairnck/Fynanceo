@@ -11,9 +11,10 @@ namespace Fynanceo.Models
         [Required(ErrorMessage = "Nome é obrigatório")]
         [StringLength(100)]
         public string Nome { get; set; }
-
-        [StringLength(14)] // CPF/CNPJ
-        public string? Documento { get; set; }
+        
+        [Display(Name = "Cpf/Cnpj")]
+        [StringLength(18)] // CPF/CNPJ
+        public string? CpfCnpj { get; set; }
 
         [StringLength(20)]
         public string? Telefone { get; set; }
@@ -30,7 +31,7 @@ namespace Fynanceo.Models
 
         public string? Observacoes { get; set; }
 
-        public bool Ativo { get; set; } = true;
+ 
 
         public DateTime DataCriacao { get; set; } = DateTime.Now;
         public DateTime? DataAtualizacao { get; set; }

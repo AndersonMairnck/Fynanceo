@@ -18,7 +18,7 @@
     <div class="col-md-3">
         <div class="card bg-success text-white">
             <div class="card-body text-center">
-                <h4 class="mb-0">@Model.Count(f => f.Ativo)</h4>
+                <h4 class="mb-0">@Model.Count(f => f.Status == StatusFornecedor.Ativo)</h4>
                 <small>Ativos</small>
             </div>
         </div>
@@ -26,7 +26,7 @@
     <div class="col-md-3">
         <div class="card bg-secondary text-white">
             <div class="card-body text-center">
-                <h4 class="mb-0">@Model.Count(f => !f.Ativo)</h4>
+                <h4 class="mb-0">@Model.Count(f => f.Status == StatusFornecedor.Ativo)</h4>
                 <small>Inativos</small>
             </div>
         </div>
@@ -86,9 +86,9 @@
                                 }
                             </td>
                             <td>
-                                @if (!string.IsNullOrEmpty(fornecedor.Documento))
+                                @if (!string.IsNullOrEmpty(fornecedor.CpfCnpj))
                                 {
-                                    <text>@fornecedor.Documento</text>
+                                    <text>@fornecedor.CpfCnpj</text>
                                 }
                                 else
                                 {
@@ -129,14 +129,28 @@
                                 <span class="badge bg-primary">@(fornecedor.Contas?.Count ?? 0)</span>
                             </td>
                             <td>
-                                @if (fornecedor.Ativo)
+                                
+                                @switch (fornecedor.Status)
                                 {
-                                    <span class="badge bg-success">Ativo</span>
+                                    case StatusFornecedor.Ativo:
+                                        <span class="badge bg-success">Ativo</span>
+                                        break;
+                                case StatusFornecedor.Bloqueado:
+                                <span class="badge bg-danger">Bloqueado</span>
+                                break;
+                                    case StatusFornecedor.Inativo:
+                                        <span class="badge bg-secondary">Inativo</span>
+                                        break;
+                                    case StatusFornecedor.Pendente:
+                                        <span class="badge bg-warning">Pendente</span>
+                                        break;
+                                        
+                                        
                                 }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Inativo</span>
-                                }
+
+
+
+                                
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">

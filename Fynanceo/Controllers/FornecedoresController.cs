@@ -3,41 +3,59 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
+using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.FornecedorModel;
+using Fynanceo.Utils;
 
 namespace Fynanceo.Controllers
 {
     public class FornecedoresController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IFornecedorService _fornecedorService;
 
-        public FornecedoresController(AppDbContext context)
+        public FornecedoresController(AppDbContext context, IFornecedorService fornecedorService)
         {
             _context = context;
+            _fornecedorService = fornecedorService;
         }
 
         // GET: Fornecedores
         public async Task<IActionResult> Index()
         {
-            var fornecedores = await _context.Fornecedores
-                .OrderBy(f => f.Nome)
-                .ToListAsync();
-
+            var fornecedores = await _fornecedorService.ObterTodosFornecedoresAsync();
+           
             return View(fornecedores);
         }
 
         // GET: Fornecedores/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var fornecedor = await _context.Fornecedores
-                .Include(f => f.Contas)
-                .FirstOrDefaultAsync(f => f.Id == id);
+            var fornecedor = await _fornecedorService.obterFornecedorPorId(id);
+               
 
             if (fornecedor == null)
             {
                 return NotFound();
             }
+            // Monta o ViewModel que a View espera
+            var viewModel = new DetailsFornecedorViewModel
+            {
+                idFornecedor = fornecedor.Id,
+                Nome = fornecedor.Nome,
+                CpfCnpj = StringUtils.FormatarCpfCnpj(fornecedor.CpfCnpj),
+                Telefone = StringUtils.FormataTelefone(fornecedor.Telefone),
+                Email = fornecedor.Email,
+                Endereco = fornecedor.Endereco,
+                Contato = fornecedor.Contato,
+                Observacoes = fornecedor.Observacoes,
+               
+                DataCriacao = fornecedor.DataCriacao,
+                DataAtualizacao = fornecedor.DataAtualizacao,
+                Status = fornecedor.Status
+            };
 
-            return View(fornecedor);
+            return View(viewModel);
         }
 
         // GET: Fornecedores/Create
@@ -49,46 +67,57 @@ namespace Fynanceo.Controllers
         // POST: Fornecedores/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Fornecedor fornecedor)
+        public async Task<IActionResult> Create(FornecerdorViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(fornecedor);
-                await _context.SaveChangesAsync();
+               await _fornecedorService.AdicionarAsync(viewModel);
+              
 
                 TempData["Success"] = "Fornecedor cadastrado com sucesso!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(fornecedor);
+            return View(viewModel);
         }
 
         // GET: Fornecedores/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var fornecedor = await _context.Fornecedores.FindAsync(id);
+
+            var fornecedor = await _fornecedorService.obterFornecedorPorId(id);
+
             if (fornecedor == null)
-            {
                 return NotFound();
-            }
-            return View(fornecedor);
+
+            var vm = new EditarFornecedorViewModel
+            {
+                idFornecedor = fornecedor.Id,
+                Nome = fornecedor.Nome,
+                CpfCnpj = StringUtils.FormatarCpfCnpj( fornecedor.CpfCnpj),
+                Telefone = StringUtils.FormataTelefone( fornecedor.Telefone),
+                Email = fornecedor.Email,
+                Endereco = fornecedor.Endereco,
+                Contato = fornecedor.Contato,
+                Observacoes = fornecedor.Observacoes,
+                Status = fornecedor.Status
+            };
+
+            return View(vm);
         }
 
         // POST: Fornecedores/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Fornecedor fornecedor)
+        public async Task<IActionResult> Edit(int id, EditarFornecedorViewModel viewModel)
         {
-            if (id != fornecedor.Id)
-            {
-                return NotFound();
-            }
+            
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(fornecedor);
-                    await _context.SaveChangesAsync();
+                 await   _fornecedorService.EditarFornecedor(id, viewModel);
+                  
 
                     TempData["Success"] = "Fornecedor atualizado com sucesso!";
                 }
@@ -105,31 +134,10 @@ namespace Fynanceo.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(fornecedor);
+            return View(viewModel);
         }
 
-        // POST: Fornecedores/Delete/5
-        [HttpPost]
-        public async Task<JsonResult> Delete(int id)
-        {
-            var fornecedor = await _context.Fornecedores.FindAsync(id);
-            if (fornecedor == null)
-            {
-                return Json(new { success = false, message = "Fornecedor não encontrado" });
-            }
-
-            // Verificar se tem contas vinculadas
-            var temContas = await _context.Contas.AnyAsync(c => c.FornecedorId == id);
-            if (temContas)
-            {
-                return Json(new { success = false, message = "Não é possível excluir fornecedor com contas vinculadas" });
-            }
-
-            _context.Fornecedores.Remove(fornecedor);
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Fornecedor excluído com sucesso" });
-        }
+        
 
         private bool FornecedorExists(int id)
         {

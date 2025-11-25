@@ -67,7 +67,7 @@ namespace Fynanceo.Controllers
             var viewModel = new ContaViewModel
             {
                 Fornecedores = await _context.Fornecedores
-                    .Where(f => f.Ativo)
+                    .Where(f => f.Status == StatusFornecedor.Ativo)
                     .OrderBy(f => f.Nome)
                     .ToListAsync(),
                 DataVencimento = DateTime.Today.AddDays(7)
@@ -97,7 +97,7 @@ namespace Fynanceo.Controllers
 
             // Recarregar fornecedores se houver erro
             viewModel.Fornecedores = await _context.Fornecedores
-                .Where(f => f.Ativo)
+                .Where(f => f.Status == StatusFornecedor.Ativo)
                 .OrderBy(f => f.Nome)
                 .ToListAsync();
 
