@@ -76,8 +76,24 @@ namespace Fynanceo.Controllers
             {
                 return NotFound();
             }
+            var vm = new DetailsProdutoViewModel
+            {
+                Id = estoque.Id,
+                Nome = estoque.Nome,
+                Categoria = estoque.Categorias,
+                Descricao = estoque.Descricao,
+                CustoUnitario = estoque.CustoUnitario,
+          EstoqueMaximo = estoque.EstoqueMaximo,
+          EstoqueMinimo = estoque.EstoqueMinimo,
+                EstoqueAtual = estoque.EstoqueAtual,
+                DataCadastro = estoque.DataCriacao,
+                NomeFornecedor = estoque.Fornecedor.Nome,
+                Codigo = estoque.Codigo,
+                
+                
+            };
 
-            return View(estoque);
+            return View(vm);
         }
 
         // GET: Estoque/Create
@@ -103,7 +119,7 @@ namespace Fynanceo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EstoqueViewModel model)
         {
-            if (ModelState.IsValid)
+           
             {
                 try
                 {
@@ -344,6 +360,9 @@ namespace Fynanceo.Controllers
             }
 
             return View(inventario);
+            
+            
+            
         }
 
         [HttpPost]

@@ -374,8 +374,28 @@
         <div class="submenu">
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
                href="/Clientes"><i class="fas fa-users"></i> Clientes</a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
-               href="/Produtos"><i class="fas fa-pizza-slice"></i> Produtos</a>
+            
+            <!-- Submenu Produtos -->
+            <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroProduto"
+               aria-expanded="false" aria-controls="cadastroProduto">
+                <i class="fas fa-boxes"></i> Produtos <span class="badge bg-success">Novo</span>
+                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse collapse-menu" id="cadastroProduto">
+                <div class="submenu">
+                   
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
+                       href="@Url.Action("Create", "Estoque")"><i class="fas fa-box"></i> Materiais</a>
+                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
+                       href="/Produtos"><i class="fas fa-pizza-slice"></i> Produtos</a>
+                    
+                </div>
+            </div>
+            
+            
+            
+            
+        
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
                href="/Mesas"><i class="fas fa-chair"></i> Mesas</a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"

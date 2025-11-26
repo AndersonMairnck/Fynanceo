@@ -1,14 +1,14 @@
 
 @model Fynanceo.ViewModel.EstoquesModel.EstoqueViewModel
 @{
-    ViewData["Title"] = "Cadastrar Novo Produto";
+    ViewData["Title"] = "Cadastrar Materiais e Insumos";
     ViewData["ActivePage"] = "estoque-produtos";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-plus me-2"></i>Cadastrar Novo Produto
+            <i class="fas fa-plus me-2"></i>Cadastrar Materiais e Insumos
         </h1>
         <div>
             <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -32,7 +32,7 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="Nome" class="form-label">Nome do Produto *</label>
                                     <input asp-for="Nome" type="text" class="form-control" 
-                                           placeholder="Ex: Farinha de Trigo, Açúcar Refinado..." required>
+                                           placeholder="Ex: Farinha de Trigo, Açúcar Refinado..." data-maiuscula="titulo" >
                                     <span asp-validation-for="Nome" class="text-danger"></span>
                                 </div>
                             </div>
@@ -40,7 +40,7 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="Codigo" class="form-label">Código</label>
                                     <input asp-for="Codigo" type="text" class="form-control" 
-                                           placeholder="Código interno (opcional)">
+                                           placeholder="Código interno (opcional)" data-maiuscula="tudo">
                                     <span asp-validation-for="Codigo" class="text-danger"></span>
                                 </div>
                             </div>
@@ -79,8 +79,8 @@
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label asp-for="CustoUnitario" class="form-label">Custo Unitário (R$) *</label>
-                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control" 
-                                           required min="0" value="0">
+                                    <input asp-for="CustoUnitario" type="text" step="0.01" class="form-control" 
+                                           required min="0" value="0"   data-mask="moeda" >
                                     <span asp-validation-for="CustoUnitario" class="text-danger"></span>
                                 </div>
                             </div>
@@ -124,22 +124,52 @@
                             </div>
                         </div>
 
+                        
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="CategoriaEstoqueId" class="form-label">Categoria</label>
-                                    <select asp-for="CategoriaEstoqueId" class="form-select">
-                                        <option value="">Selecione uma categoria...</option>
+                                <div class="mb-3">
+                                    @{
+                                        var categoriasFixas = new List<string>
+                                        {
+                                            "Ingredientes Base",
+                                            "Líquidos e Solventes",
+                                            "Proteínas e Derivados",
+                                            "Especiarias e Temperos",
+                                            "Frutas e Vegetais",
+                                            "Laticínios e Derivados",
+                                            "Embalagens"
+                                        };
+                                    }
+
+                                    <label asp-for="Categoria" class="form-label">Categoria</label>
+
+                                    <input asp-for="Categoria" class="form-control" list="Categorias"/>
+
+                                    <datalist id="Categorias">
+
+                                        @* Categorias do Banco *@
                                         @if (Model.Categorias != null)
                                         {
-                                            @foreach (var categoria in Model.Categorias)
+                                            foreach (var c in Model.Categorias)
                                             {
-                                                //<option value="@categoria.Id">@categoria.Nome</option>
+                                                if (!string.IsNullOrWhiteSpace(c))
+                                                {
+                                                    <option value="@c"></option>
+                                                }
                                             }
                                         }
-                                    </select>
-                                    <span asp-validation-for="CategoriaEstoqueId" class="text-danger"></span>
+
+                                        @* Categorias Fixas *@
+                                        @foreach (var c in categoriasFixas)
+                                        {
+                                            <option value="@c"></option>
+                                        }
+
+                                    </datalist>
+
+                                    <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
+
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
