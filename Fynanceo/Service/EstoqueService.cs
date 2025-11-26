@@ -33,37 +33,58 @@ namespace Fynanceo.Service
 
         public async Task<Estoque> ObterEstoquePorIdAsync(int id)
         {
-            return await _context.Estoques
+            try
+            {
+                return await _context.Estoques
+                        
                
                 .Include(e => e.Fornecedor)
                 .Include(e => e.Movimentacoes)
                 .Include(e => e.ProdutoIngredientes)
                 .FirstOrDefaultAsync(e => e.Id == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+         
         }
 
         public async Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model)
         {
-            var estoque = new Estoque
+            try
             {
-                Nome = model.Nome,
-                Codigo = model.Codigo,
-                Descricao = model.Descricao,
-                EstoqueAtual = model.EstoqueAtual,
-                EstoqueMinimo = model.EstoqueMinimo,
-                EstoqueMaximo = model.EstoqueMaximo,
-                CustoUnitario = model.CustoUnitario,
-                UnidadeMedida = model.UnidadeMedida,
-                Status = model.Status,
+                var estoque = new Estoque
+                {
+                    Nome = model.Nome,
+                    Codigo = model.Codigo,
+                    Descricao = model.Descricao,
+                    EstoqueAtual = model.EstoqueAtual,
+                    EstoqueMinimo = model.EstoqueMinimo,
+                    EstoqueMaximo = model.EstoqueMaximo,
+                    CustoUnitario = model.CustoUnitario,
+                    UnidadeMedida = model.UnidadeMedida,
+                    Status = model.Status,
+                    Categorias = model.Categoria,
              
-                FornecedorId = model.FornecedorId,
-                DataCriacao = DateTime.Now
-            };
+                    FornecedorId = model.FornecedorId,
+                    DataCriacao = DateTime.Now
+                };
 
-            _context.Estoques.Add(estoque);
-            await _context.SaveChangesAsync();
+                _context.Estoques.Add(estoque);
+                await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"Estoque criado: {estoque.Nome} (ID: {estoque.Id})");
-            return estoque;
+                _logger.LogInformation($"Estoque criado: {estoque.Nome} (ID: {estoque.Id})");
+                return estoque;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+          
         }
 
         public async Task<Estoque> AtualizarEstoqueAsync(int id, EstoqueViewModel model)

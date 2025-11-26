@@ -45,7 +45,7 @@ namespace Fynanceo.ViewModel.EstoquesModel
 
         [Display(Name = "Fornecedor")]
         public int? FornecedorId { get; set; }
-
+        public string Categoria { get; set; }
         // Para dropdowns
         public List<string> Categorias { get; set; }
         public List<Fornecedor> Fornecedores { get; set; }
@@ -138,5 +138,53 @@ namespace Fynanceo.ViewModel.EstoquesModel
         public decimal CustoUnitario { get; set; }
         public bool Conferido { get; set; }
         public string Observacao { get; set; }
+    }
+
+    public class DetailsProdutoViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "O nome do produto é obrigatório")]
+        [StringLength(100, ErrorMessage = "O nome deve ter até 100 caracteres")]
+        public string Nome { get; set; }
+
+        [StringLength(20)]
+        public string Codigo { get; set; }
+
+        [StringLength(500)]
+        public string Descricao { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "O estoque atual não pode ser negativo")]
+        public decimal EstoqueAtual { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "O estoque mínimo não pode ser negativo")]
+        public decimal EstoqueMinimo { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "O estoque máximo não pode ser negativo")]
+        public decimal EstoqueMaximo { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "O custo unitário não pode ser negativo")]
+        public decimal CustoUnitario { get; set; }
+
+        [Required]
+        public UnidadeMedida UnidadeMedida { get; set; }
+
+        [Required]
+        public StatusEstoque Status { get; set; }
+
+        [Display(Name = "Categoria")]
+        public int? CategoriaEstoqueId { get; set; }
+
+        [Display(Name = "Fornecedor")]
+        public int? FornecedorId { get; set; }
+        public string Categoria { get; set; }
+        public DateTime DataCadastro { get; set; }
+        public DateTime DataAtualizacao { get; set; }
+        public string NomeFornecedor { get; set; }
+     
     }
 }

@@ -1,0 +1,131 @@
+@model Fynanceo.ViewModel.EstoquesModel.DetailsProdutoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Produto";
+    ViewData["ActivePage"] = "estoque-produtos";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-box-open me-2"></i>Detalhes do Produto
+        </h1>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+            </a>
+
+            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Editar Produto
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Dados do Produto</h6>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Nome do Produto</label>
+                            <div class="form-control bg-light">@Model.Nome</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Código</label>
+                            <div class="form-control bg-light">@Model.Codigo</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold">Descrição</label>
+                        <textarea class="form-control bg-light" rows="2" readonly>@Model.Descricao</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Unidade de Medida</label>
+                            <div class="form-control bg-light">@Model.UnidadeMedida</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Custo Unitário (R$)</label>
+                            <div class="form-control bg-light">@Model.CustoUnitario.ToString("N2")</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Status</label>
+                            <div class="form-control bg-light">@Model.Status</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Estoque Atual</label>
+                            <div class="form-control bg-light">@Model.EstoqueAtual</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Estoque Mínimo</label>
+                            <div class="form-control bg-light">@Model.EstoqueMinimo</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="fw-bold">Estoque Máximo</label>
+                            <div class="form-control bg-light">@Model.EstoqueMaximo</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Categoria</label>
+                            <div class="form-control bg-light">@Model.Categoria</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Fornecedor</label>
+                            <div class="form-control bg-light">
+                                @Model.NomeFornecedor 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Card lateral com informações -->
+        <div class="col-lg-4">
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle me-2"></i>Informações do Produto
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Última atualização:</strong><br />@Model.DataAtualizacao</p>
+                    <p><strong>Cadastrado em:</strong><br />@Model.DataCadastro</p>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-lightbulb me-2"></i>Observações
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p>Essas informações são somente para visualização.</p>
+                    <p>Para alterar os dados utilize o botão <strong>Editar Produto</strong>.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
