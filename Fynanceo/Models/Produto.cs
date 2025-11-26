@@ -35,7 +35,7 @@ namespace Fynanceo.Models
 
         public int TempoExtraPico { get; set; } = 0;
 
-        public string OpcoesPersonalizacao { get; set; } // JSON com opções de tamanho, sabores, etc.
+        public string OpcoesPersonalizacao { get; set; } 
         
         public bool Disponivel { get; set; } = true;
 
@@ -63,9 +63,6 @@ namespace Fynanceo.Models
         public int ProdutoId { get; set; }
         public virtual Produto Produto { get; set; }
 
-        /// <summary>
-        /// foi colocado para null  no banco so para nao ficar obrigando depois tem que ajustar
-        /// </summary>
-        public Estoque Estoque { get; set; } 
+     
     }
 }

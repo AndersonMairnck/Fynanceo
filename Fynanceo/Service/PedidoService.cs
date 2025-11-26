@@ -914,6 +914,13 @@ namespace Fynanceo.Service
             return item;
         }
         
+        public async Task<bool> VerificaProdutoJaVendido(int produtoId)
+        {
+            return await _context.ItensPedido
+                .AnyAsync(i => i.ProdutoId == produtoId);
+        }
+
+        
         // NO PedidoService.cs - ADICIONAR ESTE MÉTODO
 
     public async Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
@@ -984,7 +991,8 @@ namespace Fynanceo.Service
         
 
     }
-
+    
+   
 
 
 

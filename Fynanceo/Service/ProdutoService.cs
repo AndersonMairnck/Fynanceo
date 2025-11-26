@@ -13,11 +13,13 @@ namespace Fynanceo.Service
     {
         private readonly AppDbContext _context;
         private readonly IMemoryCache _cache;
+        private readonly IPedidoService _pedidoService;
 
-        public ProdutoService(AppDbContext context, IMemoryCache memoryCache)
+        public ProdutoService(AppDbContext context, IMemoryCache memoryCache, IPedidoService pedidoService)
         {
             _context = context;
             _cache = memoryCache;
+            _pedidoService = pedidoService;
 
         }
 
@@ -71,7 +73,7 @@ namespace Fynanceo.Service
                     });
                 }
 
-                _context.Produtos.Add(produto);
+               _context.Produtos.Add(produto);
 
                 await _context.SaveChangesAsync();
                 return true;
@@ -137,12 +139,23 @@ namespace Fynanceo.Service
         {
             try
             {
-                var produto = await _context.Produtos.FindAsync(id);
-                if (produto == null) return false;
+                var temvenda = await _pedidoService.VerificaProdutoJaVendido(id);
 
-                _context.Produtos.Remove(produto);
-                await _context.SaveChangesAsync();
-                return true;
+                if (temvenda == true)
+                {
+                    return false;
+                }
+                else
+                {
+                      var produto = await _context.Produtos.FindAsync(id);
+                                    if (produto == null) return false;
+                    
+                                    _context.Produtos.Remove(produto);
+                                    await _context.SaveChangesAsync();
+                                    return true;
+                }
+                
+              
             }
             catch
             {
