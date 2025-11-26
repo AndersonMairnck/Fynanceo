@@ -82,14 +82,14 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="CustoUnitario" class="form-label"></label>
-                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control" id="custoUnitario" />
+                                    <input asp-for="CustoUnitario" type="text" step="0.01" class="form-control" id="custoUnitario" data-mask="moeda"/>
                                     <span asp-validation-for="CustoUnitario" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="ValorVenda" class="form-label"></label>
-                                    <input asp-for="ValorVenda" type="number" step="0.01" class="form-control" id="valorVenda" />
+                                    <input asp-for="ValorVenda" type="text" step="0.01" class="form-control" id="valorVenda" data-mask="moeda" />
                                     <span asp-validation-for="ValorVenda" class="text-danger"></span>
                                 </div>
                             </div>
@@ -211,94 +211,94 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Calcular margem de lucro
-            function calcularMargem() {
-                const custo = parseFloat(document.getElementById('custoUnitario').value) || 0;
-                const venda = parseFloat(document.getElementById('valorVenda').value) || 0;
-                const margem = venda - custo;
-                const percentual = custo > 0 ? ((margem / custo) * 100) : 0;
-                
-                document.getElementById('margemLucro').textContent = 
-                    margem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                document.getElementById('percentualLucro').textContent = 
-                    percentual.toFixed(2) + '%';
-                
-                // Colorir baseado no lucro
-                const margemElement = document.getElementById('margemLucro');
-                const percentualElement = document.getElementById('percentualLucro');
-                
-                if (margem > 0) {
-                    margemElement.className = 'form-control-plaintext fw-bold text-success';
-                    percentualElement.className = 'form-control-plaintext fw-bold text-success';
-                } else {
-                    margemElement.className = 'form-control-plaintext fw-bold text-danger';
-                    percentualElement.className = 'form-control-plaintext fw-bold text-danger';
-                }
-            }
-            
-            document.getElementById('custoUnitario').addEventListener('input', calcularMargem);
-            document.getElementById('valorVenda').addEventListener('input', calcularMargem);
-            
-            // Gerenciar ingredientes
-            let ingredienteIndex = @Model.Ingredientes.Count;
-            
-            document.getElementById('btn-adicionar-ingrediente').addEventListener('click', function() {
-                const container = document.getElementById('ingredientes-container');
-                const newIngrediente = document.createElement('div');
-                newIngrediente.className = 'ingrediente-item row mb-3';
-                newIngrediente.innerHTML = `
-                    <div class="col-md-4">
-                        <input name="Ingredientes[${ingredienteIndex}].Nome" class="form-control" placeholder="Nome do ingrediente" />
-                    </div>
-                    <div class="col-md-3">
-                        <input name="Ingredientes[${ingredienteIndex}].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" />
-                    </div>
-                    <div class="col-md-3">
-                        <select name="Ingredientes[${ingredienteIndex}].UnidadeMedida" class="form-select">
-                            <option value="">Selecione</option>
-                            <option value="g">Gramas (g)</option>
-                            <option value="kg">Quilogramas (kg)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                            <option value="L">Litros (L)</option>
-                            <option value="un">Unidades (un)</option>
-                            <option value="xíc">Xícaras</option>
-                            <option value="col">Colheres</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-danger btn-remover-ingrediente">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(newIngrediente);
-                ingredienteIndex++;
-                
-                // Atualizar eventos dos botões remover
-                atualizarEventosRemover();
-            });
-            
-            function atualizarEventosRemover() {
-                document.querySelectorAll('.btn-remover-ingrediente').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const ingredienteItem = this.closest('.ingrediente-item');
-                        if (document.querySelectorAll('.ingrediente-item').length > 1) {
-                            ingredienteItem.remove();
-                        }
-                    });
-                });
-            }
-            
-            atualizarEventosRemover();
-            
-            // Calcular margem inicial
-            calcularMargem();
-        });
-    </script>
-}
+<script src="/js/ProdutoFinal/produtoFinal.js"></script>
+@* @section Scripts { *@
+@*      *@
+@*      *@
+@*     <script> *@
+@*         document.addEventListener('DOMContentLoaded', function() { *@
+@*             // Calcular margem de lucro *@
+@*             function calcularMargem() { *@
+@*                 const custo = parseFloat(document.getElementById('custoUnitario').value) || 0; *@
+@*                 const venda = parseFloat(document.getElementById('valorVenda').value) || 0; *@
+@*                 const margem = venda - custo; *@
+@*                 const percentual = custo > 0 ? ((margem / custo) * 100) : 0; *@
+@*                  *@
+@*                 document.getElementById('margemLucro').textContent =  *@
+@*                     margem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); *@
+@*                 document.getElementById('percentualLucro').textContent =  *@
+@*                     percentual.toFixed(2) + '%'; *@
+@*                  *@
+@*                 // Colorir baseado no lucro *@
+@*                 const margemElement = document.getElementById('margemLucro'); *@
+@*                 const percentualElement = document.getElementById('percentualLucro'); *@
+@*                  *@
+@*                 if (margem > 0) { *@
+@*                     margemElement.className = 'form-control-plaintext fw-bold text-success'; *@
+@*                     percentualElement.className = 'form-control-plaintext fw-bold text-success'; *@
+@*                 } else { *@
+@*                     margemElement.className = 'form-control-plaintext fw-bold text-danger'; *@
+@*                     percentualElement.className = 'form-control-plaintext fw-bold text-danger'; *@
+@*                 } *@
+@*             } *@
+@*              *@
+@*             document.getElementById('custoUnitario').addEventListener('input', calcularMargem); *@
+@*             document.getElementById('valorVenda').addEventListener('input', calcularMargem); *@
+@*              *@
+@*             // Gerenciar ingredientes *@
+@*             let ingredienteIndex = @Model.Ingredientes.Count; *@
+@*              *@
+@*             document.getElementById('btn-adicionar-ingrediente').addEventListener('click', function() { *@
+@*                 const container = document.getElementById('ingredientes-container'); *@
+@*                 const newIngrediente = document.createElement('div'); *@
+@*                 newIngrediente.className = 'ingrediente-item row mb-3'; *@
+@*                 newIngrediente.innerHTML = ` *@
+@*                     <div class="col-md-4"> *@
+@*                         <input name="Ingredientes[${ingredienteIndex}].Nome" class="form-control" placeholder="Nome do ingrediente" /> *@
+@*                     </div> *@
+@*                     <div class="col-md-3"> *@
+@*                         <input name="Ingredientes[${ingredienteIndex}].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" /> *@
+@*                     </div> *@
+@*                     <div class="col-md-3"> *@
+@*                         <select name="Ingredientes[${ingredienteIndex}].UnidadeMedida" class="form-select"> *@
+@*                             <option value="">Selecione</option> *@
+@*                             <option value="g">Gramas (g)</option> *@
+@*                             <option value="kg">Quilogramas (kg)</option> *@
+@*                             <option value="ml">Mililitros (ml)</option> *@
+@*                             <option value="L">Litros (L)</option> *@
+@*                             <option value="un">Unidades (un)</option> *@
+@*                             <option value="xíc">Xícaras</option> *@
+@*                             <option value="col">Colheres</option> *@
+@*                         </select> *@
+@*                     </div> *@
+@*                     <div class="col-md-2"> *@
+@*                         <button type="button" class="btn btn-danger btn-remover-ingrediente"> *@
+@*                             <i class="fas fa-trash"></i> *@
+@*                         </button> *@
+@*                     </div> *@
+@*                 `; *@
+@*                 container.appendChild(newIngrediente); *@
+@*                 ingredienteIndex++; *@
+@*                  *@
+@*                 // Atualizar eventos dos botões remover *@
+@*                 atualizarEventosRemover(); *@
+@*             }); *@
+@*              *@
+@*             function atualizarEventosRemover() { *@
+@*                 document.querySelectorAll('.btn-remover-ingrediente').forEach(btn => { *@
+@*                     btn.addEventListener('click', function() { *@
+@*                         const ingredienteItem = this.closest('.ingrediente-item'); *@
+@*                         if (document.querySelectorAll('.ingrediente-item').length > 1) { *@
+@*                             ingredienteItem.remove(); *@
+@*                         } *@
+@*                     }); *@
+@*                 }); *@
+@*             } *@
+@*              *@
+@*             atualizarEventosRemover(); *@
+@*              *@
+@*             // Calcular margem inicial *@
+@*             calcularMargem(); *@
+@*         }); *@
+@*     </script> *@
+@* } *@

@@ -42,7 +42,26 @@ namespace Fynanceo.Controllers
         public async Task<IActionResult> Cadastrar(ProdutoViewModel model)
         {
           
-           
+            // Ignorar ingredientes vazios
+            if (model.Ingredientes != null)
+            {
+                foreach (var ing in model.Ingredientes)
+                {
+                    bool vazio =
+                        string.IsNullOrWhiteSpace(ing.Nome) &&
+                        ing.Quantidade == 0 &&
+                        string.IsNullOrWhiteSpace(ing.UnidadeMedida);
+
+                    if (vazio)
+                    {
+                        int index = model.Ingredientes.IndexOf(ing);
+
+                        ModelState.Remove($"Ingredientes[{index}].Nome");
+                        ModelState.Remove($"Ingredientes[{index}].Quantidade");
+                        ModelState.Remove($"Ingredientes[{index}].UnidadeMedida");
+                    }
+                }
+            }
 
             try { 
             if (ModelState.IsValid)
@@ -148,6 +167,26 @@ namespace Fynanceo.Controllers
             {
                 return NotFound();
             }
+            // Ignorar ingredientes vazios
+            if (model.Ingredientes != null)
+            {
+                foreach (var ing in model.Ingredientes)
+                {
+                    bool vazio =
+                        string.IsNullOrWhiteSpace(ing.Nome) &&
+                        ing.Quantidade == 0 &&
+                        string.IsNullOrWhiteSpace(ing.UnidadeMedida);
+
+                    if (vazio)
+                    {
+                        int index = model.Ingredientes.IndexOf(ing);
+
+                        ModelState.Remove($"Ingredientes[{index}].Nome");
+                        ModelState.Remove($"Ingredientes[{index}].Quantidade");
+                        ModelState.Remove($"Ingredientes[{index}].UnidadeMedida");
+                    }
+                }
+            }
 
             if (ModelState.IsValid)
             {
@@ -181,7 +220,7 @@ namespace Fynanceo.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+     //   [ValidateAntiForgeryToken]
         public async Task<IActionResult> Excluir(int id)
         {
             var resultado = await _produtoService.ExcluirAsync(id);

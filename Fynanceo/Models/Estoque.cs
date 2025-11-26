@@ -43,9 +43,7 @@ namespace Fynanceo.Models
         
         public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
 
-        // Relacionamentos
-        // public int? CategoriaEstoqueId { get; set; }
-        // public CategoriaEstoque CategoriaEstoque { get; set; }
+     
         public string Categorias { get; set; }
 
         public int? FornecedorId { get; set; }

@@ -23,6 +23,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
         [Display(Name = "Categoria")]
         public string Categoria { get; set; }
 
+        [Required(ErrorMessage = "Subcategoria é obrigatória")]
         [Display(Name = "Subcategoria")]
         public string Subcategoria { get; set; }
 
@@ -50,6 +51,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
         [Display(Name = "Tempo Extra para Pico (minutos)")]
         public int TempoExtraPico { get; set; } = 0;
 
+        [Required(ErrorMessage = "Senao tiver Personalizações coloque informações que não possui")]
         [Display(Name = "Opções de Personalização")]
         public string OpcoesPersonalizacao { get; set; }
 
@@ -61,7 +63,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
 
         
 
-
+        public List<string>? Categorias { get; set; }
 
         // Lista de ingredientes para a view
         public List<IngredienteViewModel>? Ingredientes { get; set; } = new List<IngredienteViewModel>();
