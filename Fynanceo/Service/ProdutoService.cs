@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text;
+using Fynanceo.Models.Enums;
 
 namespace Fynanceo.Service
 {
@@ -64,11 +65,16 @@ namespace Fynanceo.Service
                 // Adicionar ingredientes
                 foreach (var ingredienteModel in model.Ingredientes.Where(i => !string.IsNullOrEmpty(i.Nome)))
                 {
-                    produto.Ingredientes.Add(new IngredienteProduto
+                    produto.Ingredientes.Add(new ProdutoIngrediente
                     {
-                        Nome = ingredienteModel.Nome,
+                       EstoqueId = ingredienteModel.IdEstoque,
                         Quantidade = ingredienteModel.Quantidade,
-                        UnidadeMedida = ingredienteModel.UnidadeMedida
+                       UnidadeMedida = ingredienteModel.UnidadeMedida,
+                         ProdutoId = ingredienteModel.Id,
+                          
+                        
+                         Observacao= ingredienteModel.Observacao,
+                       
 
                     });
                 }
@@ -114,15 +120,15 @@ namespace Fynanceo.Service
                 //produto.Aliquota = model.Aliquota;
 
                 // Atualizar ingredientes
-                _context.IngredientesProdutos.RemoveRange(produto.Ingredientes);
+                _context.ProdutoIngredientes.RemoveRange(produto.Ingredientes);
 
                 foreach (var ingredienteModel in model.Ingredientes.Where(i => !string.IsNullOrEmpty(i.Nome)))
                 {
-                    produto.Ingredientes.Add(new IngredienteProduto
+                    produto.Ingredientes.Add(new ProdutoIngrediente()
                     {
-                        Nome = ingredienteModel.Nome,
+                      //  Nome = ingredienteModel.Nome,
                         Quantidade = ingredienteModel.Quantidade,
-                        UnidadeMedida = ingredienteModel.UnidadeMedida
+                     //   UnidadeMedida = ingredienteModel.UnidadeMedida
                     });
                 }
 

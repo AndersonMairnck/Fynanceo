@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     /// <inheritdoc />
-    public partial class inicio : Migration
+    public partial class inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -143,13 +143,12 @@ namespace Fynanceo.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Documento = table.Column<string>(type: "character varying(14)", maxLength: 14, nullable: true),
+                    CpfCnpj = table.Column<string>(type: "character varying(18)", maxLength: 18, nullable: true),
                     Telefone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Endereco = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     Contato = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Observacoes = table.Column<string>(type: "text", nullable: true),
-                    Ativo = table.Column<bool>(type: "boolean", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false)
@@ -361,35 +360,6 @@ namespace Fynanceo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IngredientesProdutos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Nome = table.Column<string>(type: "text", nullable: false),
-                    Quantidade = table.Column<decimal>(type: "numeric", nullable: false),
-                    UnidadeMedida = table.Column<string>(type: "text", nullable: true),
-                    ProdutoId = table.Column<int>(type: "integer", nullable: false),
-                    EstoqueId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IngredientesProdutos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_IngredientesProdutos_Estoques_EstoqueId",
-                        column: x => x.EstoqueId,
-                        principalTable: "Estoques",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_IngredientesProdutos_Produtos_ProdutoId",
-                        column: x => x.ProdutoId,
-                        principalTable: "Produtos",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ItensInventario",
                 columns: table => new
                 {
@@ -429,7 +399,7 @@ namespace Fynanceo.Migrations
                     ProdutoId = table.Column<int>(type: "integer", nullable: false),
                     EstoqueId = table.Column<int>(type: "integer", nullable: false),
                     Quantidade = table.Column<decimal>(type: "numeric", nullable: false),
-                    UnidadeMedida = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    UnidadeMedida = table.Column<int>(type: "integer", maxLength: 50, nullable: false),
                     Observacao = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -745,7 +715,7 @@ namespace Fynanceo.Migrations
             migrationBuilder.InsertData(
                 table: "CozinhaConfigs",
                 columns: new[] { "Id", "DataAtualizacao", "IntervaloAtualizacaoSegundos", "TempoAlertaPreparoMinutos", "TempoAlertaProntoMinutos", "UsuarioAtualizacao" },
-                values: new object[] { 1, new DateTime(2025, 11, 24, 22, 19, 37, 589, DateTimeKind.Utc).AddTicks(6338), 30, 30, 10, null });
+                values: new object[] { 1, new DateTime(2025, 12, 1, 22, 52, 49, 413, DateTimeKind.Utc).AddTicks(8998), 30, 30, 10, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clientes_CpfCnpj",
@@ -808,16 +778,6 @@ namespace Fynanceo.Migrations
                 name: "IX_HistoricoPedido_PedidoId",
                 table: "HistoricoPedido",
                 column: "PedidoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IngredientesProdutos_EstoqueId",
-                table: "IngredientesProdutos",
-                column: "EstoqueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IngredientesProdutos_ProdutoId",
-                table: "IngredientesProdutos",
-                column: "ProdutoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItensInventario_EstoqueId",
@@ -936,9 +896,6 @@ namespace Fynanceo.Migrations
 
             migrationBuilder.DropTable(
                 name: "HistoricoPedido");
-
-            migrationBuilder.DropTable(
-                name: "IngredientesProdutos");
 
             migrationBuilder.DropTable(
                 name: "ItensInventario");

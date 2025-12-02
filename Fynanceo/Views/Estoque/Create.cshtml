@@ -60,20 +60,20 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label asp-for="UnidadeMedida" class="form-label">Unidade de Medida *</label>
-                                    <select asp-for="UnidadeMedida" class="form-select" required>
-                                        <option value="">Selecione...</option>
-                                        <option value="0">Unidade</option>
-                                        <option value="1">Quilograma (Kg)</option>
-                                        <option value="2">Grama (g)</option>
-                                        <option value="3">Litro (L)</option>
-                                        <option value="4">Mililitro (ml)</option>
-                                        <option value="5">Metro (m)</option>
-                                        <option value="6">Centímetro (cm)</option>
-                                        <option value="7">Pacote</option>
-                                        <option value="8">Caixa</option>
+                                    <label asp-for="StatusUnidadeMedida" class="form-label">Unidade de Medida *</label>
+                                    <select asp-for="StatusUnidadeMedida" class="form-select" required>
+                                      
+                                        <option value="1">Unidade</option>
+                                        <option value="2">Quilograma (Kg)</option>
+                                        <option value="3">Grama (g)</option>
+                                        <option value="4">Litro (L)</option>
+                                        <option value="5">Mililitro (ml)</option>
+                                        <option value="6">Metro (m)</option>
+                                        <option value="7">Centímetro (cm)</option>
+                                        <option value="8">Pacote</option>
+                                        <option value="9">Caixa</option>
                                     </select>
-                                    <span asp-validation-for="UnidadeMedida" class="text-danger"></span>
+                                    <span asp-validation-for="StatusUnidadeMedida" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -88,9 +88,9 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="Status" class="form-label">Status *</label>
                                     <select asp-for="Status" class="form-select" required>
-                                        <option >Ativo</option>
-                                        <option >Inativo</option>
-                                        <option >Bloqueado</option>
+                                        <option value="Ativo">Ativo</option>
+                                        <option value="Inativo">Inativo</option>
+                                        <option value="Bloqueado">Bloqueado</option>
                                     </select>
                                     <span asp-validation-for="Status" class="text-danger"></span>
                                 </div>
@@ -270,7 +270,7 @@
             // Validação do formulário
             $('#produtoForm').on('submit', function(e) {
                 const nome = $('#Nome').val().trim();
-                const unidade = $('#UnidadeMedida').val();
+                const unidade = $('#StatusUnidadeMedida').val();
                 const custo = parseFloat($('#CustoUnitario').val());
                 const estoqueAtual = parseFloat($('#EstoqueAtual').val());
                 const estoqueMinimo = parseFloat($('#EstoqueMinimo').val());
@@ -287,7 +287,7 @@
                 if (!unidade) {
                     e.preventDefault();
                     mostrarAlerta('Selecione a unidade de medida!', 'warning');
-                    $('#UnidadeMedida').focus();
+                    $('#StatusUnidadeMedida').focus();
                     return false;
                 }
 
@@ -336,7 +336,7 @@
             function mostrarAlerta(mensagem, tipo) {
                 const alertContainer = $('#alertContainer');
                 alertContainer.html(`
-                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
                         <i class="fas fa-exclamation-triangle me-2"></i>${mensagem}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>

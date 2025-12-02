@@ -7,6 +7,7 @@ using Fynanceo.Service.Interface;
 using Fynanceo.Models.Enums;
 
 
+
 namespace Fynanceo.Service
 {
     public class EstoqueService : IEstoqueService
@@ -64,7 +65,9 @@ namespace Fynanceo.Service
                     EstoqueMinimo = model.EstoqueMinimo,
                     EstoqueMaximo = model.EstoqueMaximo,
                     CustoUnitario = model.CustoUnitario,
-                    UnidadeMedida = model.UnidadeMedida,
+                    UnidadeMedida = model.StatusUnidadeMedida,
+               
+
                     Status = model.Status,
                     Categorias = model.Categoria,
              
@@ -99,7 +102,7 @@ namespace Fynanceo.Service
             estoque.EstoqueMinimo = model.EstoqueMinimo;
             estoque.EstoqueMaximo = model.EstoqueMaximo;
             estoque.CustoUnitario = model.CustoUnitario;
-            estoque.UnidadeMedida = model.UnidadeMedida;
+            estoque.UnidadeMedida = model.StatusUnidadeMedida;
             estoque.Status = model.Status;
          
             estoque.FornecedorId = model.FornecedorId;

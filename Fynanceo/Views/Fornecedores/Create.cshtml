@@ -1,5 +1,6 @@
 ﻿<!-- Views/Fornecedores/Create.cshtml -->
 @model Fynanceo.ViewModel.FornecedorModel.FornecerdorViewModel
+@using Fynanceo.Models.Enums
 
 @{
     ViewData["Title"] = "Novo Fornecedor";
@@ -70,15 +71,15 @@
                                 <span asp-validation-for="Contato" class="text-danger"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label asp-for="Status" class="form-label">Status</label>
-                                <div class="form-check form-switch mt-2">
-                                    <input asp-for="Status" class="form-check-input" checked>
-                                    <label asp-for="Status" class="form-check-label">Fornecedor ativo</label>
-                                </div>
-                            </div>
-                        </div>
+                        @* <div class="col-md-6"> *@
+                        @*     <div class="mb-3"> *@
+                        @*         <label asp-for="Status" class="form-label">Status</label> *@
+                        @*         <div class="form-check form-switch mt-2"> *@
+                        @*             <input asp-for=Status. class="form-check-input" checked> *@
+                        @*             <label asp-for="Status" class="form-check-label">Fornecedor ativo</label> *@
+                        @*         </div> *@
+                        @*     </div> *@
+                        @* </div> *@
                     </div>
 
                     <div class="mb-3">

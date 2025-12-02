@@ -284,7 +284,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 11, 26, 0, 33, 4, 959, DateTimeKind.Utc).AddTicks(1659),
+                            DataAtualizacao = new DateTime(2025, 12, 1, 22, 52, 49, 413, DateTimeKind.Utc).AddTicks(8998),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -762,39 +762,6 @@ namespace Fynanceo.Migrations
                     b.HasIndex("PedidoId");
 
                     b.ToTable("HistoricoPedido");
-                });
-
-            modelBuilder.Entity("Fynanceo.Models.IngredienteProduto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EstoqueId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProdutoId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Quantidade")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("UnidadeMedida")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EstoqueId");
-
-                    b.HasIndex("ProdutoId");
-
-                    b.ToTable("IngredientesProdutos");
                 });
 
             modelBuilder.Entity("Fynanceo.Models.Inventario", b =>
@@ -1291,10 +1258,9 @@ namespace Fynanceo.Migrations
                     b.Property<decimal>("Quantidade")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("UnidadeMedida")
-                        .IsRequired()
+                    b.Property<int>("UnidadeMedida")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -1390,25 +1356,6 @@ namespace Fynanceo.Migrations
                         .IsRequired();
 
                     b.Navigation("Pedido");
-                });
-
-            modelBuilder.Entity("Fynanceo.Models.IngredienteProduto", b =>
-                {
-                    b.HasOne("Fynanceo.Models.Estoque", "Estoque")
-                        .WithMany()
-                        .HasForeignKey("EstoqueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Fynanceo.Models.Produto", "Produto")
-                        .WithMany("Ingredientes")
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Estoque");
-
-                    b.Navigation("Produto");
                 });
 
             modelBuilder.Entity("Fynanceo.Models.ItemInventario", b =>
@@ -1550,7 +1497,7 @@ namespace Fynanceo.Migrations
                         .IsRequired();
 
                     b.HasOne("Fynanceo.Models.Produto", "Produto")
-                        .WithMany()
+                        .WithMany("Ingredientes")
                         .HasForeignKey("ProdutoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
