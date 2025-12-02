@@ -2,26 +2,27 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Fynanceo.Models.Enums;
 // Enums para Estoque
-public enum UnidadeMedida
+public enum StatusUnidadeMedida
 {
     [Display(Name = "Unidade")]
-    Unidade,
+    Unidade = 1,
     [Display(Name = "Quilograma")]
-    Kg,
+    Kg = 2,
     [Display(Name = "Grama")]
-    g,
+    g = 3,
     [Display(Name = "Litro")]
-    Litro,
+    Litro = 4,
     [Display(Name = "Mililitro")]
-    ml,
+    ml =5,
     [Display(Name = "Metro")]
-    Metro,
+    Metro = 6,
     [Display(Name = "Centímetro")]
-    cm,
+    cm =7,
     [Display(Name = "Pacote")]
-    Pacote,
+    Pacote = 8,
     [Display(Name = "Caixa")]
-    Caixa
+    Caixa = 9
+
 }
 
 public enum TipoMovimentacaoEstoque

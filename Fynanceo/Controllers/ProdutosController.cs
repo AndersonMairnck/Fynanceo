@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fynanceo.Models.Enums;
+using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ProdutosModel;
 
@@ -7,10 +8,12 @@ namespace Fynanceo.Controllers
     public class ProdutosController : Controller
     {
         private readonly IProdutoService _produtoService;
+        private readonly IEstoqueService _estoqueService;
 
-        public ProdutosController(IProdutoService produtoService)
+        public ProdutosController(IProdutoService produtoService, IEstoqueService estoqueService)
         {
             _produtoService = produtoService;
+            _estoqueService = estoqueService;
         }
 
         public async Task<IActionResult> Index()
@@ -29,12 +32,21 @@ namespace Fynanceo.Controllers
             return View(produto);
         }
 
-        public IActionResult Cadastrar()
+        public async Task<IActionResult> Cadastrar()
         {
-            var model = new ProdutoViewModel();
-            // Adicionar um ingrediente vazio para o template
-            model.Ingredientes.Add(new IngredienteViewModel());
-            return View(model);
+            return View(new ProdutoViewModel
+            {
+                Ingredientes = (await _estoqueService.ObterTodosEstoquesAsync())
+                    .Select(e => new MateriaisProdutoViewModel
+                    {
+                        IdEstoque = e.Id,
+                        Nome = e.Nome,
+                        Quantidade = 0,
+                        UnidadeMedida =  e.UnidadeMedida,
+                        Codigo = e.Codigo,
+                    }).ToList()
+            });
+
         }
 
         [HttpPost]
@@ -49,9 +61,8 @@ namespace Fynanceo.Controllers
                 {
                     bool vazio =
                         string.IsNullOrWhiteSpace(ing.Nome) &&
-                        ing.Quantidade == 0 &&
-                        string.IsNullOrWhiteSpace(ing.UnidadeMedida);
-
+                        ing.Quantidade == 0;
+                  
                     if (vazio)
                     {
                         int index = model.Ingredientes.IndexOf(ing);
@@ -104,7 +115,7 @@ namespace Fynanceo.Controllers
 
                 // Garantir que há pelo menos um ingrediente para o template
                 if (model.Ingredientes.Count == 0)
-                model.Ingredientes.Add(new IngredienteViewModel());
+                model.Ingredientes.Add(new MateriaisProdutoViewModel());
 
             return View(model);
                 }
@@ -137,24 +148,25 @@ namespace Fynanceo.Controllers
                 TempoExtraPico = produto.TempoExtraPico,
                 OpcoesPersonalizacao = produto.OpcoesPersonalizacao,
                 Disponivel = produto.Disponivel,
+                
               
             };
 
             // Converter ingredientes para ViewModel
             foreach (var ingrediente in produto.Ingredientes)
             {
-                model.Ingredientes.Add(new IngredienteViewModel
+                model.Ingredientes.Add(new MateriaisProdutoViewModel
                 {
-                    Id = ingrediente.Id,
-                    Nome = ingrediente.Nome,
+                    IdEstoque = ingrediente.Id,
+                  //  Nome = ingrediente.Nome,
                     Quantidade = ingrediente.Quantidade,
-                    UnidadeMedida = ingrediente.UnidadeMedida
+                //    UnidadeMedida = ingrediente.UnidadeMedida
                 });
             }
 
             // Garantir que há pelo menos um ingrediente para o template
             if (model.Ingredientes.Count == 0)
-                model.Ingredientes.Add(new IngredienteViewModel());
+                model.Ingredientes.Add(new MateriaisProdutoViewModel());
 
             return View(model);
         }
@@ -174,8 +186,9 @@ namespace Fynanceo.Controllers
                 {
                     bool vazio =
                         string.IsNullOrWhiteSpace(ing.Nome) &&
-                        ing.Quantidade == 0 &&
-                        string.IsNullOrWhiteSpace(ing.UnidadeMedida);
+                        ing.Quantidade == 0;
+                        //&&
+                      //  string.IsNullOrWhiteSpace(ing.UnidadeMedida);
 
                     if (vazio)
                     {
@@ -214,7 +227,7 @@ namespace Fynanceo.Controllers
 
             // Garantir que há pelo menos um ingrediente para o template
             if (model.Ingredientes.Count == 0)
-                model.Ingredientes.Add(new IngredienteViewModel());
+                model.Ingredientes.Add(new MateriaisProdutoViewModel());
 
             return View(model);
         }
@@ -238,7 +251,7 @@ namespace Fynanceo.Controllers
         [HttpPost]
         public IActionResult AdicionarIngrediente([FromBody] ProdutoViewModel model)
         {
-            model.Ingredientes.Add(new IngredienteViewModel());
+            model.Ingredientes.Add(new MateriaisProdutoViewModel());
             return PartialView("_IngredientesPartial", model);
         }
     }

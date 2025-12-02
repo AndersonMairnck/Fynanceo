@@ -13,7 +13,7 @@ namespace Fynanceo.Data
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<EnderecoCliente> EnderecosClientes { get; set; }
         public DbSet<Produto> Produtos { get; set; }
-        public DbSet<IngredienteProduto> IngredientesProdutos { get; set; }
+     //   public DbSet<IngredienteProduto> IngredientesProdutos { get; set; }
         public DbSet<Mesa> Mesas { get; set; }
         public DbSet<Funcionario> Funcionarios { get; set; }
         public DbSet<Pedido> Pedidos { get; set; }

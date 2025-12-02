@@ -35,7 +35,7 @@ namespace Fynanceo.ViewModel.EstoquesModel
         public decimal CustoUnitario { get; set; }
 
         [Required]
-        public UnidadeMedida UnidadeMedida { get; set; }
+        public StatusUnidadeMedida StatusUnidadeMedida { get; set; }
 
         [Required]
         public StatusEstoque Status { get; set; }
@@ -171,7 +171,7 @@ namespace Fynanceo.ViewModel.EstoquesModel
         public decimal CustoUnitario { get; set; }
 
         [Required]
-        public UnidadeMedida UnidadeMedida { get; set; }
+        public StatusUnidadeMedida StatusUnidadeMedida { get; set; }
 
         [Required]
         public StatusEstoque Status { get; set; }

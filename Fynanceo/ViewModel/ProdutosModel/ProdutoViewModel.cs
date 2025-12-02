@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Fynanceo.Models.Enums;
+using Fynanceo.Models;
 
 namespace Fynanceo.ViewModel.ProdutosModel
 {
@@ -66,12 +68,12 @@ namespace Fynanceo.ViewModel.ProdutosModel
         public List<string>? Categorias { get; set; }
 
         // Lista de ingredientes para a view
-        public List<IngredienteViewModel>? Ingredientes { get; set; } = new List<IngredienteViewModel>();
+        public List<MateriaisProdutoViewModel>? Ingredientes { get; set; } = new List<MateriaisProdutoViewModel>();
     }
 
-    public class IngredienteViewModel
+    public class MateriaisProdutoViewModel
     {
-        public int Id { get; set; }
+        public int IdEstoque { get; set; }
 
        // [Required(ErrorMessage = "Nome do ingrediente é obrigatório")]
         [Display(Name = "Nome do Ingrediente")]
@@ -84,6 +86,24 @@ namespace Fynanceo.ViewModel.ProdutosModel
 
       //  [Required(ErrorMessage = "Unidade de medida é obrigatória")]
         [Display(Name = "Unidade de Medida")]
-        public string UnidadeMedida { get; set; }
+        public StatusUnidadeMedida UnidadeMedida { get; set; }
+        
+        [StringLength(20)]
+        public string Codigo { get; set; }
+        
+        [Key]
+        public int Id { get; set; }
+        
+       // public Produto Produto { get; set; }
+
+    
+
+        
+
+
+        [StringLength(200)]
+        public string? Observacao { get; set; }
+
+    
     }
 }

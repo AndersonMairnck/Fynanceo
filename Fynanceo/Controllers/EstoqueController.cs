@@ -7,6 +7,7 @@ using Fynanceo.ViewModel.EstoquesModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace Fynanceo.Controllers
 {
     public class EstoqueController : Controller
@@ -159,7 +160,7 @@ namespace Fynanceo.Controllers
                 EstoqueMinimo = estoque.EstoqueMinimo,
                 EstoqueMaximo = estoque.EstoqueMaximo,
                 CustoUnitario = estoque.CustoUnitario,
-                UnidadeMedida = estoque.UnidadeMedida,
+                StatusUnidadeMedida = estoque.UnidadeMedida,
                 Status = estoque.Status,
                // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
                 FornecedorId = estoque.FornecedorId,

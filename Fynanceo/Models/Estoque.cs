@@ -38,7 +38,7 @@ namespace Fynanceo.Models
         public decimal CustoUnitario { get; set; }
 
         [Required]
-        public UnidadeMedida UnidadeMedida { get; set; }
+        public StatusUnidadeMedida UnidadeMedida { get; set; }
 
         
         public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
@@ -199,10 +199,10 @@ namespace Fynanceo.Models
         public decimal Quantidade { get; set; }
 
         [StringLength(50)]
-        public string UnidadeMedida { get; set; }
+        public StatusUnidadeMedida UnidadeMedida { get; set; }
 
         [StringLength(200)]
-        public string Observacao { get; set; }
+        public string? Observacao { get; set; }
     }
 
    
