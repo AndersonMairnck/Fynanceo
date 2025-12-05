@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            @if (Model.Ingredientes.Any())
+            @if (Model.ProdutoIngredientes.Any())
             {
                 <div class="card shadow-sm">
                     <div class="card-header bg-white">
@@ -115,16 +115,16 @@
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Ingrediente</th>
+                                        <th>Materiais</th>
                                         <th>Quantidade</th>
                                         <th>Unidade</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var ingrediente in Model.Ingredientes)
+                                    @foreach (var ingrediente in Model.ProdutoIngredientes)
                                     {
                                         <tr>
-                                       
+                                       <td> @ingrediente.Estoque.Nome</td>
                                             <td>@ingrediente.Quantidade</td>
                                             <td>@ingrediente.UnidadeMedida</td>
                                         </tr>
@@ -154,14 +154,6 @@
                         </p>
                     </div>
 
-                    @* @if (!string.IsNullOrEmpty(Model.MotivoIndisponibilidade))
-                    {
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Motivo da Indisponibilidade</label>
-                            <p class="form-control-plaintext">@Model.MotivoIndisponibilidade</p>
-                        </div>
-                    } *@
-
                     <div class="mb-3">
                         <label class="form-label fw-bold">Data de Cadastro</label>
                         <p class="form-control-plaintext">@Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")</p>
@@ -183,39 +175,7 @@
                 </div>
             }
 
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-receipt me-2 text-success"></i>Informações Fiscais
-                    </h5>
-                </div>
-                @* <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Código NCM</label>
-                        <p class="form-control-plaintext">@(Model.CodigoNCM ?? "Não informado")</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Origem</label>
-                                <p class="form-control-plaintext">@(Model.Origem ?? "Não informada")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">CST</label>
-                                <p class="form-control-plaintext">@(Model.CST ?? "Não informado")</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Alíquota</label>
-                        <p class="form-control-plaintext">@(Model.Aliquota.ToString("F2") + "%")</p>
-                    </div>
-                </div> *@
-            </div>
+         
         </div>
     </div>
 </div>

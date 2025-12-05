@@ -82,7 +82,7 @@ namespace Fynanceo.Data
 
             // Configurações para Produto
             modelBuilder.Entity<Produto>()
-                .HasMany(p => p.Ingredientes)
+                .HasMany(p => p.ProdutoIngredientes)
                 .WithOne(i => i.Produto)
                 .HasForeignKey(i => i.ProdutoId)
                 .OnDelete(DeleteBehavior.Cascade);

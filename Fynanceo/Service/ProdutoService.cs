@@ -27,7 +27,7 @@ namespace Fynanceo.Service
         public async Task<List<Produto>> ObterTodosAsync()
         {
             return await _context.Produtos
-                .Include(p => p.Ingredientes)
+                .Include(p => p.ProdutoIngredientes)
                 .OrderBy(p => p.Categoria)
                 .ThenBy(p => p.Nome)
                 .ToListAsync();
@@ -36,7 +36,9 @@ namespace Fynanceo.Service
         public async Task<Produto> ObterPorIdAsync(int id)
         {
             return await _context.Produtos
-                .Include(p => p.Ingredientes)
+                .Include(p => p.ProdutoIngredientes)
+                .ThenInclude(i => i.Estoque)
+              
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -65,7 +67,7 @@ namespace Fynanceo.Service
                 // Adicionar ingredientes
                 foreach (var ingredienteModel in model.Ingredientes.Where(i => !string.IsNullOrEmpty(i.Nome)))
                 {
-                    produto.Ingredientes.Add(new ProdutoIngrediente
+                    produto.ProdutoIngredientes.Add(new ProdutoIngrediente
                     {
                        EstoqueId = ingredienteModel.IdEstoque,
                         Quantidade = ingredienteModel.Quantidade,
@@ -86,7 +88,7 @@ namespace Fynanceo.Service
             }
             catch (Exception ex)
             {
-                // Log do erro
+                
                 return false;
             }
         }
@@ -96,7 +98,7 @@ namespace Fynanceo.Service
             try
             {
                 var produto = await _context.Produtos
-                    .Include(p => p.Ingredientes)
+                    .Include(p => p.ProdutoIngredientes)
                     .FirstOrDefaultAsync(p => p.Id == id);
 
                 if (produto == null) return false;
@@ -113,22 +115,21 @@ namespace Fynanceo.Service
                 produto.TempoExtraPico = model.TempoExtraPico;
                 produto.OpcoesPersonalizacao = model.OpcoesPersonalizacao;
                 produto.Disponivel = model.Disponivel;
-                //produto.MotivoIndisponibilidade = model.MotivoIndisponibilidade;
-                //produto.CodigoNCM = model.CodigoNCM;
-                //produto.Origem = model.Origem;
-                //produto.CST = model.CST;
-                //produto.Aliquota = model.Aliquota;
+          
 
                 // Atualizar ingredientes
-                _context.ProdutoIngredientes.RemoveRange(produto.Ingredientes);
+                _context.ProdutoIngredientes.RemoveRange(produto.ProdutoIngredientes);
 
                 foreach (var ingredienteModel in model.Ingredientes.Where(i => !string.IsNullOrEmpty(i.Nome)))
                 {
-                    produto.Ingredientes.Add(new ProdutoIngrediente()
+                    produto.ProdutoIngredientes.Add(new ProdutoIngrediente()
                     {
-                      //  Nome = ingredienteModel.Nome,
+                        EstoqueId = ingredienteModel.IdEstoque,
                         Quantidade = ingredienteModel.Quantidade,
-                     //   UnidadeMedida = ingredienteModel.UnidadeMedida
+                        UnidadeMedida = ingredienteModel.UnidadeMedida,
+                        ProdutoId = ingredienteModel.Id,
+                        Observacao= ingredienteModel.Observacao,
+                        
                     });
                 }
 

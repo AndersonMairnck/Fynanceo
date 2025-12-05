@@ -43,26 +43,8 @@ namespace Fynanceo.Models
         public DateTime DataCadastro { get; set; } = DateTime.Now;
 
         // Navegação
-        public virtual ICollection<ProdutoIngrediente>? Ingredientes { get; set; } = new List<ProdutoIngrediente>();
+        public virtual ICollection<ProdutoIngrediente>? ProdutoIngredientes { get; set; } = new List<ProdutoIngrediente>();
     }
 
-    // public class IngredienteProduto
-    // {
-    //     [Key]
-    //     public int Id { get; set; }
-    //
-    //    
-    //     public string Nome { get; set; }
-    //
-    //     [Range(0.001, double.MaxValue)]
-    //     public decimal Quantidade { get; set; }
-    //
-    //
-    //     public string? UnidadeMedida { get; set; } // g, kg, ml, L, un
-    //
-    //     public int ProdutoId { get; set; }
-    //     public virtual Produto Produto { get; set; }
-    //
-    //  
-    // }
+    
 }
