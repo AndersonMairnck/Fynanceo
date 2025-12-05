@@ -9,6 +9,7 @@ namespace Fynanceo.Controllers
     {
         private readonly IProdutoService _produtoService;
         private readonly IEstoqueService _estoqueService;
+        private object _logger;
 
         public ProdutosController(IProdutoService produtoService, IEstoqueService estoqueService)
         {
@@ -42,7 +43,8 @@ namespace Fynanceo.Controllers
                         IdEstoque = e.Id,
                         Nome = e.Nome,
                         Quantidade = 0,
-                        UnidadeMedida =  e.UnidadeMedida,
+                        UnidadeMedida = (StatusUnidadeMedida)e.UnidadeMedida,
+                     
                         Codigo = e.Codigo,
                     }).ToList()
             });
@@ -153,14 +155,15 @@ namespace Fynanceo.Controllers
             };
 
             // Converter ingredientes para ViewModel
-            foreach (var ingrediente in produto.Ingredientes)
+            foreach (var ingrediente in produto.ProdutoIngredientes)
             {
                 model.Ingredientes.Add(new MateriaisProdutoViewModel
                 {
-                    IdEstoque = ingrediente.Id,
-                  //  Nome = ingrediente.Nome,
+                    IdEstoque = ingrediente.EstoqueId,
+                    Nome = ingrediente.Estoque.Nome,
                     Quantidade = ingrediente.Quantidade,
-                //    UnidadeMedida = ingrediente.UnidadeMedida
+                   UnidadeMedida = ingrediente.UnidadeMedida,
+                   Observacao = ingrediente.Observacao
                 });
             }
 
@@ -169,6 +172,64 @@ namespace Fynanceo.Controllers
                 model.Ingredientes.Add(new MateriaisProdutoViewModel());
 
             return View(model);
+        }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetMateriaisEstoque(int page = 1, int pageSize = 20, string search = "", string categoria = "")
+        {
+            try
+            {
+                var estoques = (await _estoqueService.ObterTodosEstoquesAsync()).ToList();
+        
+                // Aplicar filtro de busca
+                if (!string.IsNullOrEmpty(search))
+                {
+                    estoques = estoques.Where(e => 
+                            (e.Nome?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (e.Codigo?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false))
+                        .ToList();
+                }
+        
+                // Aplicar filtro de categoria
+                if (!string.IsNullOrEmpty(categoria))
+                {
+                    estoques = estoques.Where(e => 
+                            (e.Categorias?.Contains(categoria, StringComparison.OrdinalIgnoreCase) ?? false))
+                        .ToList();
+                }
+        
+                // Ordenar por nome
+                estoques = estoques.OrderBy(e => e.Nome).ToList();
+        
+                // Paginação
+                var totalCount = estoques.Count;
+                var materiais = estoques
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(e => new
+                    {
+                        id = e.Id,
+                        nome = e.Nome,
+                        codigo = e.Codigo,
+                        unidadeMedida = e.UnidadeMedida.ToString(),
+                        quantidadeDisponivel = e.EstoqueAtual,
+                        categoria = e.Categorias
+                    })
+                    .ToList();
+        
+                return Json(new
+                {
+                    materiais,
+                    totalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                    currentPage = page,
+                    totalCount
+                });
+            }
+            catch (Exception ex)
+            {
+               //_logger.LogError(ex, "Erro ao carregar materiais do estoque");
+                return StatusCode(500, new { error = "Erro ao carregar materiais do estoque" });
+            }
         }
 
         [HttpPost]

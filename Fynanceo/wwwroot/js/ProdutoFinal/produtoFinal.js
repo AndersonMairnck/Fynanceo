@@ -25,65 +25,7 @@ function calcularMargem() {
         percentualElement.className = 'form-control-plaintext fw-bold text-danger';
     }
 }
-// ===============================
-// INGREDIENTES – ADD & REMOVE
-// ===============================
-let ingredienteIndex = document.querySelectorAll('.ingrediente-item').length;
 
-function atualizarEventosRemover() {
-    document.querySelectorAll('.btn-remover-ingrediente').forEach(btn => {
-        btn.onclick = function () {
-            const item = this.closest('.ingrediente-item');
-            if (document.querySelectorAll('.ingrediente-item').length > 1) {
-                item.remove();
-            }
-        };
-    });
-}
-
-document.getElementById('btn-adicionar-ingrediente').addEventListener('click', function () {
-    const container = document.getElementById('ingredientes-container');
-
-    const div = document.createElement('div');
-    div.className = 'ingrediente-item row mb-3';
-    div.innerHTML = `
-        <div class="col-md-4">
-            <input name="Ingredientes[${ingredienteIndex}].Nome" 
-                   class="form-control" 
-                   placeholder="Nome do Material ou Produto" 
-                   />
-        </div>
-        <div class="col-md-3">
-            <input name="Ingredientes[${ingredienteIndex}].Quantidade" 
-                   type="number" step="0.001" 
-                   class="form-control" 
-                   placeholder="Quantidade" />
-        </div>
-        <div class="col-md-3">
-            <select name="Ingredientes[${ingredienteIndex}].UnidadeMedida" class="form-select">
-                <option value="">Selecione</option>
-                <option value="g">Gramas (g)</option>
-                <option value="kg">Quilogramas (kg)</option>
-                <option value="ml">Mililitros (ml)</option>
-                <option value="L">Litros (L)</option>
-                <option value="un">Unidades (un)</option>
-                <option value="xíc">Xícaras</option>
-                <option value="col">Colheres</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="button" class="btn btn-danger btn-remover-ingrediente">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `;
-
-    container.appendChild(div);
-    ingredienteIndex++;
-
-    atualizarEventosRemover();
-    // aplicarMaiuscula();
-});
 
 
 

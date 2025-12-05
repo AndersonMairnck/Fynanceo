@@ -1,14 +1,14 @@
-﻿@using Fynanceo.ViewModel
-@using Fynanceo.ViewModel.ProdutosModel
+﻿@using Fynanceo.ViewModel.ProdutosModel
+@using Fynanceo.Models.Enums
 @model ProdutoViewModel
 
 @{
-    ViewData["Title"] = "Editar Produto";
+ViewData["Title"] = "Editar Produto";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 text-success">
+        <h1 class="h3 text-primary">
             <i class="fas fa-edit me-2"></i>@ViewData["Title"]
         </h1>
         <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
@@ -16,48 +16,62 @@
         </a>
     </div>
 
-    <!-- Alertas -->
     @await Html.PartialAsync("_AlertasPartial")
 
     <div class="card shadow-sm">
         <div class="card-body">
             <form asp-action="Editar" method="post" id="formProduto">
+
+                <!-- ID oculto -->
                 <input type="hidden" asp-for="Id" />
-                
-                <div class="row">
+
+             <div class="row">
+                    <!-- COLUNA ESQUERDA -->
                     <div class="col-md-6">
                         <h5 class="text-success mb-3">
                             <i class="fas fa-info-circle me-2"></i>Informações Básicas
                         </h5>
-                        
+
+                        <div class="mb-3">
+                            <label asp-for="Nome" class="form-label"></label>
+                            <input asp-for="Nome" class="form-control" data-maiuscula="titulo" />
+                            <span asp-validation-for="Nome" class="text-danger"></span>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="Codigo" class="form-label"></label>
-                                    <input asp-for="Codigo" class="form-control" />
+                                    <input asp-for="Codigo" class="form-control" data-maiuscula="tudo" />
                                     <span asp-validation-for="Codigo" class="text-danger"></span>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="Categoria" class="form-label"></label>
+
                                     <input asp-for="Categoria" class="form-control" list="categorias" />
+
                                     <datalist id="categorias">
-                                        <option value="Bebidas"/>
-                                        <option value="Lanches"/>
-                                        <option value="Pizzas"/>
-                                        <option value="Sobremesas"/>
-                                        <option value="Acompanhamentos"/>
+                                        <option value="Bebidas" />
+                                        <option value="Lanches" />
+                                        <option value="Pizzas" />
+                                        <option value="Sobremesas" />
+                                        <option value="Acompanhamentos" />
+
+                                        @if (Model.Categorias != null)
+                                        {
+                                        foreach (var cat in Model.Categorias.Distinct())
+                                        {
+                                        <option value="@cat" />
+                                        }
+                                        }
                                     </datalist>
+
                                     <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Nome" class="form-label"></label>
-                            <input asp-for="Nome" class="form-control" />
-                            <span asp-validation-for="Nome" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
@@ -68,11 +82,14 @@
 
                         <div class="mb-3">
                             <label asp-for="Subcategoria" class="form-label"></label>
-                            <input asp-for="Subcategoria" class="form-control" />
+                            <input asp-for="Subcategoria" class="form-control" placeholder="Tipo da Massa, Formato, Tamanho, Sabor..." data-maiuscula="titulo" />
                             <span asp-validation-for="Subcategoria" class="text-danger"></span>
                         </div>
+                        
+                        
                     </div>
 
+                    <!-- COLUNA DIREITA -->
                     <div class="col-md-6">
                         <h5 class="text-success mb-3">
                             <i class="fas fa-dollar-sign me-2"></i>Valores e Tempos
@@ -82,14 +99,15 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="CustoUnitario" class="form-label"></label>
-                                    <input asp-for="CustoUnitario" type="text" step="0.01" class="form-control" id="custoUnitario" data-mask="moeda"/>
+                                    <input asp-for="CustoUnitario" class="form-control" id="custoUnitario" data-mask="moeda" />
                                     <span asp-validation-for="CustoUnitario" class="text-danger"></span>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="ValorVenda" class="form-label"></label>
-                                    <input asp-for="ValorVenda" type="text" step="0.01" class="form-control" id="valorVenda" data-mask="moeda" />
+                                    <input asp-for="ValorVenda" class="form-control" id="valorVenda" data-mask="moeda" />
                                     <span asp-validation-for="ValorVenda" class="text-danger"></span>
                                 </div>
                             </div>
@@ -98,11 +116,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Margem de Lucro</label>
-                                <div class="form-control-plaintext fw-bold" id="margemLucro">@Model.MargemLucro.ToString("C")</div>
+                                <div id="margemLucro" class="form-control-plaintext fw-bold">R$ 0,00</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">% de Lucro</label>
-                                <div class="form-control-plaintext fw-bold" id="percentualLucro">@Model.PercentualLucro.ToString("F2")%</div>
+                                <div id="percentualLucro" class="form-control-plaintext fw-bold">0%</div>
                             </div>
                         </div>
 
@@ -114,6 +132,7 @@
                                     <span asp-validation-for="TempoPreparoMinutos" class="text-danger"></span>
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="TempoExtraPico" class="form-label"></label>
@@ -122,183 +141,605 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                @* <h5 class="text-success mb-3"> *@
+                                @*     <i class="fas fa-toggle-on me-2"></i>Status *@
+                                @* </h5> *@
+
+                                @* <div class="form-check form-switch mb-3"> *@
+                                @*     <input asp-for="Disponivel" class="form-check-input" /> *@
+                                @*     <label asp-for="Disponivel" class="form-check-label"></label> *@
+                                @* </div> *@
+
+                                <div class="mb-3">
+                                    <label asp-for="OpcoesPersonalizacao" class="form-label"></label>
+                                    <textarea asp-for="OpcoesPersonalizacao" class="form-control" rows="3"></textarea>
+                                    <span asp-validation-for="OpcoesPersonalizacao" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                   
+                        </div>
                     </div>
                 </div>
 
-                <!-- Ingredientes -->
+                <!-- ============================= -->
+                <!--       INGREDIENTES           -->
+                <!-- ============================= -->
                 <div class="row mt-4">
                     <div class="col-12">
-                        <h5 class="text-success mb-3">
-                            <i class="fas fa-list me-2"></i>Ingredientes
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-list me-2"></i>Ingredientes do Produto
                         </h5>
-                        
-                        <div id="ingredientes-container">
-                            @for (int i = 0; i < Model.Ingredientes.Count; i++)
-                            {
-                                <div class="ingrediente-item row mb-3">
-                                    <input type="hidden" asp-for="Ingredientes[i].IdEstoque" />
-                                    <div class="col-md-4">
-                                        <input asp-for="Ingredientes[i].Nome" class="form-control" placeholder="Nome do ingrediente" />
-                                        <span asp-validation-for="Ingredientes[i].Nome" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input asp-for="Ingredientes[i].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" />
-                                        <span asp-validation-for="Ingredientes[i].Quantidade" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select asp-for="Ingredientes[i].UnidadeMedida" class="form-select">
-                                            <option value="">Selecione</option>
-                                            <option value="g">Gramas (g)</option>
-                                            <option value="kg">Quilogramas (kg)</option>
-                                            <option value="ml">Mililitros (ml)</option>
-                                            <option value="L">Litros (L)</option>
-                                            <option value="un">Unidades (un)</option>
-                                            <option value="xíc">Xícaras</option>
-                                            <option value="col">Colheres</option>
-                                        </select>
-                                        <span asp-validation-for="Ingredientes[i].UnidadeMedida" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="button" class="btn btn-danger btn-remover-ingrediente" @(Model.Ingredientes.Count == 1 ? "disabled" : "")>
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            }
+
+                        <div id="mensagemSemIngredientes" class="info @((Model?.Ingredientes != null && Model.Ingredientes.Any()) ? "d-none" : "")">
+                            <i class="fas fa-info-circle me-2"></i>Nenhum ingrediente adicionado. Clique em "Adicionar Materiais".
                         </div>
 
-                        <button type="button" id="btn-adicionar-ingrediente" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-plus me-1"></i>Adicionar Ingrediente
+                        <table class="table table-bordered" id="ingredientesSelecionados"
+                               style="display:@((Model?.Ingredientes != null && Model.Ingredientes.Any()) ? "table" : "none");">
+                            <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Quantidade</th>
+                                <th>Unidade</th>
+                                <th>Observação</th>
+                                <th>Ação</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @if (Model.Ingredientes != null)
+                            {
+                            var index = 0;
+                            foreach (var ing in Model.Ingredientes)
+                            {
+                            <tr data-ingrediente-id="@ing.IdEstoque">
+                                <td>@ing.Nome</td>
+
+                                <td>
+                                    <input type="number"
+                                           class="form-control"
+                                           step="0.01"
+                                           name="Ingredientes[@index].Quantidade"
+                                           value="@ing.Quantidade" />
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="Ingredientes[@index].UnidadeMedida"
+                                           value="@ing.UnidadeMedida" />
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                           class="form-control"
+                                           name="Ingredientes[@index].Observacao"
+                                           value="@ing.Observacao" />
+                                </td>
+
+                                <!-- ID escondido -->
+                                <input type="hidden"
+                                       name="Ingredientes[@index].IdEstoque"
+                                       value="@ing.IdEstoque" />
+                                <input type="hidden"
+                                       name="Ingredientes[@index].Nome"
+                                       value="@ing.Nome" />
+
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm remover-ingrediente">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            index++;
+                            }
+                            }
+                            </tbody>
+                        </table>
+
+                        <button type="button" class="btn btn-primary mt-3"
+                                data-bs-toggle="modal" data-bs-target="#ingredientesModal">
+                            <i class="fas fa-plus me-1"></i>Adicionar Materiais
                         </button>
                     </div>
                 </div>
 
-                <!-- Status e Tributação -->
+                <!-- BOTÕES -->
                 <div class="row mt-4">
-                    <div class="col-md-6">
-                        <h5 class="text-success mb-3">
-                            <i class="fas fa-toggle-on me-2"></i>Status
-                        </h5>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input asp-for="Disponivel" class="form-check-input" />
-                            <label asp-for="Disponivel" class="form-check-label"></label>
-                        </div>
-                                             
-
-                        <div class="mb-3">
-                            <label asp-for="OpcoesPersonalizacao" class="form-label"></label>
-                            <textarea asp-for="OpcoesPersonalizacao" class="form-control" rows="3" placeholder="Ex: Tamanho: P,M,G; Sabores: Calabresa, Frango..."></textarea>
-                            <span asp-validation-for="OpcoesPersonalizacao" class="text-danger"></span>
-                        </div>
-                    </div>
-                                        
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Salvar Alterações
-                            </button>
-                            <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Cancelar
-                            </a>
-                        </div>
+                    <div class="col-12 text-end">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>Salvar Alterações
+                        </button>
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
-<script src="/js/ProdutoFinal/produtoFinal.js"></script>
-@* @section Scripts { *@
-@*      *@
-@*      *@
-@*     <script> *@
-@*         document.addEventListener('DOMContentLoaded', function() { *@
-@*             // Calcular margem de lucro *@
-@*             function calcularMargem() { *@
-@*                 const custo = parseFloat(document.getElementById('custoUnitario').value) || 0; *@
-@*                 const venda = parseFloat(document.getElementById('valorVenda').value) || 0; *@
-@*                 const margem = venda - custo; *@
-@*                 const percentual = custo > 0 ? ((margem / custo) * 100) : 0; *@
-@*                  *@
-@*                 document.getElementById('margemLucro').textContent =  *@
-@*                     margem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); *@
-@*                 document.getElementById('percentualLucro').textContent =  *@
-@*                     percentual.toFixed(2) + '%'; *@
-@*                  *@
-@*                 // Colorir baseado no lucro *@
-@*                 const margemElement = document.getElementById('margemLucro'); *@
-@*                 const percentualElement = document.getElementById('percentualLucro'); *@
-@*                  *@
-@*                 if (margem > 0) { *@
-@*                     margemElement.className = 'form-control-plaintext fw-bold text-success'; *@
-@*                     percentualElement.className = 'form-control-plaintext fw-bold text-success'; *@
-@*                 } else { *@
-@*                     margemElement.className = 'form-control-plaintext fw-bold text-danger'; *@
-@*                     percentualElement.className = 'form-control-plaintext fw-bold text-danger'; *@
-@*                 } *@
-@*             } *@
-@*              *@
-@*             document.getElementById('custoUnitario').addEventListener('input', calcularMargem); *@
-@*             document.getElementById('valorVenda').addEventListener('input', calcularMargem); *@
-@*              *@
-@*             // Gerenciar ingredientes *@
-@*             let ingredienteIndex = @Model.Ingredientes.Count; *@
-@*              *@
-@*             document.getElementById('btn-adicionar-ingrediente').addEventListener('click', function() { *@
-@*                 const container = document.getElementById('ingredientes-container'); *@
-@*                 const newIngrediente = document.createElement('div'); *@
-@*                 newIngrediente.className = 'ingrediente-item row mb-3'; *@
-@*                 newIngrediente.innerHTML = ` *@
-@*                     <div class="col-md-4"> *@
-@*                         <input name="Ingredientes[${ingredienteIndex}].Nome" class="form-control" placeholder="Nome do ingrediente" /> *@
-@*                     </div> *@
-@*                     <div class="col-md-3"> *@
-@*                         <input name="Ingredientes[${ingredienteIndex}].Quantidade" type="number" step="0.001" class="form-control" placeholder="Quantidade" /> *@
-@*                     </div> *@
-@*                     <div class="col-md-3"> *@
-@*                         <select name="Ingredientes[${ingredienteIndex}].UnidadeMedida" class="form-select"> *@
-@*                             <option value="">Selecione</option> *@
-@*                             <option value="g">Gramas (g)</option> *@
-@*                             <option value="kg">Quilogramas (kg)</option> *@
-@*                             <option value="ml">Mililitros (ml)</option> *@
-@*                             <option value="L">Litros (L)</option> *@
-@*                             <option value="un">Unidades (un)</option> *@
-@*                             <option value="xíc">Xícaras</option> *@
-@*                             <option value="col">Colheres</option> *@
-@*                         </select> *@
-@*                     </div> *@
-@*                     <div class="col-md-2"> *@
-@*                         <button type="button" class="btn btn-danger btn-remover-ingrediente"> *@
-@*                             <i class="fas fa-trash"></i> *@
-@*                         </button> *@
-@*                     </div> *@
-@*                 `; *@
-@*                 container.appendChild(newIngrediente); *@
-@*                 ingredienteIndex++; *@
-@*                  *@
-@*                 // Atualizar eventos dos botões remover *@
-@*                 atualizarEventosRemover(); *@
-@*             }); *@
-@*              *@
-@*             function atualizarEventosRemover() { *@
-@*                 document.querySelectorAll('.btn-remover-ingrediente').forEach(btn => { *@
-@*                     btn.addEventListener('click', function() { *@
-@*                         const ingredienteItem = this.closest('.ingrediente-item'); *@
-@*                         if (document.querySelectorAll('.ingrediente-item').length > 1) { *@
-@*                             ingredienteItem.remove(); *@
-@*                         } *@
-@*                     }); *@
-@*                 }); *@
-@*             } *@
-@*              *@
-@*             atualizarEventosRemover(); *@
-@*              *@
-@*             // Calcular margem inicial *@
-@*             calcularMargem(); *@
-@*         }); *@
-@*     </script> *@
-@* } *@
+
+<!-- MODAL INGREDIENTES -->
+<div class="modal fade" id="ingredientesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Selecionar Materiais/Ingredientes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="searchIngrediente" placeholder="Buscar material por nome, código..." />
+                </div>
+
+                <!-- Filtros Rápidos -->
+                <div class="mb-3">
+                    <div class="btn-group btn-group-sm" role="group" id="filtrosCategorias">
+                        <button type="button" class="btn btn-outline-secondary active" data-categoria="">Todos</button>
+                        @if (Model.Categorias != null)
+                        {
+                        foreach (var categoria in Model.Categorias.Take(6))
+                        {
+                        <button type="button" class="btn btn-outline-secondary" data-categoria="@categoria">@categoria</button>
+                        }
+                        }
+                    </div>
+                </div>
+
+                <!-- Container para os materiais -->
+                <div id="materiaisContainer" style="max-height: 400px; overflow-y: auto;">
+                    <div class="row" id="listaIngredientes">
+                        <!-- Materiais serão carregados aqui via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingIngredientes" class="text-center py-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Carregando materiais...</p>
+                </div>
+
+                <!-- Sem resultados -->
+                <div id="noResults" class="text-center py-4" style="display: none;">
+                    <i class="fas fa-search fa-2x text-muted mb-3"></i>
+                    <p class="text-muted">Nenhum material encontrado</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="btnAdicionarIngredientes">
+                    <i class="fas fa-plus me-1"></i>Adicionar Selecionados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    
+    <script>
+        // ===============================
+        // CÁLCULO DE MARGEM DE LUCRO
+        // ===============================
+        function calcularMargem() {
+            const custo = parseFloat(document.getElementById('custoUnitario').value.replace(/\./g, '').replace(',', '.')) || 0;
+            const venda = parseFloat(document.getElementById('valorVenda').value.replace(/\./g, '').replace(',', '.')) || 0;
+
+            const margem = venda - custo;
+            const percentual = custo > 0 ? ((margem / custo) * 100) : 0;
+
+            document.getElementById('margemLucro').textContent =
+                margem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            document.getElementById('percentualLucro').textContent =
+                percentual.toFixed(2) + '%';
+
+            const margemElement = document.getElementById('margemLucro');
+            const percentualElement = document.getElementById('percentualLucro');
+
+            if (margem >= 0) {
+                margemElement.className = 'form-control-plaintext fw-bold text-success';
+                percentualElement.className = 'form-control-plaintext fw-bold text-success';
+            } else {
+                margemElement.className = 'form-control-plaintext fw-bold text-danger';
+                percentualElement.className = 'form-control-plaintext fw-bold text-danger';
+            }
+}
+
+
+
+
+
+        // ===============================
+        // EVENTOS
+        // ===============================
+        document.addEventListener('DOMContentLoaded', function () {
+            atualizarEventosRemover();
+            calcularMargem();
+
+            document.getElementById('custoUnitario').addEventListener('input', calcularMargem);
+            document.getElementById('valorVenda').addEventListener('input', calcularMargem);
+        });
+</script>
+    
+
+
+
+    <script>
+    // ===== Estado global dos ingredientes =====
+    let ingredientesSelecionados = [];
+    let materiaisSelecionadosModal = [];
+
+    // ===== Variáveis para paginação AJAX =====
+    let currentPage = 1;
+    const pageSize = 20;
+    let isLoading = false;
+    let hasMore = true;
+    let currentSearch = '';
+    let currentCategoria = '';
+
+    // ===== Inicialização =====
+    $(document).ready(function() {
+        console.log('=== INICIALIZAÇÃO ===');
+
+        @if (Model.Ingredientes != null && Model.Ingredientes.Any())
+        {
+        foreach (var ing in Model.Ingredientes)
+        {
+        <text>
+        ingredientesSelecionados.push({
+            idEstoque: @ing.IdEstoque,
+            nome: "@ing.Nome",
+            unidadeMedida: "@ing.UnidadeMedida",
+            quantidade: @ing.Quantidade,
+            observacao: "@ing.Observacao"
+        });
+        </text>
+        }
+        }
+
+        atualizarUIIngredientes();
+
+        // Inicializar máscaras de moeda e eventos
+        $('#custoUnitario, #valorVenda').on('input', atualizarMargemLucro);
+
+        // Remover ingrediente
+        $(document).on('click', '.remover-ingrediente', function() {
+            const tr = $(this).closest('tr');
+            const id = tr.data('ingrediente-id');
+
+            if (id) {
+                // Remover do array
+                ingredientesSelecionados = ingredientesSelecionados.filter(i => i.idEstoque != id);
+
+                // Remover da tabela
+                tr.remove();
+
+                // Atualizar índices dos campos hidden
+                reindexarIngredientes();
+
+                // Atualizar UI
+                atualizarUIIngredientes();
+
+                console.log('Ingrediente removido:', id);
+                console.log('Ingredientes restantes:', ingredientesSelecionados);
+            }
+        });
+    });
+
+    // ===== Funções auxiliares =====
+    function atualizarUIIngredientes() {
+        const tabela = $('#ingredientesSelecionados');
+        const mensagem = $('#mensagemSemIngredientes');
+        const tbody = tabela.find('tbody');
+
+        if (ingredientesSelecionados.length === 0) {
+            tabela.hide();
+            mensagem.show();
+        } else {
+            tabela.show();
+            mensagem.hide();
+        }
+    }
+
+    function reindexarIngredientes() {
+        $('#ingredientesSelecionados tbody tr').each(function(index) {
+            $(this).find('input').each(function() {
+                const name = $(this).attr('name');
+                if (name) {
+                    const newName = name.replace(/\[\d+\]/, `[${index}]`);
+                    $(this).attr('name', newName);
+                }
+            });
+        });
+    }
+
+    // ===== Atualizar margem de lucro =====
+    function atualizarMargemLucro() {
+        const custo = parseFloat($('#custoUnitario').val().replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+        const venda = parseFloat($('#valorVenda').val().replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+
+        if (venda > 0 && custo > 0) {
+            const margem = venda - custo;
+            const percentual = ((margem / custo) * 100).toFixed(2);
+
+            $('#margemLucro').text('R$ ' + margem.toFixed(2));
+            $('#percentualLucro').text(percentual + '%');
+        }
+    }
+
+    // ===== AJAX: carregar materiais do estoque =====
+    function carregarMateriais(page = 1, search = '', categoria = '') {
+        if (isLoading) return;
+
+        isLoading = true;
+        $('#loadingIngredientes').show();
+        $('#noResults').hide();
+
+        // URL do endpoint que retorna os materiais/ingredientes
+        $.get('@Url.Action("GetMateriaisEstoque", "Produtos")', {
+            page: page,
+            pageSize: pageSize,
+            search: search,
+            categoria: categoria
+        }, function(data) {
+            if (page === 1) {
+                $('#listaIngredientes').empty();
+            }
+
+            if (!data || !data.materiais || data.materiais.length === 0) {
+                if (page === 1) {
+                    $('#noResults').show();
+                    $('#listaIngredientes').html('');
+                }
+                hasMore = false;
+            } else {
+                console.log('Materiais recebidos:', data.materiais);
+                console.log('Ingredientes selecionados atualmente:', ingredientesSelecionados);
+
+                // Renderizar os materiais
+                data.materiais.forEach(material => {
+                    // Verificar se o material já foi adicionado pelo usuário
+                    const jaSelecionado = ingredientesSelecionados.some(i => i.idEstoque == material.id);
+
+                    console.log(`Material ${material.id} (${material.nome}) - já selecionado? ${jaSelecionado}`);
+
+                    const materialHtml = `
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input material-checkbox" 
+                                                   type="checkbox" 
+                                                   value="${material.id}" 
+                                                   id="material_${material.id}"
+                                                   data-nome="${material.nome}"
+                                                   data-unidade="${material.unidadeMedida.toString()}"
+                                                   data-codigo="${material.codigo || ''}"
+                                                   ${jaSelecionado ? 'disabled' : ''}>
+                                            <label class="form-check-label w-100" for="material_${material.id}" style="cursor: pointer;">
+                                                <h6 class="card-title mb-1">${material.nome}</h6>
+                                                <p class="card-text text-muted small mb-1">
+                                                    <strong>Código:</strong> ${material.codigo || 'N/A'}
+                                                </p>
+                                                <p class="card-text text-muted small mb-1">
+                                                    <strong>Unidade Medida:</strong> ${material.unidadeMedida.toString()}
+                                                </p>
+                                                <p class="card-text text-muted small mb-0">
+                                                    <strong>Estoque:</strong> ${material.quantidadeDisponivel || 0} ${material.unidadeMedida}
+                                                </p>
+                                                ${jaSelecionado ? '<p class="card-text text-success small mb-0 mt-1"><i class="fas fa-check"></i> Já adicionado</p>' : ''}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    $('#listaIngredientes').append(materialHtml);
+                });
+
+                hasMore = page < (data.totalPages || 1);
+            }
+
+            currentPage = page;
+            isLoading = false;
+            $('#loadingIngredientes').hide();
+
+        }).fail(function(xhr, status, error) {
+            console.error('Erro ao carregar materiais:', error);
+            if (page === 1) {
+                $('#listaIngredientes').html(`
+                        <div class="col-12 text-center py-4">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Erro ao carregar materiais. Tente novamente.
+                            </div>
+                        </div>
+                    `);
+                $('#noResults').show();
+            }
+            isLoading = false;
+            $('#loadingIngredientes').hide();
+        });
+    }
+
+    // ===== Scroll infinito =====
+    $('#materiaisContainer').on('scroll', function() {
+        const el = $(this)[0];
+        if (!el) return;
+
+        // Verificar se chegou perto do final
+        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+            if (hasMore && !isLoading) {
+                carregarMateriais(currentPage + 1, currentSearch, currentCategoria);
+            }
+        }
+    });
+
+    // ===== Busca com debounce =====
+    let searchTimeout;
+    $('#searchIngrediente').on('input', function() {
+        clearTimeout(searchTimeout);
+        const termo = $(this).val().trim();
+        searchTimeout = setTimeout(() => {
+            currentSearch = termo;
+            currentPage = 1;
+            hasMore = true;
+            carregarMateriais(1, currentSearch, currentCategoria);
+        }, 500);
+    });
+
+    // ===== Filtro rápido por categoria =====
+    $('#filtrosCategorias').on('click', 'button', function() {
+        $('#filtrosCategorias button').removeClass('active');
+        $(this).addClass('active');
+        currentCategoria = $(this).data('categoria') || '';
+        currentPage = 1;
+        hasMore = true;
+        carregarMateriais(1, currentSearch, currentCategoria);
+    });
+
+    // ===== Ao abrir o modal =====
+    $('#ingredientesModal').on('show.bs.modal', function () {
+        console.log('=== MODAL ABERTO ===');
+        console.log('Ingredientes selecionados:', ingredientesSelecionados);
+
+        // Limpar seleções do modal
+        materiaisSelecionadosModal = [];
+        currentPage = 1;
+        currentSearch = '';
+        currentCategoria = '';
+        hasMore = true;
+
+        // Limpar campo de busca
+        $('#searchIngrediente').val('');
+
+        // Resetar filtros
+        $('#filtrosCategorias button').removeClass('active');
+        $('#filtrosCategorias button:first').addClass('active');
+
+        // Carregar materiais
+        carregarMateriais(1, '', '');
+    });
+
+    // ===== Selecionar/deselecionar materiais no modal =====
+    $(document).on('change', '.material-checkbox:not(:disabled)', function() {
+        const materialId = $(this).val();
+        const nome = $(this).data('nome');
+        const unidade = $(this).data('unidade');
+        const codigo = $(this).data('codigo');
+
+        if ($(this).is(':checked')) {
+            // Adicionar ao array de selecionados no modal
+            materiaisSelecionadosModal.push({
+                id: materialId,
+                nome: nome,
+                unidadeMedida: (unidade ?? '').toString(),
+                codigo: codigo
+                
+                
+            });
+        } else {
+            // Remover do array de selecionados no modal
+            materiaisSelecionadosModal = materiaisSelecionadosModal.filter(m => m.id != materialId);
+        }
+
+        console.log('Materiais selecionados no modal:', materiaisSelecionadosModal);
+    });
+
+    // ===== Adicionar ingredientes selecionados =====
+    $('#btnAdicionarIngredientes').click(function() {
+        console.log('=== ADICIONAR INGREDIENTES ===');
+        console.log('Materiais selecionados no modal:', materiaisSelecionadosModal);
+
+        if (materiaisSelecionadosModal.length === 0) {
+            alert('Selecione pelo menos um material para adicionar.');
+            return;
+        }
+
+        materiaisSelecionadosModal.forEach(material => {
+            // Verificar se já não foi adicionado (segurança adicional)
+            if (!ingredientesSelecionados.some(i => i.idEstoque == material.id)) {
+                // Adicionar ao array global
+                ingredientesSelecionados.push({
+                    idEstoque: material.id,
+                    nome: material.nome,
+                    unidadeMedida:  material.unidadeMedida.toString(),
+                    quantidade: 0.1, // Quantidade inicial
+                    codigo: material.codigo,
+                    observacao: ''
+                   
+                });
+
+                // Adicionar à tabela
+                const newRow = `
+                        <tr data-ingrediente-id="${material.id}">
+                            <td>
+                                <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].IdEstoque" class="ingrediente-id" value="${material.id}" />
+                                <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].Nome" class="ingrediente-nome" value="${material.nome}" />
+                                <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].UnidadeMedida" class="ingrediente-unidade" value="${material.unidadeMedida}" />
+                                <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].Codigo" class="ingrediente-codigo" value="${material.codigo || ''}" />
+                                <span class="ingrediente-nome-text">${material.nome}</span>
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" min="0" name="Ingredientes[${ingredientesSelecionados.length - 1}].Quantidade" 
+                                       class="form-control form-control-sm ingrediente-quantidade" 
+                                       value="0" />
+                            </td>
+                            <td class="ingrediente-unidade-text">${material.unidadeMedida}</td>
+ <td>
+                                <input type="text"  name="Ingredientes[${ingredientesSelecionados.length - 1}].Observacao" 
+                                       class="form-control form-control-sm ingrediente-observacao" 
+                                       value="Obs." />
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger remover-ingrediente">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+
+                $('#ingredientesSelecionados tbody').append(newRow);
+
+                console.log(`Material ${material.nome} adicionado com sucesso!`);
+            } else {
+                console.log(`Material ${material.nome} já estava adicionado.`);
+            }
+        });
+
+        // Fechar modal
+        $('#ingredientesModal').modal('hide');
+
+        // Atualizar UI
+        atualizarUIIngredientes();
+
+        // Limpar seleções do modal
+        materiaisSelecionadosModal = [];
+
+        console.log('Ingredientes após adição:', ingredientesSelecionados);
+
+        // Forçar atualização do modal na próxima abertura
+        $('#ingredientesModal').on('hidden.bs.modal', function() {
+            // Limpar a lista para forçar recarregamento
+            $('#listaIngredientes').empty();
+        });
+    });
+
+    
+
+</script>
+    
+
+  
+ 
+    
+    <script src="~/js/ProdutoFinal/produtoFinal.js?v=1.0"></script>
+}

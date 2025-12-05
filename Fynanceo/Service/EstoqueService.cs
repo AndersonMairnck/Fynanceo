@@ -405,7 +405,7 @@ namespace Fynanceo.Service
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
                 .ThenInclude(i => i.Produto)
-                .ThenInclude(p => p.Ingredientes)
+                .ThenInclude(p => p.ProdutoIngredientes)
               //  .ThenInclude(i => i.Estoque)
                 .FirstOrDefaultAsync(p => p.Id == pedidoId);
 
@@ -417,9 +417,9 @@ namespace Fynanceo.Service
             {
                 foreach (var item in pedido.Itens)
                 {
-                    if (item.Produto?.Ingredientes != null)
+                    if (item.Produto?.ProdutoIngredientes != null)
                     {
-                        foreach (var ingrediente in item.Produto.Ingredientes)
+                        foreach (var ingrediente in item.Produto.ProdutoIngredientes)
                         {
                             var movimentacao = new MovimentacaoEstoqueViewModel
                             {

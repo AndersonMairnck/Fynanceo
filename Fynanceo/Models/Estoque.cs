@@ -198,7 +198,7 @@ namespace Fynanceo.Models
         [Range(0.001, double.MaxValue, ErrorMessage = "A quantidade deve ser maior que zero")]
         public decimal Quantidade { get; set; }
 
-        [StringLength(50)]
+       
         public StatusUnidadeMedida UnidadeMedida { get; set; }
 
         [StringLength(200)]

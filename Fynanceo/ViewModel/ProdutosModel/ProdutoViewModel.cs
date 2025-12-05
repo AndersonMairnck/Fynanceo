@@ -89,7 +89,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
         public StatusUnidadeMedida UnidadeMedida { get; set; }
         
         [StringLength(20)]
-        public string Codigo { get; set; }
+        public string? Codigo { get; set; }
         
         [Key]
         public int Id { get; set; }
