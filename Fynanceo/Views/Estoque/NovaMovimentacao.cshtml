@@ -78,8 +78,8 @@
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label asp-for="CustoUnitario" class="form-label">Custo Unitário (R$) *</label>
-                                    <input asp-for="CustoUnitario" type="number" step="0.01" class="form-control"
-                                           id="custoUnitario" required min="0">
+                                    <input asp-for="CustoUnitario" type="text" step="0.01" class="form-control"
+                                           id="custoUnitario" required min="0" data-mask="moeda" >
                                     <span asp-validation-for="CustoUnitario" class="text-danger"></span>
                                 </div>
                             </div>
@@ -262,7 +262,10 @@
 
                     // Preencher custo unitário automaticamente para entradas
                     if (tipoMovimentacao.val() === '0') { // Entrada
-                        custoUnitario.val(parseFloat(custo).toFixed(2));
+                        const custoNum = parseFloat(custo) || 0;
+                        // Formatar em BRL para compatibilidade com a máscara de moeda
+                        const formatBRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        custoUnitario.val(formatBRL(custoNum));
                     }
 
                     atualizarEstoqueFinal();
@@ -276,11 +279,30 @@
 
             // Calcular valor total
             function calcularValorTotal() {
+                // Helper: converte string de moeda BR (com R$, pontos e vírgula) em número JS
+                const moedaParaNumero = (str) => {
+                    if (!str) return 0;
+                    return parseFloat(
+                        String(str)
+                            .replace(/\s/g, '')      // remove espaços
+                            .replace(/R\$?/gi, '')    // remove R$
+                            .replace(/\./g, '')       // remove separador de milhar
+                            .replace(/,/g, '.')        // vírgula decimal -> ponto
+                    ) || 0;
+                };
+
+                const formatBRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
                 const qtd = parseFloat(quantidade.val()) || 0;
-                const custo = parseFloat(custoUnitario.val()) || 0;
+                const custo = moedaParaNumero(custoUnitario.val());
                 const total = qtd * custo;
 
-                valorTotal.val('R$ ' + total.toFixed(2));
+                // Logs para depuração
+                console.log('Quantidade:', qtd);
+                console.log('Custo Unitário (numérico):', custo);
+                console.log('Total calculado:', total);
+
+                valorTotal.val(formatBRL(total));
                 atualizarEstoqueFinal();
             }
 
@@ -320,7 +342,7 @@
             function mostrarAlerta(mensagem, tipo) {
                 const alertContainer = $('#alertContainer');
                 alertContainer.html(`
-                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
                         <i class="fas fa-exclamation-triangle me-2"></i>${mensagem}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>

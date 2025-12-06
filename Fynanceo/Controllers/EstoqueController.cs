@@ -228,7 +228,7 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Estoque/NovaMovimentacao
-        // Controllers/EstoqueController.cs - Adicione este método
+     
         public async Task<IActionResult> NovaMovimentacao(int? produtoId)
         {
             var model = new MovimentacaoEstoqueViewModel
@@ -261,6 +261,8 @@ namespace Fynanceo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NovaMovimentacao(MovimentacaoEstoqueViewModel model)
         {
+            model.UsuarioNome = "usuario";
+           
             if (ModelState.IsValid)
             {
                 try

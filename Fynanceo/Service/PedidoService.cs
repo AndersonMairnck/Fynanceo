@@ -93,7 +93,7 @@ namespace Fynanceo.Service
                     Observacoes = viewModel.Observacoes,
                     TaxaEntrega = viewModel.TaxaEntrega,
                     DataAbertura = DateTime.Now,
-                    FuncionarioId = 2 // Temporário - depois pegar do usuário logado
+                    FuncionarioId = 1 // Temporário - depois pegar do usuário logado
                 };
 
                 _context.Pedidos.Add(pedido);

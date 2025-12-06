@@ -85,12 +85,12 @@ namespace Fynanceo.ViewModel.EstoquesModel
         [Display(Name = "Pedido")]
         public int? PedidoId { get; set; }
 
-        public string UsuarioNome { get; set; }
+        public string? UsuarioNome { get; set; }
 
         // Para dropdowns
-        public List<Estoque> Produtos { get; set; }
-        public List<Fornecedor> Fornecedores { get; set; }
-        public List<Pedido> Pedidos { get; set; }
+        public List<Estoque>? Produtos { get; set; }
+        public List<Fornecedor>? Fornecedores { get; set; }
+        public List<Pedido>? Pedidos { get; set; }
     }
 
     // ViewModels/Estoque/DashboardEstoqueViewModel.cs
