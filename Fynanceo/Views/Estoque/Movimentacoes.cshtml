@@ -41,10 +41,18 @@
                         <option value="">Todos os produtos</option>
                         @foreach (var produto in ViewBag.Produtos as List<Fynanceo.Models.Estoque>)
                         {
-                            <option value="@produto.Id" 
-                                    selected="@(ViewBag.ProdutoId?.ToString() == produto.Id.ToString())">
-                                @produto.Nome
-                            </option>
+                            if (ViewBag.ProdutoId?.ToString() == produto.Id.ToString())
+                            {
+                                <option value="@produto.Id" selected>
+                                    @produto.Nome
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@produto.Id">
+                                    @produto.Nome
+                                </option>
+                            }
                         }
                     </select>
                 </div>
@@ -134,8 +142,10 @@
                                 Valor Total Entradas
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                @Model.Where(m => m.Tipo == TipoMovimentacaoEstoque.Entrada)
-                                      .Sum(m => m.CustoTotal).ToString("C")
+                                @(Model
+                                    .Where(m => m.Tipo == TipoMovimentacaoEstoque.Entrada)
+                                    .Sum(m => m.CustoTotal)
+                                    .ToString("C"))
                             </div>
                         </div>
                         <div class="col-auto">

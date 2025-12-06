@@ -72,7 +72,7 @@ namespace Fynanceo.Service
                     Categorias = model.Categoria,
              
                     FornecedorId = model.FornecedorId,
-                    DataCriacao = DateTime.Now
+                    DataCriacao = DateTime.UtcNow
                 };
 
                 _context.Estoques.Add(estoque);
@@ -106,7 +106,7 @@ namespace Fynanceo.Service
             estoque.Status = model.Status;
          
             estoque.FornecedorId = model.FornecedorId;
-            estoque.DataAtualizacao = DateTime.Now;
+            estoque.DataAtualizacao = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -128,7 +128,7 @@ namespace Fynanceo.Service
             {
                 // Soft delete - apenas inativa
                 estoque.Status = StatusEstoque.Inativo;
-                estoque.DataAtualizacao = DateTime.Now;
+                estoque.DataAtualizacao = DateTime.UtcNow;
             }
             else
             {
@@ -185,7 +185,7 @@ namespace Fynanceo.Service
                     Observacao = model.Observacao,
                     FornecedorId = model.FornecedorId,
                     PedidoId = model.PedidoId,
-                    DataMovimentacao = DateTime.Now,
+                    DataMovimentacao = DateTime.UtcNow,
                     Usuario = "Sistema" // TODO: Integrar com autenticação
                 };
 
@@ -214,7 +214,7 @@ namespace Fynanceo.Service
                     estoque.CustoUnitario = model.CustoUnitario;
                 }
 
-                estoque.DataAtualizacao = DateTime.Now;
+                estoque.DataAtualizacao = DateTime.UtcNow;
 
                 _context.MovimentacoesEstoque.Add(movimentacao);
                 await _context.SaveChangesAsync();
@@ -324,7 +324,7 @@ namespace Fynanceo.Service
                 Descricao = model.Descricao,
                 Observacao = model.Observacao,
                 Status = StatusInventario.Aberto,
-                DataAbertura = DateTime.Now
+                DataAbertura = DateTime.UtcNow
             };
 
             _context.Inventarios.Add(inventario);
@@ -364,7 +364,7 @@ namespace Fynanceo.Service
             }
 
             inventario.Status = StatusInventario.Concluido;
-            inventario.DataFechamento = DateTime.Now;
+            inventario.DataFechamento = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
