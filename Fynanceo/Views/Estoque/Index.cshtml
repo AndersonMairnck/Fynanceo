@@ -37,15 +37,15 @@
                 </div>
                 <div class="col-md-3">
                     <label for="categoria" class="form-label">Categoria</label>
-                    <select class="form-select" id="categoria" name="categoriaId">
+                    <select class="form-select" id="categoria" name="categoria">
                         <option value="">Todas</option>
-                        @if (ViewBag.Categorias != null)
+                        @if (ViewBag.Categorias is List<string> categorias)
                         {
-                            @foreach (var categoria in ViewBag.Categorias as List<Fynanceo.Models.CategoriaEstoque>)
+                            foreach (var categoria in categorias) 
                             {
-                                <option value="@categoria.Id"
-                                        selected="@(Context.Request.Query["categoriaId"] == categoria.Id.ToString())">
-                                    @categoria.Nome
+                                <option value="@categoria"
+                                        selected="@(Context.Request.Query["categoria"] == categoria)">
+                                    @categoria
                                 </option>
                             }
                         }

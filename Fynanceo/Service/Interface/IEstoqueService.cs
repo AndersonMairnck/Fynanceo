@@ -8,10 +8,12 @@ namespace Fynanceo.Service.Interface
     {
         // Estoque
         Task<List<Estoque>> ObterTodosEstoquesAsync();
+        Task<List<string>> SomenteCategoriasAsync();
         Task<Estoque> ObterEstoquePorIdAsync(int id);
         Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model);
         Task<Estoque> AtualizarEstoqueAsync(int id, EstoqueViewModel model);
         Task<bool> ExcluirEstoqueAsync(int id);
+     
 
         // Movimentações
         Task<List<MovimentacaoEstoque>> ObterMovimentacoesAsync(DateTime? dataInicio, DateTime? dataFim, int? produtoId);
@@ -31,6 +33,7 @@ namespace Fynanceo.Service.Interface
         Task<Inventario> CriarInventarioAsync(InventarioViewModel model);
         Task<Inventario> FecharInventarioAsync(int id);
         Task<bool> AdicionarItemInventarioAsync(int inventarioId, ItemInventarioViewModel model);
+        Task AdicionarItensInventarioTodosAsync(int inventarioId, bool apenasAtivos = true, bool conferido = false);
 
         // Integração com Pedidos
         Task<bool> ProcessarSaidaPedidoAsync(int pedidoId);

@@ -117,7 +117,7 @@
                                 </span>
                                 @if (entregador.UltimaAtualizacao.HasValue)
                                 {
-                                    var tempo = DateTime.Now - entregador.UltimaAtualizacao.Value;
+                                    var tempo = DateTime.UtcNow - entregador.UltimaAtualizacao.Value;
                                     <br>
                                     <span class="text-success">
                                         <i class="fas fa-circle" style="font-size: 0.6em;"></i>

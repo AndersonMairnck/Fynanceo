@@ -40,6 +40,7 @@ namespace Fynanceo.Service.Interface
         Task<Pedido> FecharPedidoAsync(int pedidoId);
 
         public  Task<bool> VerificaProdutoJaVendido(int produtoId);
+       
         
        // Task AtualizarStatusPedidoAsync(int pedidoId);
        public Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
