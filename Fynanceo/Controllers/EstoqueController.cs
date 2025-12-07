@@ -13,12 +13,16 @@ namespace Fynanceo.Controllers
     public class EstoqueController : Controller
     {
         private readonly IEstoqueService _estoqueService;
-        private readonly AppDbContext _context;
+        private readonly IFornecedorService _fornecedorService;
+        private readonly IPedidoService _pedidoService;
+       
 
-        public EstoqueController(IEstoqueService estoqueService, AppDbContext context)
+        public EstoqueController(IEstoqueService estoqueService,  IFornecedorService fornecedorService, IPedidoService pedidoService)
         {
             _estoqueService = estoqueService;
-            _context = context;
+      
+            _fornecedorService = fornecedorService;
+            _pedidoService = pedidoService;
         }
 
         // GET: Estoque/Dashboard
@@ -31,42 +35,39 @@ namespace Fynanceo.Controllers
         // GET: Estoque/Index
         public async Task<IActionResult> Index(string search, int? categoriaId, StatusEstoque? status)
         {
-            var query = _context.Estoques
-               
-                .Include(e => e.Fornecedor)
-                .AsQueryable();
+            // Carregar todos os estoques pela service (lista em memória)
+            var estoquesLista = await _estoqueService.ObterTodosEstoquesAsync();
 
-            // Aplicar filtros
+            // Aplicar filtros em memória
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(e => e.Nome.Contains(search) || e.Codigo.Contains(search));
+                estoquesLista = estoquesLista
+                    .Where(e => (e.Nome != null && e.Nome.Contains(search)) || (e.Codigo != null && e.Codigo.Contains(search)))
+                    .ToList();
             }
 
-            if (categoriaId.HasValue)
-            {
-              //  query = query.Where(e => e.Categorias == categoriaId.Value);
-            }
+     
 
             if (status.HasValue)
             {
-                query = query.Where(e => e.Status == status.Value);
+                estoquesLista = estoquesLista
+                    .Where(e => e.Status == status.Value)
+                    .ToList();
             }
 
-            var estoques = await query
+            var estoques = estoquesLista
                 .OrderBy(e => e.Nome)
-                .ToListAsync();
+                .ToList();
 
             // Carregar dados para os dropdowns
-            ViewBag.Categorias = await _context.CategoriasEstoque
-                .Where(c => c.Status == StatusEstoque.Ativo)
-                .OrderBy(c => c.Nome)
-                .ToListAsync();
-
+            ViewBag.Categorias = await _estoqueService.SomenteCategoriasAsync();
+            
             // Calcular contador de alertas
             var produtosAlerta = await _estoqueService.ObterProdutosEstoqueMinimoAsync();
             ViewBag.AlertCount = produtosAlerta.Count;
-
+            
             return View(estoques);
+         
         }
 
         // GET: Estoque/Details/5
@@ -100,15 +101,12 @@ namespace Fynanceo.Controllers
         // GET: Estoque/Create
         public async Task<IActionResult> Create()
         {
+            
             var model = new EstoqueViewModel
             {
-                Categorias = await _context.Estoques
-                    .Select(e => e.Categorias)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync(),
+                Categorias = await _estoqueService.SomenteCategoriasAsync(),
 
-                Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync(),
+                Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
                 Status = StatusEstoque.Ativo
             };
 
@@ -136,7 +134,7 @@ namespace Fynanceo.Controllers
 
             // Recarregar dropdowns em caso de erro
           //  model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
-            model.Fornecedores = await _context.Fornecedores.Where(f => f.Status ==  StatusFornecedor.Ativo).ToListAsync();
+            model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
 
             return View(model);
         }
@@ -164,12 +162,8 @@ namespace Fynanceo.Controllers
                 Status = estoque.Status,
                // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
                 FornecedorId = estoque.FornecedorId,
-                Categorias = await _context.Estoques
-                    .Select(e => e.Categorias)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToListAsync(),
-                Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync()
+                Categorias = await _estoqueService.SomenteCategoriasAsync(),
+                Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
             };
 
             return View(model);
@@ -200,8 +194,8 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-         //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
-            model.Fornecedores = await _context.Fornecedores.Where(f => f.Status == StatusFornecedor.Ativo).ToListAsync();
+        //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
+         model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
 
             return View(model);
         }
@@ -218,10 +212,7 @@ namespace Fynanceo.Controllers
             ViewBag.ProdutoId = produtoId;
 
             // Carregar lista de produtos para o dropdown
-            ViewBag.Produtos = await _context.Estoques
-                .Where(e => e.Status == StatusEstoque.Ativo)
-                .OrderBy(e => e.Nome)
-                .ToListAsync();
+            ViewBag.Produtos = await _estoqueService.ObterTodosEstoquesAsync();
 
             var movimentacoes = await _estoqueService.ObterMovimentacoesAsync(dataInicio, dataFim, produtoId);
             return View(movimentacoes);
@@ -233,19 +224,11 @@ namespace Fynanceo.Controllers
         {
             var model = new MovimentacaoEstoqueViewModel
             {
-                Produtos = await _context.Estoques
-                    .Where(e => e.Status == StatusEstoque.Ativo)
-                    .OrderBy(e => e.Nome)
-                    .ToListAsync(),
-                Fornecedores = await _context.Fornecedores
-                    .Where(f => f.Status == StatusFornecedor.Ativo)
-                    .OrderBy(f => f.Nome)
-                    .ToListAsync(),
-                Pedidos = await _context.Pedidos
-                    .Where(p => p.Status == PedidoStatus.Finalizado)
-                    .OrderByDescending(p => p.DataAbertura)
-                    .Take(50)
-                    .ToListAsync()
+                Produtos = await _estoqueService.ObterTodosEstoquesAsync(),
+                Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
+                
+                Pedidos = await _pedidoService.ObterPedidosPorStatus( "Finalizado"),
+                
             };
 
             // Pre-selecionar produto se veio por parâmetro
@@ -276,37 +259,17 @@ namespace Fynanceo.Controllers
                     ModelState.AddModelError("", $"Erro ao registrar movimentação: {ex.Message}");
 
                     // Recarregar dropdowns em caso de erro
-                    model.Produtos = await _context.Estoques
-                        .Where(e => e.Status == StatusEstoque.Ativo)
-                        .OrderBy(e => e.Nome)
-                        .ToListAsync();
-                    model.Fornecedores = await _context.Fornecedores
-                        .Where(f => f.Status == StatusFornecedor.Ativo)
-                        .OrderBy(f => f.Nome)
-                        .ToListAsync();
-                    model.Pedidos = await _context.Pedidos
-                        .Where(p => p.Status == PedidoStatus.Finalizado)
-                        .OrderByDescending(p => p.DataAbertura)
-                        .Take(50)
-                        .ToListAsync();
+                    model.Produtos = await _estoqueService.ObterTodosEstoquesAsync();
+                    model.Fornecedores = await _fornecedorService.ObterFornecedoresPorStatusAsync(StatusFornecedor.Ativo);
+                    model.Pedidos = await _pedidoService.ObterPedidosPorStatus("Finalizado");
                 }
             }
             else
             {
                 // Recarregar dropdowns se ModelState for inválido
-                model.Produtos = await _context.Estoques
-                    .Where(e => e.Status == StatusEstoque.Ativo)
-                    .OrderBy(e => e.Nome)
-                    .ToListAsync();
-                model.Fornecedores = await _context.Fornecedores
-                    .Where(f => f.Status == StatusFornecedor.Ativo)
-                    .OrderBy(f => f.Nome)
-                    .ToListAsync();
-                model.Pedidos = await _context.Pedidos
-                    .Where(p => p.Status == PedidoStatus.Finalizado)
-                    .OrderByDescending(p => p.DataAbertura)
-                    .Take(50)
-                    .ToListAsync();
+                model.Produtos = await _estoqueService.ObterTodosEstoquesAsync();
+                model.Fornecedores = await _fornecedorService.ObterFornecedoresPorStatusAsync(StatusFornecedor.Ativo);
+                model.Pedidos = await _pedidoService.ObterPedidosPorStatus("Finalizado");
             }
 
             return View(model);
@@ -333,29 +296,25 @@ namespace Fynanceo.Controllers
         // Controllers/EstoqueController.cs - Adicione estes métodos
         public async Task<IActionResult> Inventario(StatusInventario? status = null)
         {
-            var query = _context.Inventarios
-                .Include(i => i.Itens)
-                .ThenInclude(ii => ii.Estoque)
-                .AsQueryable();
+            var inventarios = await _estoqueService.ObterInventariosAsync();
 
             if (status.HasValue)
             {
-                query = query.Where(i => i.Status == status.Value);
+                inventarios = inventarios
+                    .Where(i => i.Status == status.Value)
+                    .ToList();
             }
 
-            var inventarios = await query
+            inventarios = inventarios
                 .OrderByDescending(i => i.DataAbertura)
-                .ToListAsync();
+                .ToList();
 
             return View(inventarios);
         }
 
         public async Task<IActionResult> DetalhesInventario(int id)
         {
-            var inventario = await _context.Inventarios
-                .Include(i => i.Itens)
-                .ThenInclude(ii => ii.Estoque)
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var inventario = await _estoqueService.ObterInventarioPorIdAsync(id);
 
             if (inventario == null)
             {
@@ -373,40 +332,19 @@ namespace Fynanceo.Controllers
         {
             try
             {
-                var inventario = new Inventario
+                // Criar inventário via service
+                var model = new InventarioViewModel
                 {
                     Descricao = descricao,
-                    Observacao = observacao,
-                    Status = StatusInventario.Aberto,
-                    DataAbertura = DateTime.Now
+                    Observacao = observacao
                 };
 
-                _context.Inventarios.Add(inventario);
-                await _context.SaveChangesAsync();
+                var inventario = await _estoqueService.CriarInventarioAsync(model);
 
-                // Adicionar itens ao inventário
+                // Adicionar itens via service (mantendo conferido=false por padrão)
                 if (incluirTodosProdutos)
                 {
-                    var produtosAtivos = await _context.Estoques
-                        .Where(e => e.Status == StatusEstoque.Ativo)
-                        .ToListAsync();
-
-                    foreach (var produto in produtosAtivos)
-                    {
-                        var item = new ItemInventario
-                        {
-                            InventarioId = inventario.Id,
-                            EstoqueId = produto.Id,
-                            QuantidadeSistema = produto.EstoqueAtual,
-                            QuantidadeFisica = 0,
-                            CustoUnitario = produto.CustoUnitario,
-                            Conferido = false
-                        };
-
-                        _context.ItensInventario.Add(item);
-                    }
-
-                    await _context.SaveChangesAsync();
+                    await _estoqueService.AdicionarItensInventarioTodosAsync(inventario.Id, apenasAtivos: true, conferido: false);
                 }
 
                 TempData["Success"] = $"Inventário '{descricao}' criado com sucesso!";
@@ -421,10 +359,7 @@ namespace Fynanceo.Controllers
 
         public async Task<IActionResult> EditarInventario(int id)
         {
-            var inventario = await _context.Inventarios
-                .Include(i => i.Itens)
-                .ThenInclude(ii => ii.Estoque)
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var inventario = await _estoqueService.ObterInventarioPorIdAsync(id);
 
             if (inventario == null || inventario.Status == StatusInventario.Concluido)
             {

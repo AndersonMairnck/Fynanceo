@@ -1,12 +1,13 @@
 ﻿// Services/PedidoService.cs
+
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
+using Fynanceo.ViewModel.EstoquesModel;
 using Fynanceo.ViewModel.PedidosModel;
 using Fynanceo.ViewModel.FinanceirosModel;
-
 
 
 namespace Fynanceo.Service
@@ -15,17 +16,22 @@ namespace Fynanceo.Service
     {
         private readonly AppDbContext _context;
         private readonly IMesaService _mesaService;
-      //  private readonly IEntregaService _entregaService;
-      private readonly IServiceProvider _serviceProvider;
+        private readonly IEstoqueService _estoqueService;
+   
 
-        public PedidoService(AppDbContext context, IMesaService mesaService, IServiceProvider serviceProvider)
+        private readonly IServiceProvider _serviceProvider;
+
+        public PedidoService(AppDbContext context, IMesaService mesaService, IServiceProvider serviceProvider,
+            IEstoqueService estoqueService)
         {
             _context = context;
             _mesaService = mesaService;
-          //  _entregaService = entregaService;
-          _serviceProvider = serviceProvider;
-
+            //  _entregaService = entregaService;
+            _serviceProvider = serviceProvider;
+            _estoqueService = estoqueService;
+           
         }
+
         public async Task<Pedido> FecharPedidoAsync(int pedidoId)
         {
             var pedido = await _context.Pedidos
@@ -43,24 +49,24 @@ namespace Fynanceo.Service
                 throw new InvalidOperationException("Pedido já está " + pedido.Status);
             }
 
-         
-                // Verifica se todos os itens estão entregues ou cancelados
-                var itensPendentes = pedido.Itens.Where(i =>
-                    i.Status != PedidoStatus.Entregue &&
-                    i.Status != PedidoStatus.Cancelado
-                ).ToList();
 
-                if (pedido.TipoPedido != TipoPedido.Balcao)
+            // Verifica se todos os itens estão entregues ou cancelados
+            var itensPendentes = pedido.Itens.Where(i =>
+                i.Status != PedidoStatus.Entregue &&
+                i.Status != PedidoStatus.Cancelado
+            ).ToList();
+
+            if (pedido.TipoPedido != TipoPedido.Balcao)
+            {
+                if (itensPendentes.Any())
                 {
-                    if (itensPendentes.Any())
-                    {
-                        var itensPendentesNomes = string.Join(", ", itensPendentes.Select(i => i.Produto.Nome));
-                        throw new InvalidOperationException(
-                            $"Não é possível fechar o pedido. Itens pendentes: {itensPendentesNomes}");
-                    }
+                    var itensPendentesNomes = string.Join(", ", itensPendentes.Select(i => i.Produto.Nome));
+                    throw new InvalidOperationException(
+                        $"Não é possível fechar o pedido. Itens pendentes: {itensPendentesNomes}");
                 }
+            }
 
-                // Fecha o pedido
+            // Fecha o pedido
             pedido.Status = PedidoStatus.Fechado;
             pedido.DataFechamento = DateTime.UtcNow;
 
@@ -77,14 +83,15 @@ namespace Fynanceo.Service
 
             return pedido;
         }
+
         public async Task<Pedido> CriarPedido(PedidoViewModel viewModel)
         {
             try
             {
                 var pedido = new Pedido
                 {
-
-                    NumeroPedido = viewModel.TipoPedido.ToString().Substring(0, 1).ToUpper() + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    NumeroPedido = viewModel.TipoPedido.ToString().Substring(0, 1).ToUpper() +
+                                   DateTime.Now.ToString("yyyyMMddHHmmss"),
                     TipoPedido = viewModel.TipoPedido,
                     Status = PedidoStatus.Aberto,
                     MesaId = viewModel.MesaId,
@@ -102,13 +109,14 @@ namespace Fynanceo.Service
                 // Adicionar itens se houver
                 if (viewModel.Itens.Any())
                 {
-
                     foreach (var item in viewModel.Itens)
                     {
                         await AdicionarItem(pedido.Id, item);
                     }
+
                     await RecalcularTotais(pedido.Id);
                 }
+
                 // Adicionar histórico
                 await AdicionarHistorico(pedido.Id, "Novo", pedido.Status.ToString(), "Sistema");
 
@@ -119,7 +127,6 @@ namespace Fynanceo.Service
                 // Aqui você pode logar o erro ou exibir para o usuário
                 var mensagem = ex.InnerException?.Message ?? ex.Message;
                 throw new Exception($"Erro ao salvar o pedido: {mensagem}");
-
             }
         }
 
@@ -144,10 +151,9 @@ namespace Fynanceo.Service
                 PrecoUnitario = produto.ValorVenda,
                 Observacoes = itemVm.Observacoes,
                 Personalizacoes = itemVm.Personalizacoes,
-             
-                
-                
-                   //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
+
+
+                //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
             };
             if (pedido.TipoPedido == TipoPedido.Delivery && produto.TempoPreparoMinutos == 0)
                 itemPedido.Status = PedidoStatus.Pronto;
@@ -156,8 +162,8 @@ namespace Fynanceo.Service
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();
 
-           // Recalcular totais
-             await RecalcularTotais(pedidoId);
+            // Recalcular totais
+            await RecalcularTotais(pedidoId);
 
             return await ObterPedidoCompleto(pedidoId);
         }
@@ -178,8 +184,8 @@ namespace Fynanceo.Service
         {
             if (usuario == null)
                 usuario = "nao tratado";
-          
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+           
 
             try
             {
@@ -200,8 +206,8 @@ namespace Fynanceo.Service
                     var itens = await _context.ItensPedido
                         .Where(i => i.PedidoId == pedidoId &&
                                     i.Produto.TempoPreparoMinutos > 0) // Apenas itens que precisam de preparo)
-                         .ToListAsync();
-                  
+                        .ToListAsync();
+
 
                     // 🔹 Atualiza campos conforme o novo status
                     switch (status)
@@ -211,12 +217,10 @@ namespace Fynanceo.Service
 
                             foreach (var item in itens)
                             {
-                              
-                                    item.Status = PedidoStatus.EnviadoCozinha;
-                                    item.DataEnvioCozinha = DateTime.UtcNow;
-                         
-                      
+                                item.Status = PedidoStatus.EnviadoCozinha;
+                                item.DataEnvioCozinha = DateTime.UtcNow;
                             }
+
                             break;
 
                         case PedidoStatus.EmPreparo:
@@ -227,6 +231,7 @@ namespace Fynanceo.Service
                                 item.Status = PedidoStatus.EmPreparo;
                                 item.DataInicioPreparo = DateTime.UtcNow;
                             }
+
                             break;
 
                         case PedidoStatus.Pronto:
@@ -237,6 +242,7 @@ namespace Fynanceo.Service
                                 item.Status = PedidoStatus.Pronto;
                                 item.DataPronto = DateTime.UtcNow;
                             }
+
                             break;
 
                         case PedidoStatus.Entregue:
@@ -256,25 +262,20 @@ namespace Fynanceo.Service
 
                     // 🔹 Registra histórico
                     await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario);
-                  
-                    // 🔹 Confirma a transação
-                    await transaction.CommitAsync();
 
-                   
+                  
                 }
-              
+
                 // 🔹 Retorna o pedido completo e atualizado
                 return await ObterPedidoCompleto(pedidoId);
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+             
                 throw new Exception($"Falha ao atualizar o status do pedido {pedidoId}: {ex.Message}", ex);
             }
         }
 
-
-     
         public async Task<Pedido> ObterPedidoCompleto(int pedidoId)
         {
             var pedido = await _context.Pedidos
@@ -292,16 +293,13 @@ namespace Fynanceo.Service
             return pedido;
         }
 
-
         public async Task<List<Pedido>> ObterPedidosPorStatus(string status)
         {
-
-
             if (Enum.TryParse<PedidoStatus>(status, out var statusEnum))
             {
                 return await _context.Pedidos
                     .Include(p => p.Itens)
-                        .ThenInclude(i => i.Produto)
+                    .ThenInclude(i => i.Produto)
                     .Include(p => p.Mesa)
                     .Where(p => p.Itens.Any(i => i.Status == statusEnum))
                     .OrderByDescending(p => p.DataAbertura)
@@ -316,10 +314,10 @@ namespace Fynanceo.Service
             var hoje = DateTime.Today;
             var amanha = hoje.AddDays(1);
             return await _context.Pedidos
-                 .Include(p => p.Mesa)
-                 .Include(p => p.Cliente)
-                 .Include(p => p.Itens)
-                 .Where(p => p.DataAbertura >= hoje && p.DataAbertura < amanha)
+                .Include(p => p.Mesa)
+                .Include(p => p.Cliente)
+                .Include(p => p.Itens)
+                .Where(p => p.DataAbertura >= hoje && p.DataAbertura < amanha)
                 .OrderByDescending(p => p.DataAbertura)
                 .ToListAsync();
         }
@@ -377,6 +375,7 @@ namespace Fynanceo.Service
             _context.HistoricoPedido.Add(historico);
             await _context.SaveChangesAsync();
         }
+
         // 🔹 Iniciar preparo de um item específico
         public async Task<ItemPedido?> IniciarPreparoItemAsync(int itemId)
         {
@@ -406,9 +405,8 @@ namespace Fynanceo.Service
                 var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
                 if (pedido != null)
                 {
-                   // AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    // AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
-
                 }
             }
 
@@ -418,7 +416,10 @@ namespace Fynanceo.Service
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
         {
-            // 1️⃣ Busca o item do pedido
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+  // 1️⃣ Busca o item do pedido
             var item = await _context.ItensPedido.FindAsync(itemId);
             if (item == null)
                 return null;
@@ -432,6 +433,28 @@ namespace Fynanceo.Service
             item.DataPronto = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+      
+             var produtoUsados =  await _context.Produtos
+                .Include(p => p.ProdutoIngredientes)
+                .ThenInclude(i => i.Estoque)
+                .FirstOrDefaultAsync(p => p.Id == item.ProdutoId);
+             
+            foreach (var materiais in produtoUsados.ProdutoIngredientes)
+            {
+                await _estoqueService.CriarMovimentacaoAsync(new MovimentacaoEstoqueViewModel
+                {
+                    Tipo = TipoMovimentacaoEstoque.Saida,
+                    EstoqueId = materiais.EstoqueId,
+                    Quantidade = materiais.Quantidade,
+                    CustoUnitario = materiais.Estoque.CustoUnitario,
+                    Observacao = $"Material usado para o pedido {item.PedidoId}",
+                    Documento =  $"Pedido {item.PedidoId}",
+                    FornecedorId = materiais.Estoque.FornecedorId,
+                    PedidoId = item.PedidoId,
+                    UsuarioNome = "Sistema",
+                });
+            }
+
 
             // 4️⃣ Verifica se todos os itens do mesmo pedido estão prontos
             bool todosProntos = await _context.ItensPedido
@@ -446,33 +469,38 @@ namespace Fynanceo.Service
                 if (pedido != null)
                 {
                     // 🔥 SEM Wait() e sem bloquear thread!
-                   // await AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema");
-                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.Pronto), "Sistema").Wait();
+                    // await AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema");
+                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.Pronto), "Sistema").Wait();
 
                     await _context.Entry(pedido).ReloadAsync();
 
                     // 🔥 Somente depois do await, o pedido está salvo e atualizado
                     if (pedido is { TipoPedido: TipoPedido.Delivery, Status: PedidoStatus.Pronto })
                     {
-                       // ara evitar conflitos entre o entregaservice e o pedidoservice ou invez de colocar
-                       //  no inicio    private readonly IEntregaService _entregaService; ele so inicia neste momento
-                       // para nao quebrar na hora de executar?
+                        // ara evitar conflitos entre o entregaservice e o pedidoservice ou invez de colocar
+                        //  no inicio    private readonly IEntregaService _entregaService; ele so inicia neste momento
+                        // para nao quebrar na hora de executar?
                         var entregaService = _serviceProvider.GetRequiredService<IEntregaService>();
                         await entregaService.CriarEntrega(pedido.Id);
                     }
                 }
             }
-
+            await transaction.CommitAsync();
             return item;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await transaction.RollbackAsync();
+                throw;
+            }
+          
         }
 
-    
         /// Inicia o preparo de todos os itens de um pedido e atualiza o status do pedido.
-      
         // <returns>Retorna true se algum item foi iniciado, false se não houver itens disponíveis</returns>
         public async Task<bool> IniciarPreparoTodosAsync(int pedidoId)
         {
-
             // 🔹 Inicia uma transação para garantir atomicidade
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -503,7 +531,7 @@ namespace Fynanceo.Service
                 // 🔹 Atualiza o status do pedido, se aplicável /O pedido != null é automaticamente tratado pelo pattern.
                 if (pedido is { Status: PedidoStatus.EnviadoCozinha })
                 {
-                  //  AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
+                    //  AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
                     //pedido.Status = PedidoStatus.EmPreparo;
                     //pedido.DataPreparo = DateTime.UtcNow;
@@ -527,7 +555,6 @@ namespace Fynanceo.Service
 
         public async Task<bool> EntregaTodosCozinha(int pedidoId)
         {
-
             // 🔹 Inicia uma transação para garantir atomicidade
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -556,8 +583,8 @@ namespace Fynanceo.Service
                 var pedido = await _context.Pedidos.FindAsync(pedidoId);
 
                 // 🔹 Atualiza o status do pedido, se aplicável
-               
-                    if (pedido is { Status: PedidoStatus.Pronto })
+
+                if (pedido is { Status: PedidoStatus.Pronto })
                 {
                     //AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
@@ -584,7 +611,6 @@ namespace Fynanceo.Service
         // 🔹 Marcar todos os itens como prontos e atualizar o status do pedido
         public async Task<bool> MarcarProntoTodosAsync(int pedidoId)
         {
-
             // 🔹 Inicia uma transação para garantir atomicidade
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -604,17 +630,14 @@ namespace Fynanceo.Service
                 {
                     item.Status = PedidoStatus.Pronto;
                     item.DataPronto = DateTime.UtcNow;
-
-
-
                 }
 
                 // Busca o pedido correspondente
                 var pedido = await _context.Pedidos.FindAsync(pedidoId);
 
                 // 🔹 Atualiza o status do pedido, se aplicável
-         
-                    if (pedido is { Status: PedidoStatus.EmPreparo })
+
+                if (pedido is { Status: PedidoStatus.EmPreparo })
                 {
                     //AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
@@ -660,7 +683,7 @@ namespace Fynanceo.Service
             // 4️⃣ Verifica se todos os itens do pedido já estão em preparo
             bool todosEntregue = await _context.ItensPedido
                 .Where(i => i.PedidoId == item.PedidoId)
-                .AllAsync(i =>  i.Status == PedidoStatus.Entregue);
+                .AllAsync(i => i.Status == PedidoStatus.Entregue);
 
             // 5️⃣ Se todos estão em entregue ou prontos, atualiza o status do pedido
             if (todosEntregue)
@@ -668,7 +691,7 @@ namespace Fynanceo.Service
                 var pedido = await _context.Pedidos.FindAsync(item.PedidoId);
                 if (pedido != null)
                 {
-                   // AtualizarStatus(pedido.Id, PedidoStatus.Entregue.ToString(), "Sistema").Wait();
+                    // AtualizarStatus(pedido.Id, PedidoStatus.Entregue.ToString(), "Sistema").Wait();
                     AtualizarStatus(pedido.Id, nameof(PedidoStatus.Entregue), "Sistema").Wait();
                     //pedido.Status = PedidoStatus.EmPreparo; // Enum do pedido
                     //pedido.DataPreparo = DateTime.UtcNow;
@@ -696,7 +719,6 @@ namespace Fynanceo.Service
             return pedido;
         }
 
-
         public async Task<bool> FecharPedidoMesa(int pedidoId, int mesaId)
         {
             var pedido = await _context.Pedidos.FindAsync(pedidoId);
@@ -712,7 +734,6 @@ namespace Fynanceo.Service
 
             return true;
         }
-
 
         public async Task<ItemPedido> EnviarItemCozinhaAsync(int itemId)
         {
@@ -774,8 +795,8 @@ namespace Fynanceo.Service
             var itensPendentes = await _context.ItensPedido
                 .Include(i => i.Produto)
                 .Where(i => i.PedidoId == pedidoId &&
-                           i.Status == PedidoStatus.Aberto &&
-                           i.Produto.TempoPreparoMinutos > 0) // Apenas itens que precisam de preparo
+                            i.Status == PedidoStatus.Aberto &&
+                            i.Produto.TempoPreparoMinutos > 0) // Apenas itens que precisam de preparo
                 .ToListAsync();
 
             if (!itensPendentes.Any())
@@ -830,7 +851,6 @@ namespace Fynanceo.Service
             else if (pedido.TipoPedido == TipoPedido.Delivery)
             {
                 pedido.Status = PedidoStatus.EmRota;
-                
             }
 
             await _context.SaveChangesAsync();
@@ -866,7 +886,7 @@ namespace Fynanceo.Service
 
             // Libera a mesa se estiver ocupada
             if (pedido.Mesa is { Status: "Ocupada" })
-               
+
             {
                 pedido.Mesa.Status = "Livre";
             }
@@ -913,88 +933,78 @@ namespace Fynanceo.Service
 
             return item;
         }
-        
+
         public async Task<bool> VerificaProdutoJaVendido(int produtoId)
         {
             return await _context.ItensPedido
                 .AnyAsync(i => i.ProdutoId == produtoId);
         }
 
-        
+
         // NO PedidoService.cs - ADICIONAR ESTE MÉTODO
-
-    public async Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
-    int pedidoId, 
-    FormaPagamento formaPagamento, 
-    decimal? valorRecebido = null,
-    string? observacoes = null)
-{
-    await using var transaction = await _context.Database.BeginTransactionAsync();
-
-    try
-    {
-        // 1. Fechar o pedido
-        var pedido = await FecharPedidoAsync(pedidoId);
-        
-        // 2. Registrar movimentação no caixa
-        var financeiroService = _serviceProvider.GetRequiredService<IFinanceiroService>();
-        var caixaAberto = await financeiroService.ObterCaixaAberto();
-        
-        if (caixaAberto == null)
+        public async Task<(bool Success, string Message)> FecharPedidoComPagamentoAsync(
+            int pedidoId,
+            FormaPagamento formaPagamento,
+            decimal? valorRecebido = null,
+            string? observacoes = null)
         {
-            await transaction.RollbackAsync();
-            return (false, "Nenhum caixa aberto encontrado. Abra um caixa antes de fechar pedidos.");
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Fechar o pedido
+                var pedido = await FecharPedidoAsync(pedidoId);
+
+                // 2. Registrar movimentação no caixa
+                var financeiroService = _serviceProvider.GetRequiredService<IFinanceiroService>();
+                var caixaAberto = await financeiroService.ObterCaixaAberto();
+
+                if (caixaAberto == null)
+                {
+                    await transaction.RollbackAsync();
+                    return (false, "Nenhum caixa aberto encontrado. Abra um caixa antes de fechar pedidos.");
+                }
+
+                // Criar descrição para a movimentação
+                var descricao = $"Pedido {pedido.NumeroPedido} - {pedido.TipoPedido}";
+                if (pedido.Cliente != null)
+                {
+                    descricao += $" - {pedido.Cliente.NomeCompleto}";
+                }
+
+                // Registrar movimentação de entrada no caixa
+                var movimentacaoViewModel = new MovimentacaoViewModel
+                {
+                    Tipo = TipoMovimentacao.Entrada,
+                    Valor = pedido.Total,
+                    FormaPagamento = formaPagamento,
+                    Categoria = CategoriaFinanceira.Venda,
+                    Descricao = descricao,
+                    Observacoes = observacoes ?? $"Fechamento pedido {pedido.NumeroPedido}",
+                    IsSangria = false,
+                    IsSuprimento = false
+                };
+
+                await financeiroService.AdicionarMovimentacao(movimentacaoViewModel);
+
+                // 3. Se for dinheiro e houver troco, registrar observação adicional se necessário
+                if (formaPagamento == FormaPagamento.Dinheiro && valorRecebido.HasValue && valorRecebido > pedido.Total)
+                {
+                    var troco = valorRecebido.Value - pedido.Total;
+
+                    // Poderia registrar uma movimentação de saída para o troco, 
+                    // mas normalmente o troco é dado do caixa físico
+                    // Aqui apenas registramos a informação nas observações
+                }
+
+                await transaction.CommitAsync();
+                return (true, "Pedido fechado e pagamento registrado com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return (false, $"Erro ao processar fechamento: {ex.Message}");
+            }
         }
-
-        // Criar descrição para a movimentação
-        var descricao = $"Pedido {pedido.NumeroPedido} - {pedido.TipoPedido}";
-        if (pedido.Cliente != null)
-        {
-            descricao += $" - {pedido.Cliente.NomeCompleto}";
-        }
-
-        // Registrar movimentação de entrada no caixa
-        var movimentacaoViewModel = new MovimentacaoViewModel
-        {
-            Tipo = TipoMovimentacao.Entrada,
-            Valor = pedido.Total,
-            FormaPagamento = formaPagamento,
-            Categoria = CategoriaFinanceira.Venda,
-            Descricao = descricao,
-            Observacoes = observacoes ?? $"Fechamento pedido {pedido.NumeroPedido}",
-            IsSangria = false,
-            IsSuprimento = false
-        };
-
-        await financeiroService.AdicionarMovimentacao(movimentacaoViewModel);
-
-        // 3. Se for dinheiro e houver troco, registrar observação adicional se necessário
-        if (formaPagamento == FormaPagamento.Dinheiro && valorRecebido.HasValue && valorRecebido > pedido.Total)
-        {
-            var troco = valorRecebido.Value - pedido.Total;
-            
-            // Poderia registrar uma movimentação de saída para o troco, 
-            // mas normalmente o troco é dado do caixa físico
-            // Aqui apenas registramos a informação nas observações
-        }
-
-        await transaction.CommitAsync();
-        return (true, "Pedido fechado e pagamento registrado com sucesso!");
     }
-    catch (Exception ex)
-    {
-        await transaction.RollbackAsync();
-        return (false, $"Erro ao processar fechamento: {ex.Message}");
-    }
-}
-        
-        
-
-    }
-    
-   
-
-
-
-
 }

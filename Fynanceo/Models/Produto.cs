@@ -40,7 +40,7 @@ namespace Fynanceo.Models
         public bool Disponivel { get; set; } = true;
 
 
-        public DateTime DataCadastro { get; set; } = DateTime.Now;
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
 
         // Navegação
         public virtual ICollection<ProdutoIngrediente>? ProdutoIngredientes { get; set; } = new List<ProdutoIngrediente>();

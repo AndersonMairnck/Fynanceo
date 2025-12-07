@@ -32,6 +32,15 @@ namespace Fynanceo.Service
                 .ToListAsync();
         }
 
+        public async Task<List<string>> SomenteCategoriasAsync()
+        {
+            return await _context.Estoques
+                .Select(e => e.Categorias)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToListAsync();
+        }
+
         public async Task<Estoque> ObterEstoquePorIdAsync(int id)
         {
             try
@@ -166,7 +175,7 @@ namespace Fynanceo.Service
 
         public async Task<MovimentacaoEstoque> CriarMovimentacaoAsync(MovimentacaoEstoqueViewModel model)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+           
 
             try
             {
@@ -218,14 +227,14 @@ namespace Fynanceo.Service
 
                 _context.MovimentacoesEstoque.Add(movimentacao);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+               
 
                 _logger.LogInformation($"Movimentação criada: {model.Tipo} - {model.Quantidade} unidades de {estoque.Nome}");
                 return movimentacao;
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+              
                 _logger.LogError(ex, "Erro ao criar movimentação de estoque");
                 throw;
             }
@@ -397,6 +406,39 @@ namespace Fynanceo.Service
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task AdicionarItensInventarioTodosAsync(int inventarioId, bool apenasAtivos = true, bool conferido = false)
+        {
+            var inventario = await _context.Inventarios.FindAsync(inventarioId);
+            if (inventario == null || inventario.Status != StatusInventario.Aberto)
+                throw new ArgumentException("Inventário inválido para receber itens.");
+
+            IQueryable<Estoque> query = _context.Estoques;
+            if (apenasAtivos)
+            {
+                query = query.Where(e => e.Status == StatusEstoque.Ativo);
+            }
+
+            var produtos = await query.ToListAsync();
+
+            var itens = produtos.Select(produto => new ItemInventario
+            {
+                InventarioId = inventarioId,
+                EstoqueId = produto.Id,
+                QuantidadeSistema = produto.EstoqueAtual,
+                QuantidadeFisica = 0,
+                CustoUnitario = produto.CustoUnitario,
+                Conferido = conferido
+            }).ToList();
+
+            if (itens.Count > 0)
+            {
+                await _context.ItensInventario.AddRangeAsync(itens);
+                await _context.SaveChangesAsync();
+            }
+
+            _logger.LogInformation($"{itens.Count} itens adicionados ao inventário {inventarioId} (apenasAtivos={apenasAtivos}, conferido={conferido})");
         }
 
         // INTEGRAÇÃO COM PEDIDOS

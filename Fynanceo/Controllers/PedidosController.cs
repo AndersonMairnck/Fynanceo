@@ -378,9 +378,7 @@ namespace Fynanceo.Controllers
             }
         }
         
-        // NO PedidosController.cs - ADICIONAR ESTES MÉTODOS
-
-// GET: Pedidos/FecharComPagamento/5
+      // GET: Pedidos/FecharComPagamento/5
 public async Task<IActionResult> FecharComPagamento(int id)
 {
     var pedido = await _pedidoService.ObterPedidoCompleto(id);
