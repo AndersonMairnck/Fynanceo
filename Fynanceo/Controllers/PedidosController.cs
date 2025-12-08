@@ -102,6 +102,19 @@ namespace Fynanceo.Controllers
             return View(pedido);
         }
 
+        // GET: Pedidos/ImprimirComanda/5
+        [HttpGet]
+        public async Task<IActionResult> ImprimirComanda(int id)
+        {
+            var pedido = await _pedidoService.ObterPedidoCompleto(id);
+            if (pedido == null)
+            {
+                return NotFound();
+            }
+
+            return View("Comanda", pedido);
+        }
+
         // GET: Pedidos/Cozinha
         public async Task<IActionResult> Cozinha()
         {
@@ -417,6 +430,15 @@ public async Task<IActionResult> FecharComPagamento(FechamentoPedidoViewModel vi
     {
         try
         {
+            // Exigir valor recebido quando a forma de pagamento for dinheiro
+            if (viewModel.FormaPagamento == FormaPagamento.Dinheiro)
+            {
+                if (!viewModel.ValorRecebido.HasValue || viewModel.ValorRecebido.Value <= 0)
+                {
+                    ModelState.AddModelError("ValorRecebido", "Informe o valor recebido em dinheiro");
+                    return View(viewModel);
+                }
+            }
             // Verificar se valor recebido é suficiente para formas que precisam de troco
             if (viewModel.FormaPagamento == FormaPagamento.Dinheiro && 
                 viewModel.ValorRecebido.HasValue && 
@@ -436,13 +458,7 @@ public async Task<IActionResult> FecharComPagamento(FechamentoPedidoViewModel vi
             if (resultado.Success)
             {
                 TempData["Success"] = "Pedido fechado e pagamento registrado com sucesso!";
-                
-                // Se houver troco, mostrar alerta
-                if (viewModel.Troco > 0)
-                {
-                    TempData["Info"] = $"Troco: R$ {viewModel.Troco:N2}";
-                }
-                
+                // Removido Info via TempData para troco, pois agora exibimos em textbox antes da confirmação
                 return RedirectToAction(nameof(Details), new { id = viewModel.PedidoId });
             }
             else

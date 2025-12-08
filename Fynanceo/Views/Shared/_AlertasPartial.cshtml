@@ -1,31 +1,39 @@
-﻿@if (TempData["Sucesso"] != null)
+﻿@{
+    // Suporte a chaves em PT-BR e EN usadas nos Controllers (ex.: "Sucesso" e "Success")
+    var success = TempData["Success"] ?? TempData["Sucesso"];
+    var error = TempData["Error"] ?? TempData["Erro"];
+    var warning = TempData["Warning"] ?? TempData["Aviso"];
+    var info = TempData["Info"]; // já padronizada
+}
+
+@if (success != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>@TempData["Sucesso"]
+        <i class="fas fa-check-circle me-2"></i>@success
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
-@if (TempData["Erro"] != null)
+@if (error != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Erro"]
+        <i class="fas fa-exclamation-circle me-2"></i>@error
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
-@if (TempData["Aviso"] != null)
+@if (warning != null)
 {
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Aviso"]
+        <i class="fas fa-exclamation-triangle me-2"></i>@warning
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
 
-@if (TempData["Info"] != null)
+@if (info != null)
 {
     <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <i class="fas fa-info-circle me-2"></i>@TempData["Info"]
+        <i class="fas fa-info-circle me-2"></i>@info
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }

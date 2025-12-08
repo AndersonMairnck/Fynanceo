@@ -972,6 +972,15 @@ namespace Fynanceo.Service
                     descricao += $" - {pedido.Cliente.NomeCompleto}";
                 }
 
+                // Montar observação da movimentação, incluindo troco quando aplicável
+                var observacaoMov = observacoes ?? $"Fechamento pedido {pedido.NumeroPedido}";
+
+                if (formaPagamento == FormaPagamento.Dinheiro && valorRecebido.HasValue && valorRecebido > pedido.Total)
+                {
+                    var troco = valorRecebido.Value - pedido.Total;
+                    observacaoMov += $" | Troco: R$ {troco:N2} (Recebido: R$ {valorRecebido.Value:N2} • Total: R$ {pedido.Total:N2})";
+                }
+
                 // Registrar movimentação de entrada no caixa
                 var movimentacaoViewModel = new MovimentacaoViewModel
                 {
@@ -980,22 +989,12 @@ namespace Fynanceo.Service
                     FormaPagamento = formaPagamento,
                     Categoria = CategoriaFinanceira.Venda,
                     Descricao = descricao,
-                    Observacoes = observacoes ?? $"Fechamento pedido {pedido.NumeroPedido}",
+                    Observacoes = observacaoMov,
                     IsSangria = false,
                     IsSuprimento = false
                 };
 
                 await financeiroService.AdicionarMovimentacao(movimentacaoViewModel);
-
-                // 3. Se for dinheiro e houver troco, registrar observação adicional se necessário
-                if (formaPagamento == FormaPagamento.Dinheiro && valorRecebido.HasValue && valorRecebido > pedido.Total)
-                {
-                    var troco = valorRecebido.Value - pedido.Total;
-
-                    // Poderia registrar uma movimentação de saída para o troco, 
-                    // mas normalmente o troco é dado do caixa físico
-                    // Aqui apenas registramos a informação nas observações
-                }
 
                 await transaction.CommitAsync();
                 return (true, "Pedido fechado e pagamento registrado com sucesso!");
