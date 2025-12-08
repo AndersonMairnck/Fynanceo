@@ -186,7 +186,7 @@
                                                 var progressClass = percentual == 100 ? "bg-success" : percentual > 0 ? "bg-warning" : "bg-secondary";
                                             }
                                             <div class="progress-bar @progressClass" role="progressbar"
-                                                 style="width: @percentual%;"
+                                                 style="width: @($"{percentual}%");"
                                                  aria-valuenow="@percentual" aria-valuemin="0" aria-valuemax="100">
                                                 @itensConferidos/@totalItens
                                             </div>
@@ -226,10 +226,14 @@
                                                    class="btn btn-outline-warning" title="Continuar">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-outline-success"
-                                                        onclick="fecharInventario(@inventario.Id)" title="Fechar">
-                                                    <i class="fas fa-lock"></i>
-                                                </button>
+                                                <form id="fecharInventarioForm-@inventario.Id" asp-controller="Estoque" asp-action="FecharInventario" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@inventario.Id" />
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="button" class="btn btn-outline-success"
+                                                            onclick="fecharInventario(@inventario.Id)" title="Fechar">
+                                                        <i class="fas fa-lock"></i>
+                                                    </button>
+                                                </form>
                                             }
                                             @if (inventario.Status == StatusInventario.Aberto)
                                             {
@@ -346,7 +350,8 @@
 
         function fecharInventario(id) {
             if (confirm('Tem certeza que deseja fechar este inventário?\n\nApós o fechamento, serão gerados ajustes automáticos no estoque baseados nas diferenças encontradas.')) {
-                window.location.href = `@Url.Action("FecharInventario")/${id}`;
+                const form = document.getElementById(`fecharInventarioForm-${id}`);
+                if (form) form.submit();
             }
         }
 

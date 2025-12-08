@@ -365,6 +365,7 @@ namespace Fynanceo.Service
                         Quantidade = item.Diferenca,
                         CustoUnitario = item.CustoUnitario,
                         Observacao = $"Ajuste de inventário #{inventario.Id}",
+                        Documento =  $"Inventario= {inventario.Id}",
                         UsuarioNome = "Sistema"
                     };
 
@@ -379,6 +380,40 @@ namespace Fynanceo.Service
 
             _logger.LogInformation($"Inventário fechado: {inventario.Descricao} (ID: {inventario.Id})");
             return inventario;
+        }
+
+        public async Task<(bool success, string message)> ConferirItemAsync(int itemId, int inventarioId, decimal quantidadeFisica, string observacao)
+        {
+            try
+            {
+                var item = await _context.ItensInventario
+                    .Include(ii => ii.Estoque)
+                    .FirstOrDefaultAsync(ii => ii.Id == itemId && ii.InventarioId == inventarioId);
+
+                if (item == null)
+                {
+                    return (false, "Item não encontrado.");
+                }
+
+                item.QuantidadeFisica = quantidadeFisica;
+                item.Observacao = observacao;
+                item.Conferido = true;
+
+                var inventario = await _context.Inventarios.FindAsync(inventarioId);
+                if (inventario != null && inventario.Status == StatusInventario.Aberto)
+                {
+                    inventario.Status = StatusInventario.EmAndamento;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return (true, "Item conferido com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao conferir item de inventário {ItemId} no inventário {InventarioId}", itemId, inventarioId);
+                return (false, $"Erro: {ex.Message}");
+            }
         }
 
         public async Task<bool> AdicionarItemInventarioAsync(int inventarioId, ItemInventarioViewModel model)
@@ -413,33 +448,41 @@ namespace Fynanceo.Service
             var inventario = await _context.Inventarios.FindAsync(inventarioId);
             if (inventario == null || inventario.Status != StatusInventario.Aberto)
                 throw new ArgumentException("Inventário inválido para receber itens.");
-
-            IQueryable<Estoque> query = _context.Estoques;
-            if (apenasAtivos)
+            try
             {
-                query = query.Where(e => e.Status == StatusEstoque.Ativo);
+                IQueryable<Estoque> query = _context.Estoques;
+                if (apenasAtivos)
+                {
+                    query = query.Where(e => e.Status == StatusEstoque.Ativo);
+                }
+
+                var produtos = await query.ToListAsync();
+
+                var itens = produtos.Select(produto => new ItemInventario
+                {
+                    InventarioId = inventarioId,
+                    EstoqueId = produto.Id,
+                    QuantidadeSistema = produto.EstoqueAtual,
+                    QuantidadeFisica = 0,
+                    CustoUnitario = produto.CustoUnitario,
+                    Conferido = conferido
+                }).ToList();
+
+                if (itens.Count > 0)
+                {
+                    await _context.ItensInventario.AddRangeAsync(itens);
+                    await _context.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"{itens.Count} itens adicionados ao inventário {inventarioId} (apenasAtivos={apenasAtivos}, conferido={conferido})");
+
             }
-
-            var produtos = await query.ToListAsync();
-
-            var itens = produtos.Select(produto => new ItemInventario
+            catch (Exception e)
             {
-                InventarioId = inventarioId,
-                EstoqueId = produto.Id,
-                QuantidadeSistema = produto.EstoqueAtual,
-                QuantidadeFisica = 0,
-                CustoUnitario = produto.CustoUnitario,
-                Conferido = conferido
-            }).ToList();
-
-            if (itens.Count > 0)
-            {
-                await _context.ItensInventario.AddRangeAsync(itens);
-                await _context.SaveChangesAsync();
+                Console.WriteLine(e);
+                throw;
             }
-
-            _logger.LogInformation($"{itens.Count} itens adicionados ao inventário {inventarioId} (apenasAtivos={apenasAtivos}, conferido={conferido})");
-        }
+          }
 
         // INTEGRAÇÃO COM PEDIDOS
         public async Task<bool> ProcessarSaidaPedidoAsync(int pedidoId)

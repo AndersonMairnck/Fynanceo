@@ -19,9 +19,13 @@
                 <a href="@Url.Action("EditarInventario", new { id = Model.Id })" class="btn btn-warning me-2">
                     <i class="fas fa-edit me-2"></i>Continuar Conferência
                 </a>
-                <button type="button" class="btn btn-success" onclick="fecharInventario(@Model.Id)">
-                    <i class="fas fa-lock me-2"></i>Fechar Inventário
-                </button>
+                <form id="fecharInventarioForm" asp-controller="Estoque" asp-action="FecharInventario" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    @Html.AntiForgeryToken()
+                    <button type="button" class="btn btn-success" onclick="fecharInventario(@Model.Id)">
+                        <i class="fas fa-lock me-2"></i>Fechar Inventário
+                    </button>
+                </form>
             }
         </div>
     </div>
@@ -264,7 +268,8 @@
 
         function fecharInventario(id) {
             if (confirm('Tem certeza que deseja fechar este inventário?\n\nApós o fechamento, serão gerados ajustes automáticos no estoque.')) {
-                window.location.href = `@Url.Action("FecharInventario")/${id}`;
+                const form = document.getElementById('fecharInventarioForm');
+                if (form) form.submit();
             }
         }
     </script>
