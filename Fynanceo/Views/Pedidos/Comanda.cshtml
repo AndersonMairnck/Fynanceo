@@ -1,0 +1,138 @@
+@model Fynanceo.Models.Pedido
+@using Fynanceo.Models.Enums
+
+@{
+    Layout = null; // Página de impressão simples
+    var titulo = $"Comanda - Pedido {Model.NumeroPedido}";
+    string tipoTexto = Model.TipoPedido switch
+    {
+        TipoPedido.Mesa => $"Mesa{(Model.Mesa != null ? " - " + Model.Mesa.Numero : string.Empty)}",
+        TipoPedido.Balcao => "Balcão",
+        TipoPedido.Delivery => $"Delivery{(Model.Cliente != null && !string.IsNullOrWhiteSpace(Model.Cliente.NomeCompleto) ? " - " + Model.Cliente.NomeCompleto : string.Empty)}",
+        _ => Model.TipoPedido.ToString()
+    };
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@titulo</title>
+    <style>
+        /* Estilos básicos para impressão em papel térmico/folha A4 */
+        /* Usando tamanho fixo para evitar warning de custom property */
+        @@media print {
+            .no-print { display: none !important; }
+            body { margin: 8px; }
+        }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #000;
+        }
+        .ticket {
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        h1, h2, h3, h4, h5 {
+            margin: 0;
+            padding: 0;
+            font-weight: 700;
+        }
+        .center { text-align: center; }
+        .muted { color: #555; }
+        .row { display: flex; justify-content: space-between; gap: 8px; }
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .divider { border-top: 1px dashed #000; margin: 8px 0; }
+        .itens { width: 100%; border-collapse: collapse; }
+        .itens th, .itens td { text-align: left; vertical-align: top; padding: 2px 0; }
+        .qty { width: 28px; text-align: right; padding-right: 6px; }
+        .price { width: 64px; text-align: right; }
+        .right { text-align: right; }
+        small { font-size: 10px; }
+        .obs { white-space: pre-wrap; }
+        .badge { display: inline-block; padding: 2px 6px; border: 1px solid #000; border-radius: 3px; font-size: 10px; }
+        .footer { margin-top: 12px; text-align: center; }
+        button { padding: 6px 10px; }
+    </style>
+    <script>
+        // Abre diálogo de impressão automaticamente ao carregar
+        window.addEventListener('load', function () {
+            setTimeout(function(){ window.print(); }, 100);
+        });
+    </script>
+    
+    <!-- Opcional: Ícones para usar no botão fechar -->
+</head>
+<body>
+    <div class="ticket">
+        <div class="no-print center mb-2">
+            <button onclick="window.print()">Imprimir</button>
+            <button onclick="window.close()">Fechar</button>
+        </div>
+
+        <div class="center mb-2">
+            <h3>COMANDA</h3>
+            <div class="muted">Pedido @Model.NumeroPedido</div>
+        </div>
+
+        <div class="mb-2">
+            <div class="row mb-1"><strong>Data:</strong><span>@Model.DataAbertura.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span></div>
+            <div class="row mb-1"><strong>Tipo:</strong><span>@tipoTexto</span></div>
+            <div class="row mb-1"><strong>Status:</strong><span class="badge">@Model.Status</span></div>
+            @if (!string.IsNullOrWhiteSpace(Model.Observacoes))
+            {
+                <div class="mb-1"><strong>Obs. Pedido:</strong> <span class="obs">@Model.Observacoes</span></div>
+            }
+        </div>
+
+        <div class="divider"></div>
+
+        <table class="itens">
+            <thead>
+                <tr>
+                    <th class="qty">Qt</th>
+                    <th>Descrição</th>
+                    <th class="price">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Itens)
+            {
+                <tr>
+                    <td class="qty">@item.Quantidade</td>
+                    <td>
+                        <div><strong>@item.Produto?.Nome</strong></div>
+                        @if (!string.IsNullOrWhiteSpace(item.Personalizacoes))
+                        {
+                            <div class="obs"><small>Pers.: @item.Personalizacoes</small></div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.Observacoes))
+                        {
+                            <div class="obs"><small>Obs.: @item.Observacoes</small></div>
+                        }
+                    </td>
+                    <td class="price">@item.Total.ToString("C")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+
+        <div class="divider"></div>
+
+        <div class="row mb-1"><strong>Subtotal:</strong><span>@Model.Subtotal.ToString("C")</span></div>
+        @if (Model.TaxaEntrega > 0)
+        {
+            <div class="row mb-1"><strong>Taxa Entrega:</strong><span>@Model.TaxaEntrega.ToString("C")</span></div>
+        }
+        <div class="row mb-2"><strong>Total:</strong><span>@Model.Total.ToString("C")</span></div>
+
+        <div class="footer">
+            <small>Gerado em @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
+        </div>
+    </div>
+</body>
+</html>

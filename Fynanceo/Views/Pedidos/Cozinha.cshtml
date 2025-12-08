@@ -3,13 +3,15 @@
 @using Fynanceo.ViewModel
 @using Fynanceo.ViewModel.PedidosModel
 
-@{
+@{ 
     ViewData["Title"] = "Painel da Cozinha";
     var pedidosCozinha = Model.PedidosCozinha;
     var pedidosPreparo = Model.PedidosPreparo;
     var pedidosProntos = Model.PedidosProntos;
     var config = Model.Config;
 }
+
+@await Html.PartialAsync("_AlertasPartial")
 
 <!-- ÁREA FIXA DE OBSERVAÇÕES DA COZINHA -->
 <div class="card mb-4 border-info" id="area-observacoes-fixa">

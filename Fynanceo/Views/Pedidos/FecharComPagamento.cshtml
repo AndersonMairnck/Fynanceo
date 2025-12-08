@@ -1,9 +1,11 @@
 <!-- Views/Pedidos/FecharComPagamento.cshtml -->
 @model Fynanceo.ViewModel.PedidosModel.FechamentoPedidoViewModel
 
-@{
+@{ 
     ViewData["Title"] = "Fechar Pedido com Pagamento";
 }
+
+@await Html.PartialAsync("_AlertasPartial")
 
 <div class="row justify-content-center">
     <div class="col-md-6">
@@ -43,6 +45,7 @@
                 </div>
 
                 <form asp-action="FecharComPagamento">
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
                     <input type="hidden" asp-for="PedidoId" />
                     <input type="hidden" asp-for="TotalPedido" />
                     <input type="hidden" asp-for="NumeroPedido" />
@@ -67,7 +70,7 @@
                         <label asp-for="ValorRecebido" class="form-label">Valor Recebido *</label>
                         <div class="input-group">
                             <span class="input-group-text">R$</span>
-                            <input asp-for="ValorRecebido" class="form-control" type="number" step="0.01" min="0.01">
+                            <input asp-for="ValorRecebido" class="form-control" type="text" step="0.01" min="0.01" data-mask="moeda" >
                         </div>
                         <span asp-validation-for="ValorRecebido" class="text-danger"></span>
                         <small class="form-text text-muted">
@@ -75,10 +78,14 @@
                         </small>
                     </div>
 
-                    <!-- Display do troco (apenas para dinheiro) -->
-                    <div class="alert alert-warning mt-3" id="trocoAlert" style="display: none;">
-                        <strong><i class="fas fa-exchange-alt me-2"></i>Troco:</strong>
-                        <span id="trocoValue" class="fw-bold">R$ 0,00</span>
+                    <!-- Campo de troco (apenas para dinheiro) -->
+                    <div class="mb-3" id="trocoGroup" style="display: none;">
+                        <label class="form-label">Troco</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input id="TrocoDisplay" class="form-control" type="text" value="0,00" readonly>
+                        </div>
+                        <small class="form-text text-muted">O troco é calculado automaticamente quando o valor recebido é maior que o total.</small>
                     </div>
 
                     <div class="mb-3">
@@ -104,56 +111,57 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            const formaPagamentoSelect = $('#formaPagamentoSelect');
-            const valorRecebidoGroup = $('#valorRecebidoGroup');
-            const trocoAlert = $('#trocoAlert');
-            const trocoValue = $('#trocoValue');
-            const totalPedido = @Model.TotalPedido;
+        document.addEventListener('DOMContentLoaded', function () {
+            const formaPagamentoSelect = document.getElementById('formaPagamentoSelect');
+            const valorRecebidoGroup = document.getElementById('valorRecebidoGroup');
+            const trocoGroup = document.getElementById('trocoGroup');
+            const trocoDisplay = document.getElementById('TrocoDisplay');
+            const valorRecebidoInput = document.getElementById('ValorRecebido');
+            const totalPedido = parseFloat('@Model.TotalPedido.ToString(System.Globalization.CultureInfo.InvariantCulture)');
 
-            // Função para formatar moeda
             function formatarMoeda(valor) {
-                return 'R$ ' + parseFloat(valor).toLocaleString('pt-BR', {
+                return Number(valor).toLocaleString('pt-BR', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 });
             }
 
-            // Função para calcular e mostrar troco
             function calcularTroco() {
-                const valorRecebido = parseFloat($('#ValorRecebido').val()) || 0;
+                // Normaliza entrada no formato pt-BR (ex.: "5.658,66") para número JS
+                // 1) remove símbolos e espaços, 2) remove separador de milhar '.', 3) troca vírgula decimal por ponto
+                let entrada = (valorRecebidoInput.value || '').toString().trim();
+                entrada = entrada.replace(/[^\d,.-]/g, ''); // mantém apenas dígitos e separadores
+                entrada = entrada.replace(/\./g, '');       // remove todos os pontos (milhar)
+                entrada = entrada.replace(',', '.');        // converte vírgula decimal para ponto
+
+                const valorRecebido = parseFloat(entrada) || 0;
                 const troco = valorRecebido - totalPedido;
-                
-                if (troco > 0) {
-                    trocoValue.text(formatarMoeda(troco));
-                    trocoAlert.show();
+                const valorMostrar = troco > 0 ? troco : 0;
+                trocoDisplay.value = formatarMoeda(valorMostrar);
+            }
+
+            function aplicarExibicaoPorForma() {
+                const formaPagamento = formaPagamentoSelect.value;
+                if (formaPagamento === '1') { // Dinheiro
+                    valorRecebidoGroup.style.display = '';
+                    trocoGroup.style.display = '';
+                    valorRecebidoInput.required = true;
+                    valorRecebidoInput.focus();
+                    calcularTroco();
                 } else {
-                    trocoAlert.hide();
+                    valorRecebidoGroup.style.display = 'none';
+                    trocoGroup.style.display = 'none';
+                    valorRecebidoInput.required = false;
+                    valorRecebidoInput.value = '';
+                    trocoDisplay.value = '0,00';
                 }
             }
 
-            // Mostrar/ocultar campo de valor recebido baseado na forma de pagamento
-            formaPagamentoSelect.change(function() {
-                const formaPagamento = $(this).val();
-                
-                if (formaPagamento === '1') { // Dinheiro
-                    valorRecebidoGroup.show();
-                    $('#ValorRecebido').prop('required', true);
-                    calcularTroco();
-                } else {
-                    valorRecebidoGroup.hide();
-                    $('#ValorRecebido').prop('required', false);
-                    trocoAlert.hide();
-                }
-            });
+            formaPagamentoSelect.addEventListener('change', aplicarExibicaoPorForma);
+            valorRecebidoInput.addEventListener('input', calcularTroco);
 
-            // Calcular troco quando o valor recebido mudar
-            $('#ValorRecebido').on('input', function() {
-                calcularTroco();
-            });
-
-            // Trigger inicial para configurar estado correto
-            formaPagamentoSelect.trigger('change');
+            // Inicializa estado correto ao carregar a página
+            aplicarExibicaoPorForma();
         });
     </script>
 }
