@@ -47,7 +47,7 @@ namespace Fynanceo.Service
                     Turno = model.Turno,
                     Ativo = model.Ativo,
                     DataAdmissao = model.DataAdmissao,
-                    DataCadastro = DateTime.Now
+                    DataCadastro = DateTime.UtcNow
                 };
 
                 _context.Funcionarios.Add(funcionario);

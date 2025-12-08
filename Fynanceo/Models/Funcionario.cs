@@ -28,7 +28,7 @@ namespace Fynanceo.Models
         public string? NomeFoto { get; set; }
         public string Turno { get; set; } // Manhã, Tarde, Noite, Integral
         public bool Ativo { get; set; } = true;
-        public DateTime DataAdmissao { get; set; } = DateTime.Now;
-        public DateTime DataCadastro { get; set; } = DateTime.Now;
+        public DateTime DataAdmissao { get; set; } = DateTime.UtcNow;
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
     }
 }

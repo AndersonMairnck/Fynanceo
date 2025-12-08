@@ -154,7 +154,7 @@
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Último Backup</small>
-                        <div class="fw-bold">@DateTime.Now.AddDays(-1).ToString("dd/MM/yyyy HH:mm")</div>
+                        <div class="fw-bold">@DateTime.UtcNow.AddDays(-1).ToString("dd/MM/yyyy HH:mm")</div>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Status</small>

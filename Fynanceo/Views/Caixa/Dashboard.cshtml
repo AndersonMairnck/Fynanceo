@@ -205,7 +205,7 @@
                                     <small class="text-muted">
                                         @conta.Fornecedor?.Nome
                                         <br>
-                                        Vencimento: <strong>@conta.DataVencimento.ToString("dd/MM/yyyy")</strong>
+                                        Vencimento: <strong>@conta.DataVencimento.ToLocalTime().ToString("dd/MM/yyyy")</strong>
                                     </small>
                                 </div>
                                 <div class="text-end">
@@ -254,7 +254,7 @@
                                     <small class="text-muted">
                                         @conta.Fornecedor?.Nome
                                         <br>
-                                        Vencido: <strong>@conta.DataVencimento.ToString("dd/MM/yyyy")</strong>
+                                        Vencido: <strong>@conta.DataVencimento.ToLocalTime().ToString("dd/MM/yyyy")</strong>
                                         <span class="badge bg-danger ms-1">@diasAtraso dias</span>
                                     </small>
                                 </div>

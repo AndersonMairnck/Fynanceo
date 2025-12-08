@@ -82,7 +82,7 @@
                     {
                         <tr>
                             <td>
-                                <strong>@caixa.DataAbertura.ToString("dd/MM/yyyy")</strong>
+                                <strong>@caixa.DataAbertura.ToLocalTime().ToString("dd/MM/yyyy")</strong>
                             </td>
                             <td>
                                 @caixa.DataAbertura.ToString("HH:mm")

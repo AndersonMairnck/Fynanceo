@@ -186,7 +186,7 @@
                         <strong>ID do Produto:</strong> #@Model.Id
                     </div>
                     <div class="mb-3">
-                        <strong>Última Atualização:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                        <strong>Última Atualização:</strong> @DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm")
                     </div>
                     <hr>
                     <div class="p-3 bg-light border-start border-4 border-warning rounded">

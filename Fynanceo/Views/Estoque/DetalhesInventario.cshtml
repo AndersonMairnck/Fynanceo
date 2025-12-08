@@ -51,7 +51,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Data Abertura:</strong></td>
-                                    <td>@Model.DataAbertura.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@Model.DataAbertura.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                 </tr>
                             </table>
                         </div>
@@ -62,7 +62,7 @@
                                     <td>
                                         @if (Model.DataFechamento.HasValue)
                                         {
-                                            @Model.DataFechamento.Value.ToString("dd/MM/yyyy HH:mm")
+                                            @Model.DataFechamento.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
                                         }
                                         else
                                         {
@@ -73,8 +73,12 @@
                                 <tr>
                                     <td><strong>Itens Conferidos:</strong></td>
                                     <td>
-                                        @Model.Itens.Count(ii => ii.Conferido)/@Model.Itens.Count
-                                        (@((Model.Itens.Count(ii => ii.Conferido) * 100 / Model.Itens.Count))%)
+                                        @{
+                                            var total = Model.Itens.Count;
+                                            var conferidos = Model.Itens.Count(ii => ii.Conferido);
+                                            var porcentagem = total == 0 ? 0 : (conferidos * 100 / total);
+                                        }
+                                        @conferidos/@total (@porcentagem%)
                                     </td>
                                 </tr>
                                 <tr>

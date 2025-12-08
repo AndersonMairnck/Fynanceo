@@ -91,7 +91,7 @@ namespace Fynanceo.Service
                 var pedido = new Pedido
                 {
                     NumeroPedido = viewModel.TipoPedido.ToString().Substring(0, 1).ToUpper() +
-                                   DateTime.Now.ToString("yyyyMMddHHmmss"),
+                                   DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                     TipoPedido = viewModel.TipoPedido,
                     Status = PedidoStatus.Aberto,
                     MesaId = viewModel.MesaId,
@@ -99,7 +99,7 @@ namespace Fynanceo.Service
                     EnderecoEntregaId = viewModel.EnderecoEntregaId,
                     Observacoes = viewModel.Observacoes,
                     TaxaEntrega = viewModel.TaxaEntrega,
-                    DataAbertura = DateTime.Now,
+                    DataAbertura = DateTime.UtcNow,
                     FuncionarioId = 1 // Temporário - depois pegar do usuário logado
                 };
 
@@ -369,7 +369,7 @@ namespace Fynanceo.Service
                 StatusNovo = statusNovo,
                 UsuarioId = 1, // Temporário
                 UsuarioNome = usuario,
-                DataAlteracao = DateTime.Now
+                DataAlteracao = DateTime.UtcNow
             };
 
             _context.HistoricoPedido.Add(historico);
@@ -725,7 +725,7 @@ namespace Fynanceo.Service
             if (pedido == null || pedido.MesaId != mesaId) return false;
 
             pedido.Status = PedidoStatus.Fechado;
-            pedido.DataFechamento = DateTime.Now;
+            pedido.DataFechamento = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 

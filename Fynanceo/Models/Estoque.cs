@@ -50,7 +50,7 @@ namespace Fynanceo.Models
         public Fornecedor Fornecedor { get; set; }
 
         // Auditoria
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public DateTime? DataAtualizacao { get; set; }
 
         // Navegação
@@ -97,7 +97,7 @@ namespace Fynanceo.Models
         public Pedido Pedido { get; set; }
 
         // Auditoria
-        public DateTime DataMovimentacao { get; set; } = DateTime.Now;
+        public DateTime DataMovimentacao { get; set; } = DateTime.UtcNow;
         public string Usuario { get; set; }
     }
 
@@ -134,7 +134,7 @@ namespace Fynanceo.Models
        
         public StatusInventario Status { get; set; } = StatusInventario.Aberto;
 
-        public DateTime DataAbertura { get; set; } = DateTime.Now;
+        public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
         public DateTime? DataFechamento { get; set; }
 
         [StringLength(500)]

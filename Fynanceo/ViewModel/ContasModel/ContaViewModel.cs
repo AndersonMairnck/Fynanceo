@@ -30,7 +30,7 @@ namespace Fynanceo.ViewModel.ContasModel
         [Required(ErrorMessage = "Data de vencimento é obrigatória")]
         [Display(Name = "Data de Vencimento")]
         [DataType(DataType.Date)]
-        public DateTime DataVencimento { get; set; } = DateTime.Now.AddDays(7);
+        public DateTime DataVencimento { get; set; } = DateTime.UtcNow.AddDays(7);
 
         [Display(Name = "Forma de Pagamento")]
         public FormaPagamento? FormaPagamento { get; set; }
@@ -63,7 +63,7 @@ namespace Fynanceo.ViewModel.ContasModel
         [Required(ErrorMessage = "Data de pagamento é obrigatória")]
         [Display(Name = "Data de Pagamento")]
         [DataType(DataType.Date)]
-        public DateTime DataPagamento { get; set; } = DateTime.Now;
+        public DateTime DataPagamento { get; set; } = DateTime.UtcNow;
 
         [Required(ErrorMessage = "Forma de pagamento é obrigatória")]
         [Display(Name = "Forma de Pagamento")]

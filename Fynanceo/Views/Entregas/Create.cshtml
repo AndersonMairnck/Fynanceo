@@ -164,7 +164,7 @@
                                         <div class="card-footer bg-transparent">
                                             <small class="text-muted">
                                                 <i class="fas fa-clock me-1"></i>
-                                                Criado em: @pedido.DataAbertura.ToString("dd/MM HH:mm")
+                                                Criado em: @pedido.DataAbertura.ToLocalTime().ToString("dd/MM HH:mm")
                                             </small>
                                         </div>
                                     </div>

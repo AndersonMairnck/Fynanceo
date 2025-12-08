@@ -11,7 +11,7 @@ namespace Fynanceo.Models
         public int Id { get; set; }
 
         [Required]
-        public DateTime DataAbertura { get; set; } = DateTime.Now;
+        public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
 
         public DateTime? DataFechamento { get; set; }
 

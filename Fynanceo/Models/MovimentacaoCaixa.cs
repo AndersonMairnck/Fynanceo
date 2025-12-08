@@ -44,7 +44,7 @@ namespace Fynanceo.Models
         public Fornecedor? Fornecedor { get; set; }
 
         [Required]
-        public DateTime DataMovimentacao { get; set; } = DateTime.Now;
+        public DateTime DataMovimentacao { get; set; } = DateTime.UtcNow;
 
         [Required]
         public int UsuarioId { get; set; }

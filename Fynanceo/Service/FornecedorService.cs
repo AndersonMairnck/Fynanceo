@@ -47,7 +47,7 @@ namespace Fynanceo.Service
             if (fornecedor == null) return false;
 
             fornecedor.Status = novoStatus;
-            fornecedor.DataAtualizacao = DateTime.Now;
+            fornecedor.DataAtualizacao = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
