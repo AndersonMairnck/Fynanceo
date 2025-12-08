@@ -175,7 +175,7 @@ namespace Fynanceo.Models
         public decimal CustoTotalDiferenca => Diferenca * CustoUnitario;
 
         [StringLength(200)]
-        public string Observacao { get; set; }
+        public string? Observacao { get; set; }
 
         public bool Conferido { get; set; } = false;
     }

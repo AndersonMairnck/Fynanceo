@@ -368,8 +368,24 @@ namespace Fynanceo.Controllers
 
             return View(inventario);
         }
+        // Controllers/EstoqueController.cs - Conferir item via Service
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConferirItem(int itemId, int inventarioId, decimal quantidadeFisica, string observacao)
+        {
+            try
+            {
+                var result = await _estoqueService.ConferirItemAsync(itemId, inventarioId, quantidadeFisica, observacao);
+                return Json(new { success = result.success, message = result.message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Erro: {ex.Message}" });
+            }
+        }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> FecharInventario(int id)
         {
             try

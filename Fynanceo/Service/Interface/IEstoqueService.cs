@@ -34,6 +34,7 @@ namespace Fynanceo.Service.Interface
         Task<Inventario> FecharInventarioAsync(int id);
         Task<bool> AdicionarItemInventarioAsync(int inventarioId, ItemInventarioViewModel model);
         Task AdicionarItensInventarioTodosAsync(int inventarioId, bool apenasAtivos = true, bool conferido = false);
+        Task<(bool success, string message)> ConferirItemAsync(int itemId, int inventarioId, decimal quantidadeFisica, string observacao);
 
         // Integração com Pedidos
         Task<bool> ProcessarSaidaPedidoAsync(int pedidoId);
