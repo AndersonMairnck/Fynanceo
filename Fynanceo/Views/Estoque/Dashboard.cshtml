@@ -192,7 +192,7 @@
                                 @foreach (var mov in Model.UltimasMovimentacoes)
                                 {
                                     <tr>
-                                        <td>@mov.DataMovimentacao.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@mov.DataMovimentacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>@mov.Estoque.Nome</td>
                                         <td>
                                             <span class="badge @GetBadgeClass(mov.Tipo)">

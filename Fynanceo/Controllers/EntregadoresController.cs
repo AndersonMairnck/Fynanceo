@@ -196,7 +196,7 @@ namespace Fynanceo.Controllers
             if (Enum.TryParse<Fynanceo.Models.Enums.StatusEntregador>(novoStatus, out var status))
             {
                 entregador.Status = status;
-                entregador.UltimaAtualizacao = DateTime.Now;
+                entregador.UltimaAtualizacao = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
                 return Json(new { success = true, message = "Status atualizado com sucesso" });

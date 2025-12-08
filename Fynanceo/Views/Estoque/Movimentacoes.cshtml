@@ -211,7 +211,7 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.DataMovimentacao.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@item.DataMovimentacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>
                                     <strong>@item.Estoque.Nome</strong>
                                     <br><small class="text-muted">@item.Estoque.Codigo</small>

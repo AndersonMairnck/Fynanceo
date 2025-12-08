@@ -31,6 +31,6 @@ namespace Fynanceo.Models
         public string? HorariosFuncionamento { get; set; } // JSON com horários
 
         public bool Ativo { get; set; } = true;
-        public DateTime DataAtualizacao { get; set; } = DateTime.Now;
+        public DateTime DataAtualizacao { get; set; } = DateTime.UtcNow;
     }
 }

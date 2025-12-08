@@ -27,6 +27,6 @@ namespace Fynanceo.Models
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
 
-        public DateTime DataAlteracao { get; set; } = DateTime.Now;
+        public DateTime DataAlteracao { get; set; } = DateTime.UtcNow;
     }
 }

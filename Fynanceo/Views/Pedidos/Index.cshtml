@@ -297,7 +297,7 @@
                             <td>
                                 @{
                                     var tempoDecorrido =
-                                        DateTime.Now - pedido.DataAbertura.ToLocalTime();
+                                        DateTime.UtcNow - pedido.DataAbertura.ToLocalTime();
                                 }
                                 <small>@((int)tempoDecorrido.TotalMinutes)m</small>
                             </td>

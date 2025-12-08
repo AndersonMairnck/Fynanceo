@@ -49,6 +49,6 @@ namespace Fynanceo.ViewModel.FuncionariosModel
         [Required(ErrorMessage = "Data de admissão é obrigatória")]
         [Display(Name = "Data de Admissão")]
         [DataType(DataType.Date)]
-        public DateTime DataAdmissao { get; set; } = DateTime.Now;
+        public DateTime DataAdmissao { get; set; } = DateTime.UtcNow;
     }
 }

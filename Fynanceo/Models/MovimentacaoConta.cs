@@ -31,6 +31,6 @@ namespace Fynanceo.Models
         public int UsuarioId { get; set; }
         public string UsuarioNome { get; set; }
 
-        public DateTime DataAlteracao { get; set; } = DateTime.Now;
+        public DateTime DataAlteracao { get; set; } = DateTime.UtcNow;
     }
 }

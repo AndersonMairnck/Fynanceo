@@ -39,7 +39,7 @@ namespace Fynanceo.Models
         public string? Observacoes { get; set; }
 
         // Tempos
-        public DateTime DataAbertura { get; set; } = DateTime.Now;
+        public DateTime DataAbertura { get; set; } = DateTime.UtcNow;
         public DateTime? DataEnvioCozinha { get; set; }
         public DateTime? DataPreparo { get; set; }
         public DateTime? DataPronto { get; set; }

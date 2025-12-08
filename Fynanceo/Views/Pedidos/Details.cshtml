@@ -560,7 +560,7 @@
                 <!-- Tempo total decorrido -->
                 <div class="text-center mt-3">
                     @{
-                        var tempoTotal = DateTime.Now - Model.DataAbertura.ToLocalTime();
+                        var tempoTotal = DateTime.UtcNow - Model.DataAbertura.ToLocalTime();
                         <h4 class="text-primary">@((int)tempoTotal.TotalMinutes)m</h4>
                         <small class="text-muted">Tempo decorrido</small>
                     }

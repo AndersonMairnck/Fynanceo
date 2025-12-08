@@ -162,7 +162,7 @@ namespace Fynanceo.Controllers
                     return Json(new { success = false, message = "Conta não está pendente" });
 
                 conta.Status = StatusConta.Cancelada;
-                conta.DataAlteracao = DateTime.Now;
+                conta.DataAlteracao = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
 

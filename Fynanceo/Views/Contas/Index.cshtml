@@ -119,7 +119,7 @@
                             </td>
                             <td>
                                 <span class="@(isAtrasada ? "text-danger" : "")">
-                                    @conta.DataVencimento.ToString("dd/MM/yyyy")
+                                    @conta.DataVencimento.ToLocalTime().ToString("dd/MM/yyyy")
                                 </span>
                                 @if (isAtrasada)
                                 {
@@ -167,7 +167,7 @@
                             <td>
                                 @if (conta.DataPagamento.HasValue)
                                 {
-                                    <text>@conta.DataPagamento.Value.ToString("dd/MM/yyyy")</text>
+                                    <text>@conta.DataPagamento.Value.ToLocalTime().ToString("dd/MM/yyyy")</text>
                                     <br>
                                     <small class="text-muted">@conta.FormaPagamento</small>
                                 }

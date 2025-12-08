@@ -35,7 +35,7 @@ namespace Fynanceo.Models
         public decimal? Longitude { get; set; }
 
         // Tempos
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public DateTime? DataSaiuEntrega { get; set; }
         public DateTime? DataPrevisao { get; set; }
         public DateTime? DataEntrega { get; set; }

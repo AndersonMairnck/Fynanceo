@@ -21,6 +21,6 @@ namespace Fynanceo.Models
         public string Status { get; set; } = "Livre"; // Livre, Ocupada, Reservada, EmLimpeza
 
         public string Descricao { get; set; }
-        public DateTime DataCadastro { get; set; } = DateTime.Now;
+        public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
     }
 }

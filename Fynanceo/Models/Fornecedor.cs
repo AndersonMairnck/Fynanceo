@@ -33,7 +33,7 @@ namespace Fynanceo.Models
 
  
 
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public DateTime? DataAtualizacao { get; set; }
 
         public StatusFornecedor Status { get; set; } = StatusFornecedor.Ativo;

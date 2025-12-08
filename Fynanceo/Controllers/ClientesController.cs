@@ -52,7 +52,7 @@ namespace Fynanceo.Controllers
                     email = c.Email,
                     classificacao = c.Classificacao,
                     ativo = c.Ativo,
-                    dataCadastro = c.DataCadastro.ToString("dd/MM/yyyy"),
+                    dataCadastro = c.DataCadastro.ToLocalTime().ToString("dd/MM/yyyy"),
                     classificacaoBadge = c.Classificacao == "VIP" ? "bg-warning" :
                                        c.Classificacao == "Frequente" ? "bg-info" : "bg-secondary",
                     statusBadge = c.Ativo ? "bg-success" : "bg-danger",

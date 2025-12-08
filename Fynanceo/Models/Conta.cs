@@ -51,7 +51,7 @@ namespace Fynanceo.Models
         public string? Observacoes { get; set; }
 
         [Required]
-        public DateTime DataCriacao { get; set; } = DateTime.Now;
+        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
 
         public DateTime? DataAlteracao { get; set; }
 

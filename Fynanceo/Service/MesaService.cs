@@ -39,7 +39,7 @@ namespace Fynanceo.Service
                     Ambiente = model.Ambiente,
                     Status = model.Status,
                     Descricao = model.Descricao,
-                    DataCadastro = DateTime.Now
+                    DataCadastro = DateTime.UtcNow
                 };
 
                 _context.Mesas.Add(mesa);

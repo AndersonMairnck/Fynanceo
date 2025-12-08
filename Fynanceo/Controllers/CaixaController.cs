@@ -160,7 +160,7 @@ namespace Fynanceo.Controllers
                 formaPagamento = m.FormaPagamento.ToString(),
                 categoria = m.Categoria.ToString(),
                 descricao = m.Descricao,
-                data = m.DataMovimentacao.ToString("dd/MM/yyyy HH:mm"),
+                data = m.DataMovimentacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm"),
                 observacoes = m.Observacoes
             }).ToList();
 
