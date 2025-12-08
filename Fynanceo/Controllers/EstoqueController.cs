@@ -1,4 +1,5 @@
 ﻿// Controllers/EstoqueController.cs
+
 using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
@@ -6,6 +7,8 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.EstoquesModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
 
 
 namespace Fynanceo.Controllers
@@ -15,12 +18,13 @@ namespace Fynanceo.Controllers
         private readonly IEstoqueService _estoqueService;
         private readonly IFornecedorService _fornecedorService;
         private readonly IPedidoService _pedidoService;
-       
 
-        public EstoqueController(IEstoqueService estoqueService,  IFornecedorService fornecedorService, IPedidoService pedidoService)
+
+        public EstoqueController(IEstoqueService estoqueService, IFornecedorService fornecedorService,
+            IPedidoService pedidoService)
         {
             _estoqueService = estoqueService;
-      
+
             _fornecedorService = fornecedorService;
             _pedidoService = pedidoService;
         }
@@ -42,11 +46,11 @@ namespace Fynanceo.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 estoquesLista = estoquesLista
-                    .Where(e => (e.Nome != null && e.Nome.Contains(search)) || (e.Codigo != null && e.Codigo.Contains(search)))
+                    .Where(e => (e.Nome != null && e.Nome.Contains(search)) ||
+                                (e.Codigo != null && e.Codigo.Contains(search)))
                     .ToList();
             }
 
-     
 
             if (status.HasValue)
             {
@@ -61,13 +65,12 @@ namespace Fynanceo.Controllers
 
             // Carregar dados para os dropdowns
             ViewBag.Categorias = await _estoqueService.SomenteCategoriasAsync();
-            
+
             // Calcular contador de alertas
             var produtosAlerta = await _estoqueService.ObterProdutosEstoqueMinimoAsync();
             ViewBag.AlertCount = produtosAlerta.Count;
-            
+
             return View(estoques);
-         
         }
 
         // GET: Estoque/Details/5
@@ -78,6 +81,7 @@ namespace Fynanceo.Controllers
             {
                 return NotFound();
             }
+
             var vm = new DetailsProdutoViewModel
             {
                 Id = estoque.Id,
@@ -85,14 +89,12 @@ namespace Fynanceo.Controllers
                 Categoria = estoque.Categorias,
                 Descricao = estoque.Descricao,
                 CustoUnitario = estoque.CustoUnitario,
-          EstoqueMaximo = estoque.EstoqueMaximo,
-          EstoqueMinimo = estoque.EstoqueMinimo,
+                EstoqueMaximo = estoque.EstoqueMaximo,
+                EstoqueMinimo = estoque.EstoqueMinimo,
                 EstoqueAtual = estoque.EstoqueAtual,
                 DataCadastro = estoque.DataCriacao,
                 NomeFornecedor = estoque.Fornecedor.Nome,
                 Codigo = estoque.Codigo,
-                
-                
             };
 
             return View(vm);
@@ -101,7 +103,6 @@ namespace Fynanceo.Controllers
         // GET: Estoque/Create
         public async Task<IActionResult> Create()
         {
-            
             var model = new EstoqueViewModel
             {
                 Categorias = await _estoqueService.SomenteCategoriasAsync(),
@@ -118,7 +119,6 @@ namespace Fynanceo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EstoqueViewModel model)
         {
-           
             {
                 try
                 {
@@ -133,7 +133,7 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-          //  model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
+            //  model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
             model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
 
             return View(model);
@@ -160,7 +160,7 @@ namespace Fynanceo.Controllers
                 CustoUnitario = estoque.CustoUnitario,
                 StatusUnidadeMedida = estoque.UnidadeMedida,
                 Status = estoque.Status,
-               // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
+                // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
                 FornecedorId = estoque.FornecedorId,
                 Categorias = await _estoqueService.SomenteCategoriasAsync(),
                 Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
@@ -194,14 +194,14 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-        //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
-         model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
+            //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
+            model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
 
             return View(model);
         }
 
         // GET: Estoque/Movimentacoes
-    
+
         public async Task<IActionResult> Movimentacoes(DateTime? dataInicio, DateTime? dataFim, int? produtoId)
         {
             dataInicio ??= DateTime.Today.AddDays(-30);
@@ -219,16 +219,15 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Estoque/NovaMovimentacao
-     
+
         public async Task<IActionResult> NovaMovimentacao(int? produtoId)
         {
             var model = new MovimentacaoEstoqueViewModel
             {
                 Produtos = await _estoqueService.ObterTodosEstoquesAsync(),
                 Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
-                
-                Pedidos = await _pedidoService.ObterPedidosPorStatus( "Finalizado"),
-                
+
+                Pedidos = await _pedidoService.ObterPedidosPorStatus("Finalizado"),
             };
 
             // Pre-selecionar produto se veio por parâmetro
@@ -245,7 +244,7 @@ namespace Fynanceo.Controllers
         public async Task<IActionResult> NovaMovimentacao(MovimentacaoEstoqueViewModel model)
         {
             model.UsuarioNome = "usuario";
-           
+
             if (ModelState.IsValid)
             {
                 try
@@ -260,7 +259,8 @@ namespace Fynanceo.Controllers
 
                     // Recarregar dropdowns em caso de erro
                     model.Produtos = await _estoqueService.ObterTodosEstoquesAsync();
-                    model.Fornecedores = await _fornecedorService.ObterFornecedoresPorStatusAsync(StatusFornecedor.Ativo);
+                    model.Fornecedores =
+                        await _fornecedorService.ObterFornecedoresPorStatusAsync(StatusFornecedor.Ativo);
                     model.Pedidos = await _pedidoService.ObterPedidosPorStatus("Finalizado");
                 }
             }
@@ -322,13 +322,11 @@ namespace Fynanceo.Controllers
             }
 
             return View(inventario);
-            
-            
-            
         }
 
         [HttpPost]
-        public async Task<IActionResult> CriarInventario(string descricao, string observacao, bool incluirTodosProdutos = true)
+        public async Task<IActionResult> CriarInventario(string descricao, string observacao,
+            bool incluirTodosProdutos = true)
         {
             try
             {
@@ -344,7 +342,8 @@ namespace Fynanceo.Controllers
                 // Adicionar itens via service (mantendo conferido=false por padrão)
                 if (incluirTodosProdutos)
                 {
-                    await _estoqueService.AdicionarItensInventarioTodosAsync(inventario.Id, apenasAtivos: true, conferido: false);
+                    await _estoqueService.AdicionarItensInventarioTodosAsync(inventario.Id, apenasAtivos: true,
+                        conferido: false);
                 }
 
                 TempData["Success"] = $"Inventário '{descricao}' criado com sucesso!";
@@ -355,6 +354,67 @@ namespace Fynanceo.Controllers
                 TempData["Error"] = $"Erro ao criar inventário: {ex.Message}";
                 return RedirectToAction(nameof(Inventario));
             }
+        }
+
+// GET: Estoque/ExportarMovimentacoes
+        public async Task<IActionResult> ExportarMovimentacoes(DateTime? dataInicio, DateTime? dataFim, int? produtoId)
+        {
+            // Mesmos defaults da tela
+            dataInicio ??= DateTime.Today.AddDays(-30);
+            dataFim ??= DateTime.Today;
+
+            if (dataInicio > dataFim)
+                return BadRequest("A data inicial não pode ser maior que a data final.");
+
+            var movimentacoes = await _estoqueService.ObterMovimentacoesAsync(dataInicio, dataFim, produtoId);
+
+            var culture = CultureInfo.GetCultureInfo("pt-BR");
+            var sep = ';';
+            var sb = new StringBuilder();
+
+            // Cabeçalho (ajuste nomes/ordem se desejar)
+            sb.AppendLine(string.Join(sep, new[]
+            {
+                "Data/Hora", "Produto", "Código", "Tipo", "Quantidade", "Unidade",
+                "Custo Unit.", "Valor Total", "Documento", "Fornecedor", "Pedido", "Observações", "Usuário"
+            }));
+
+            // Proteção CSV: aspas e quebras de linha
+            string Q(string s) => "\"" + (s?.Replace("\"", "\"\"") ?? string.Empty) + "\"";
+
+            foreach (var m in movimentacoes)
+            {
+                var data = m.DataMovimentacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm", culture);
+                var produto = m.Estoque?.Nome ?? string.Empty;
+                var codigo = m.Estoque?.Codigo ?? string.Empty;
+                var tipo = m.Tipo.ToString(); // se quiser rótulos, mapeie aqui
+                var quantidade = m.Quantidade.ToString("N2", culture);
+                var unidade = m.Estoque?.UnidadeMedida.ToString() ?? string.Empty; // enum -> texto
+                var custoUnit = m.CustoUnitario.ToString("C", culture);
+                var valorTotal = m.CustoTotal.ToString("C", culture);
+                var documento = m.Documento ?? string.Empty;
+                var fornecedor = m.Fornecedor?.Nome ?? string.Empty;
+                var pedido = m.PedidoId?.ToString() ?? string.Empty;
+                var observacoes = m.Observacao ?? string.Empty; // OBS: singular no modelo
+                var usuario = m.Usuario ?? string.Empty;
+
+                var cols = new[]
+                {
+                    Q(data), Q(produto), Q(codigo), Q(tipo), Q(quantidade), Q(unidade),
+                    Q(custoUnit), Q(valorTotal), Q(documento), Q(fornecedor), Q(pedido), Q(observacoes), Q(usuario)
+                };
+                sb.AppendLine(string.Join(sep, cols));
+            }
+
+            // UTF-8 com BOM para abrir corretamente no Excel
+            var preamble = Encoding.UTF8.GetPreamble();
+            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+            var payload = new byte[preamble.Length + bytes.Length];
+            Buffer.BlockCopy(preamble, 0, payload, 0, preamble.Length);
+            Buffer.BlockCopy(bytes, 0, payload, preamble.Length, bytes.Length);
+
+            var fileName = $"movimentacoes_{dataInicio:yyyyMMdd}_{dataFim:yyyyMMdd}.csv";
+            return File(payload, "text/csv", fileName);
         }
 
         public async Task<IActionResult> EditarInventario(int id)
@@ -368,14 +428,17 @@ namespace Fynanceo.Controllers
 
             return View(inventario);
         }
+
         // Controllers/EstoqueController.cs - Conferir item via Service
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConferirItem(int itemId, int inventarioId, decimal quantidadeFisica, string observacao)
+        public async Task<IActionResult> ConferirItem(int itemId, int inventarioId, decimal quantidadeFisica,
+            string observacao)
         {
             try
             {
-                var result = await _estoqueService.ConferirItemAsync(itemId, inventarioId, quantidadeFisica, observacao);
+                var result =
+                    await _estoqueService.ConferirItemAsync(itemId, inventarioId, quantidadeFisica, observacao);
                 return Json(new { success = result.success, message = result.message });
             }
             catch (Exception ex)
