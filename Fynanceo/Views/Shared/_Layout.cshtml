@@ -15,8 +15,7 @@
     <!-- Render additional styles from views -->
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<script src="~/js/mascaras.js"></script>
-<script src="~/js/maiuscula.js"></script>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -25,7 +24,7 @@
                 <div class="logo">F</div>
                 <div>
                     <div class="fw-bold">Fynanceo</div>
-                    <small class="text-muted">Gestão Comercial</small>
+                    <small class="text-white-50">Gestão Comercial</small>
                 </div>
             </div>
         </div>
@@ -390,6 +389,8 @@
         updateEstoqueAlertCount();
     </script>
 
+    <script src="~/js/mascaras.js"></script>
+    <script src="~/js/maiuscula.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
