@@ -1,16 +1,24 @@
-﻿@{
+﻿@using System.Globalization
+@model Fynanceo.ViewModel.DashboardModel.DashboardViewModel
+@{
     ViewData["Title"] = "Dashboard - Fynanceo";
+    var ptBR = CultureInfo.GetCultureInfo("pt-BR");
 }
 
-<div class="container-fluid">
+<div class="container-fluid dashboard-modern">
     <!-- Header Dashboard -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 text-primary mb-1">Bem-vindo ao Fynanceo</h1>
+            <h1 class="h3 mb-1 dash-title">Bem-vindo ao Fynanceo</h1>
             <p class="text-muted mb-0">Sistema completo de gestão comercial</p>
         </div>
         <div class="text-end">
-            <small class="text-muted">Última atualização: @DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm")</small>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">Última atualização: @Model.UltimaAtualizacao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                <button type="button" class="btn btn-sm btn-outline-secondary" title="Atualizar" onclick="window.location.reload()">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -20,17 +28,19 @@
     <!-- Cards de Estatísticas -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-primary border-4 shadow-sm h-100">
+            <div class="card border-start border-0 shadow-sm h-100 kpi-card kpi-primary">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
                             <div class="text-xs fw-bold text-primary text-uppercase mb-1">
                                 Vendas Hoje
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">R$ Implementar</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.VendasHoje.ToString("C", ptBR)</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <div class="icon-round icon-primary">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -38,17 +48,19 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-success border-4 shadow-sm h-100">
+            <div class="card border-start border-0 shadow-sm h-100 kpi-card kpi-success">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
                             <div class="text-xs fw-bold text-success text-uppercase mb-1">
                                 Pedidos Ativos
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">Implementar</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.PedidosAtivos</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                            <div class="icon-round icon-success">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -56,17 +68,19 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-warning border-4 shadow-sm h-100">
+            <div class="card border-start border-0 shadow-sm h-100 kpi-card kpi-warning">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
                             <div class="text-xs fw-bold text-warning text-uppercase mb-1">
                                 Mesas Ocupadas
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">Implementar</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.MesasOcupadas</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-chair fa-2x text-gray-300"></i>
+                            <div class="icon-round icon-warning">
+                                <i class="fas fa-chair"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -74,17 +88,19 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-info border-4 shadow-sm h-100">
+            <div class="card border-start border-0 shadow-sm h-100 kpi-card kpi-info">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
                             <div class="text-xs fw-bold text-info text-uppercase mb-1">
                                 Ticket Médio
                             </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">R$ Implementar</div>
+                            <div class="h5 mb-0 fw-bold text-gray-800">@Model.TicketMedio.ToString("C", ptBR)</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                            <div class="icon-round icon-info">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -104,7 +120,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6 col-md-3">
-                            <a href="@Url.Action("Index", "Clientes")" class="btn btn-outline-primary w-100 h-100 py-3">
+                            <a href="@Url.Action("Index", "Clientes")" class="btn btn-outline-primary w-100 h-100 py-3 tile-btn">
                                 <div class="d-flex flex-column align-items-center">
                                     <i class="fas fa-users fa-2x mb-2"></i>
                                     <span>Clientes</span>
@@ -112,7 +128,7 @@
                             </a>
                         </div>
                         <div class="col-sm-6 col-md-3">
-                            <a href="@Url.Action("Index", "Produtos")" class="btn btn-outline-success w-100 h-100 py-3">
+                            <a href="@Url.Action("Index", "Produtos")" class="btn btn-outline-success w-100 h-100 py-3 tile-btn">
                                 <div class="d-flex flex-column align-items-center">
                                     <i class="fas fa-utensils fa-2x mb-2"></i>
                                     <span>Produtos</span>
@@ -120,7 +136,7 @@
                             </a>
                         </div>
                         <div class="col-sm-6 col-md-3">
-                            <a href="@Url.Action("Index", "Mesas")" class="btn btn-outline-warning w-100 h-100 py-3">
+                            <a href="@Url.Action("Index", "Mesas")" class="btn btn-outline-warning w-100 h-100 py-3 tile-btn">
                                 <div class="d-flex flex-column align-items-center">
                                     <i class="fas fa-chair fa-2x mb-2"></i>
                                     <span>Mesas</span>
@@ -128,12 +144,28 @@
                             </a>
                         </div>
                         <div class="col-sm-6 col-md-3">
-                            <a href="@Url.Action("Index", "Funcionarios")" class="btn btn-outline-info w-100 h-100 py-3">
+                            <a href="@Url.Action("Index", "Funcionarios")" class="btn btn-outline-info w-100 h-100 py-3 tile-btn">
                                 <div class="d-flex flex-column align-items-center">
                                     <i class="fas fa-user-tie fa-2x mb-2"></i>
                                     <span>Funcionários</span>
                                 </div>
                             </a>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <a href="@Url.Action("AbrirPedido", "Pedidos")" class="btn btn-primary tile-btn">
+                                    <i class="fas fa-plus me-1"></i> Nova Venda
+                                </a>
+                                <a href="@Url.Action("Cozinha", "Pedidos")" class="btn btn-outline-secondary tile-btn">
+                                    <i class="fas fa-bell-concierge me-1"></i> Cozinha
+                                </a>
+                                <a href="@Url.Action("GerenciarMesa", "GestaoMesas")" class="btn btn-outline-warning tile-btn">
+                                    <i class="fas fa-table me-1"></i> Gestão de Mesas
+                                </a>
+                                <a href="@Url.Action("Index", "Entregas")" class="btn btn-outline-success tile-btn">
+                                    <i class="fas fa-motorcycle me-1"></i> Entregas
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -141,7 +173,7 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm glass-card">
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0">
                         <i class="fas fa-info-circle me-2 text-info"></i>Informações do Sistema
@@ -154,7 +186,7 @@
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Último Backup</small>
-                        <div class="fw-bold">@DateTime.UtcNow.AddDays(-1).ToString("dd/MM/yyyy HH:mm")</div>
+                        <div class="fw-bold">@DateTime.UtcNow.AddDays(-1).ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
                     </div>
                     <div class="mb-3">
                         <small class="text-muted">Status</small>
@@ -172,6 +204,97 @@
 
 @section Styles {
     <style>
+        /* ==========================
+           Novo visual — Dark + Glass
+           ========================== */
+
+        .dashboard-modern {
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+            background: radial-gradient(1000px 600px at 0% 0%, rgba(32, 99, 255, 0.15), transparent 60%),
+                        radial-gradient(800px 500px at 100% 0%, rgba(16, 185, 129, 0.12), transparent 60%),
+                        linear-gradient(180deg, #0b1220 0%, #0e1424 50%, #0a0f1c 100%);
+            color: #e5e7eb;
+            border-radius: .75rem;
+        }
+
+        .dash-title {
+            color: #e6f0ff;
+            letter-spacing: .3px;
+        }
+
+        .dashboard-modern .text-muted { color: rgba(229, 231, 235, 0.7) !important; }
+
+        /* Cards com glassmorphism */
+        .dashboard-modern .card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e5e7eb;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .dashboard-modern .card-header.bg-white { background: transparent !important; border-bottom: 1px solid rgba(255,255,255,.1); }
+
+        .dashboard-modern .text-gray-800 { color: #f3f4f6 !important; }
+
+        /* KPI cards com borda/realce em gradiente */
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .kpi-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: .5rem;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(99,102,241,.6), rgba(59,130,246,.6), rgba(16,185,129,.6));
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            pointer-events: none;
+        }
+        .kpi-card .card-body { position: relative; z-index: 1; }
+
+        .kpi-primary::before { background: linear-gradient(135deg, #60a5fa, #22d3ee); }
+        .kpi-success::before { background: linear-gradient(135deg, #34d399, #10b981); }
+        .kpi-warning::before { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .kpi-info::before    { background: linear-gradient(135deg, #93c5fd, #818cf8); }
+
+        /* Ícones redondos com glow */
+        .icon-round {
+            width: 44px; height: 44px;
+            display: grid; place-items: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.16);
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.06), 0 6px 18px rgba(0,0,0,0.3);
+            color: #e5e7eb;
+        }
+        .icon-round i { font-size: 1.1rem; }
+        .icon-primary { box-shadow: 0 0 20px rgba(56, 189, 248, .25); }
+        .icon-success { box-shadow: 0 0 20px rgba(16, 185, 129, .25); }
+        .icon-warning { box-shadow: 0 0 20px rgba(245, 158, 11, .25); }
+        .icon-info    { box-shadow: 0 0 20px rgba(129, 140, 248, .25); }
+
+        /* Tiles de Acesso Rápido com hover neon discreto */
+        .tile-btn {
+            border-radius: .6rem;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.14) !important;
+            color: #e5e7eb !important;
+        }
+        .tile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59,130,246,.25);
+        }
+        .tile-btn:focus { outline: 2px solid #60a5fa; outline-offset: 2px; }
+
         .card {
             transition: transform 0.2s ease-in-out;
         }
@@ -187,5 +310,20 @@
             transform: scale(1.05);
             transition: transform 0.2s ease;
         }
+
+        /* Indicadores (badges) mais visíveis em cards */
+        .card .text-xs {
+            font-size: .75rem;
+        }
+        
+        /* Acessibilidade de foco para links da toolbar */
+        .dashboard-modern a:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; border-radius: .5rem; }
     </style>
+}
+
+@section Scripts {
+    <script>
+        // Atualiza automaticamente a cada 60 segundos
+        setTimeout(function () { window.location.reload(); }, 60000);
+    </script>
 }
