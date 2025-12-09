@@ -367,6 +367,19 @@
             document.body.classList.remove('loading');
         });
 
+        // Ensure loading state is cleared when the page is restored from the Back/Forward cache
+        // or when navigating history (browser back/forward). Without this, a previously-added
+        // `.loading` class can remain and block interactions after using the browser Back button.
+        window.addEventListener('pageshow', function (event) {
+            // Clear loading regardless, but this is especially important when event.persisted === true
+            document.body.classList.remove('loading');
+        });
+
+        // Also clear on popstate which fires for some history navigations
+        window.addEventListener('popstate', function () {
+            document.body.classList.remove('loading');
+        });
+
         // Simulate alert count for Estoque (substitua por chamada real à API)
         function updateEstoqueAlertCount() {
             const alertLink = document.querySelector('a[href*="Alertas"]');
