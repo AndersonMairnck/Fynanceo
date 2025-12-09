@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Fynanceo.ViewModel.ClientesModel
 {
@@ -36,29 +37,32 @@ namespace Fynanceo.ViewModel.ClientesModel
         [Display(Name = "Justificativa do Status")]
         public string? JustificativaStatus { get; set; }
 
-        // Endereço Principal
+        // Endereço Principal (mantido para compatibilidade com formulários existentes)
         [Display(Name = "Logradouro")]
-        public string Logradouro { get; set; }
+        public string? Logradouro { get; set; }
 
         [Display(Name = "Número")]
-        public string Numero { get; set; }
+        public string? Numero { get; set; }
 
         [Display(Name = "Complemento")]
-        public string Complemento { get; set; }
+        public string? Complemento { get; set; }
 
         [Display(Name = "Bairro")]
-        public string Bairro { get; set; }
+        public string? Bairro { get; set; }
 
         [Display(Name = "Cidade")]
-        public string Cidade { get; set; }
+        public string? Cidade { get; set; }
 
         [Display(Name = "Estado")]
-        public string Estado { get; set; }
+        public string? Estado { get; set; }
 
         [Display(Name = "CEP")]
-        public string Cep { get; set; }
+        public string? Cep { get; set; }
 
         [Display(Name = "Referência")]
-        public string Referencia { get; set; }
+        public string? Referencia { get; set; }
+
+        // Novos: coleção de endereços para suportar múltiplos endereços
+        public List<EnderecoViewModel> Enderecos { get; set; } = new List<EnderecoViewModel>();
     }
 }

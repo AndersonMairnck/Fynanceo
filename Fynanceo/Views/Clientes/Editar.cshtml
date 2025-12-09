@@ -1,5 +1,4 @@
-﻿@using Fynanceo.ViewModel
-@using Fynanceo.ViewModel.ClientesModel
+﻿@using Fynanceo.ViewModel.ClientesModel
 
 @model ClienteViewModel
 
@@ -33,7 +32,7 @@
 
                         <div class="mb-3">
                             <label asp-for="NomeCompleto" class="form-label"></label>
-                            <input asp-for="NomeCompleto" class="form-control" />
+                            <input asp-for="NomeCompleto" class="form-control" data-maiuscula="titulo"  />
                             <span asp-validation-for="NomeCompleto" class="text-danger"></span>
                         </div>
 
@@ -41,7 +40,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="CpfCnpj" class="form-label"></label>
-                                    <input asp-for="CpfCnpj" class="form-control" />
+                                    <input asp-for="CpfCnpj" class="form-control" data-mask="cpfcnpj" />
                                     <span asp-validation-for="CpfCnpj" class="text-danger"></span>
                                 </div>
                             </div>
@@ -58,7 +57,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="Telefone" class="form-label"></label>
-                                    <input asp-for="Telefone" class="form-control" />
+                                    <input asp-for="Telefone" class="form-control" data-mask="telefone" />
                                     <span asp-validation-for="Telefone" class="text-danger"></span>
                                 </div>
                             </div>
@@ -84,7 +83,35 @@
 
                     <div class="col-md-6">
                         <h5 class="text-primary mb-3">
-                            <i class="fas fa-sticky-note me-2"></i>Status e Observações
+                            <i class="fas fa-map-marker-alt me-2"></i>Endereço Principal
+                        </h5>
+
+                        <div id="enderecos-container">
+                            @for (int i = 0; i < Model?.Enderecos?.Count; i++)
+                            {
+                                <div class="endereco-wrapper">
+                                    @Html.EditorFor(m => m.Enderecos[i])
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" id="btn-adicionar-endereco" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-plus me-1"></i>Adicionar Endereço
+                            </button>
+                        </div>
+
+                        <div id="endereco-template" style="display:none;">
+                            @Html.Partial("_EnderecoEditor", new Fynanceo.ViewModel.ClientesModel.EnderecoViewModel())
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-sticky-note me-2"></i>Observações
                         </h5>
 
                         <div class="form-check form-switch mb-3">
@@ -100,7 +127,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Observacoes" class="form-label"></label>
-                            <textarea asp-for="Observacoes" class="form-control" rows="5"></textarea>
+                            <textarea asp-for="Observacoes" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Observacoes" class="text-danger"></span>
                         </div>
                     </div>
@@ -124,6 +151,7 @@
 </div>
 
 @section Scripts {
+    <script src="/js/clientes-enderecos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Máscaras para os campos

@@ -25,7 +25,7 @@ namespace Fynanceo.Service
                 .ToListAsync();
         }
 
-        public async Task<Cliente> ObterPorIdAsync(int id)
+        public async Task<Cliente?> ObterPorIdAsync(int id)
         {
             return await _context.Clientes
                 .Include(c => c.Enderecos)
@@ -51,7 +51,30 @@ namespace Fynanceo.Service
                 };
 
                 // Adicionar endereço principal se informado
-                if (!string.IsNullOrEmpty(model.Logradouro))
+                if (model.Enderecos != null && model.Enderecos.Any())
+                {
+                    // mapear todos os endereços enviados (preserva Principal quando marcado)
+                    foreach (var e in model.Enderecos)
+                    {
+                        // pular endereços vazios
+                        if (string.IsNullOrWhiteSpace(e.Logradouro) && string.IsNullOrWhiteSpace(e.Cidade) && string.IsNullOrWhiteSpace(e.Bairro))
+                            continue;
+
+                        cliente.Enderecos.Add(new EnderecoCliente
+                        {
+                            Logradouro = e.Logradouro,
+                            Numero = e.Numero,
+                            Complemento = e.Complemento,
+                            Bairro = e.Bairro,
+                            Cidade = e.Cidade,
+                            Estado = e.Estado,
+                            Cep = StringUtils.RemoverCaracteresEspeciais(e.Cep),
+                            Referencia = e.Referencia,
+                            Principal = e.Principal
+                        });
+                    }
+                }
+                else if (!string.IsNullOrEmpty(model.Logradouro))
                 {
                     cliente.Enderecos.Add(new EnderecoCliente
                     {
@@ -81,7 +104,7 @@ namespace Fynanceo.Service
                         var value = entry.CurrentValues[prop];
                         if (value is string s)
                         {
-                            var maxLength = GetMaxLength(entry, prop);
+                            var maxLength = GetMaxLength(prop);
                             if (s.Length > maxLength)
                             {
                                 throw new Exception($"O campo '{prop.Name}' excedeu o tamanho máximo ({maxLength}). Valor: '{s}'");
@@ -95,7 +118,7 @@ namespace Fynanceo.Service
         }
 
         // Método auxiliar para obter o tamanho máximo definido no EF Core
-        private int GetMaxLength(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, Microsoft.EntityFrameworkCore.Metadata.IProperty prop)
+        private int GetMaxLength(Microsoft.EntityFrameworkCore.Metadata.IProperty prop)
         {
             var maxLength = prop.GetMaxLength();
             // Se não estiver definido, assume um valor grande para não gerar falso positivo
@@ -121,6 +144,75 @@ namespace Fynanceo.Service
                 cliente.Observacoes = model.Observacoes;
                 cliente.Ativo = model.Ativo;
                 cliente.JustificativaStatus = model.JustificativaStatus;
+       
+                // Processar coleção de endereços (sincronizar)
+                if (model.Enderecos != null)
+                {
+                    // Remover endereços que não estão na lista recebida
+                    var idsRecebidos = model.Enderecos.Where(e => e.Id > 0).Select(e => e.Id).ToHashSet();
+                    var toRemove = cliente.Enderecos.Where(e => !idsRecebidos.Contains(e.Id)).ToList();
+                    foreach (var r in toRemove)
+                    {
+                        cliente.Enderecos.Remove(r);
+                        _context.Entry(r).State = EntityState.Deleted;
+                    }
+
+                    // Atualizar ou adicionar
+                    foreach (var evm in model.Enderecos)
+                    {
+                        // pular endereços vazios
+                        if (string.IsNullOrWhiteSpace(evm.Logradouro) && string.IsNullOrWhiteSpace(evm.Cidade) && string.IsNullOrWhiteSpace(evm.Bairro))
+                            continue;
+
+                        if (evm.Id > 0)
+                        {
+                            var existing = cliente.Enderecos.FirstOrDefault(e => e.Id == evm.Id);
+                            if (existing != null)
+                            {
+                                existing.Logradouro = evm.Logradouro;
+                                existing.Numero = evm.Numero;
+                                existing.Complemento = evm.Complemento;
+                                existing.Bairro = evm.Bairro;
+                                existing.Cidade = evm.Cidade;
+                                existing.Estado = evm.Estado;
+                                existing.Cep = evm.Cep;
+                                existing.Referencia = evm.Referencia;
+                                existing.Principal = evm.Principal;
+                            }
+                        }
+                        else
+                        {
+                            cliente.Enderecos.Add(new EnderecoCliente
+                            {
+                                Logradouro = evm.Logradouro,
+                                Numero = evm.Numero,
+                                Complemento = evm.Complemento,
+                                Bairro = evm.Bairro,
+                                Cidade = evm.Cidade,
+                                Estado = evm.Estado,
+                                Cep = evm.Cep,
+                                Referencia = evm.Referencia,
+                                Principal = evm.Principal
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    // Fallback: manter compatibilidade com campos individuais (adiciona novo endereço)
+                    cliente.Enderecos.Add(new EnderecoCliente
+                    {
+                        Logradouro = model.Logradouro,
+                        Numero = model.Numero,
+                        Complemento = model.Complemento,
+                        Bairro = model.Bairro,
+                        Cidade = model.Cidade,
+                        Estado = model.Estado,
+                        Cep = model.Cep,
+                        Referencia = model.Referencia,
+                       
+                    });
+                }
 
                 await _context.SaveChangesAsync();
                 return true;

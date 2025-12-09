@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fynanceo.Models;
+using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Utils;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ClientesModel;
+
 namespace Fynanceo.Controllers
 {
     public class ClientesController : Controller
@@ -54,7 +56,7 @@ namespace Fynanceo.Controllers
                     ativo = c.Ativo,
                     dataCadastro = c.DataCadastro.ToLocalTime().ToString("dd/MM/yyyy"),
                     classificacaoBadge = c.Classificacao == "VIP" ? "bg-warning" :
-                                       c.Classificacao == "Frequente" ? "bg-info" : "bg-secondary",
+                        c.Classificacao == "Frequente" ? "bg-info" : "bg-secondary",
                     statusBadge = c.Ativo ? "bg-success" : "bg-danger",
                     statusText = c.Ativo ? "Ativo" : "Inativo"
                 }).ToList();
@@ -76,11 +78,12 @@ namespace Fynanceo.Controllers
         // GET: Clientes/Detalhes/5
         public async Task<IActionResult> Detalhes(int id)
         {
-            var cliente = await _clienteService.ObterPorIdAsync(id);
+            Cliente? cliente = await _clienteService.ObterPorIdAsync(id);
             if (cliente == null)
             {
                 return NotFound();
             }
+
             return View(cliente);
         }
 
@@ -97,7 +100,7 @@ namespace Fynanceo.Controllers
         {
             if (ModelState.IsValid)
             {
-                model.CpfCnpj = StringUtils.RemoverCaracteresEspeciais(model.CpfCnpj);  
+                model.CpfCnpj = StringUtils.RemoverCaracteresEspeciais(model.CpfCnpj);
                 if (await _clienteService.CpfCnpjExisteAsync(model.CpfCnpj))
                 {
                     ModelState.AddModelError("CpfCnpj", "CPF/CNPJ já cadastrado.");
@@ -113,17 +116,20 @@ namespace Fynanceo.Controllers
 
                 ModelState.AddModelError("", "Erro ao cadastrar cliente. Tente novamente.");
             }
+
             return View(model);
         }
 
         // GET: Clientes/Editar/5
         public async Task<IActionResult> Editar(int id)
         {
-            var cliente = await _clienteService.ObterPorIdAsync(id);
+            Cliente? cliente = await _clienteService.ObterPorIdAsync(id);
             if (cliente == null)
             {
                 return NotFound();
             }
+
+            var principal = cliente.Enderecos?.FirstOrDefault(e => e.Principal);
 
             var model = new ClienteViewModel
             {
@@ -136,7 +142,30 @@ namespace Fynanceo.Controllers
                 Classificacao = cliente.Classificacao,
                 Observacoes = cliente.Observacoes,
                 Ativo = cliente.Ativo,
-                JustificativaStatus = cliente.JustificativaStatus
+                JustificativaStatus = cliente.JustificativaStatus,
+
+                Logradouro = principal?.Logradouro,
+                Numero = principal?.Numero,
+                Complemento = principal?.Complemento,
+                Bairro = principal?.Bairro,
+                Cidade = principal?.Cidade,
+                Estado = principal?.Estado,
+                Cep = principal?.Cep,
+                Referencia = principal?.Referencia,
+
+                Enderecos = cliente.Enderecos?.Select(e => new Fynanceo.ViewModel.ClientesModel.EnderecoViewModel
+                {
+                    Id = e.Id,
+                    Logradouro = e.Logradouro,
+                    Numero = e.Numero,
+                    Complemento = e.Complemento,
+                    Bairro = e.Bairro,
+                    Cidade = e.Cidade,
+                    Estado = e.Estado,
+                    Cep = e.Cep,
+                    Referencia = e.Referencia,
+                    Principal = e.Principal
+                }).ToList() ?? new List<Fynanceo.ViewModel.ClientesModel.EnderecoViewModel>()
             };
 
             return View(model);
@@ -169,6 +198,7 @@ namespace Fynanceo.Controllers
 
                 ModelState.AddModelError("", "Erro ao atualizar cliente. Tente novamente.");
             }
+
             return View(model);
         }
 
@@ -186,6 +216,7 @@ namespace Fynanceo.Controllers
             {
                 TempData["Erro"] = "Erro ao excluir cliente. Tente novamente.";
             }
+
             return RedirectToAction(nameof(Index));
         }
     }

@@ -6,335 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Fynanceo PDV</title>
 
-    <!-- CSS Libraries -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Local CSS Libraries (moved from CDN) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <style>
-        :root {
-            --primary: #2c5aa0;
-            --primary-dark: #1e4080;
-            --primary-light: #3a6bc5;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-            --gray-100: #f8f9fa;
-            --gray-200: #e9ecef;
-            --gray-600: #6c757d;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--gray-100);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            height: 100vh;
-            position: fixed;
-            width: 280px;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            flex-shrink: 0;
-        }
-
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 600;
-            font-size: 1.25rem;
-        }
-
-        .sidebar-nav {
-            padding: 1rem;
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .sidebar-collapsed {
-            width: 70px;
-        }
-
-            .sidebar-collapsed .sidebar-brand span,
-            .sidebar-collapsed .nav-section-label,
-            .sidebar-collapsed .nav-link span,
-            .sidebar-collapsed .badge {
-                display: none !important;
-            }
-
-            .sidebar-collapsed .nav-link {
-                justify-content: center;
-                padding: 0.75rem;
-            }
-
-                .sidebar-collapsed .nav-link i {
-                    margin-right: 0;
-                    font-size: 1.2rem;
-                }
-
-            .sidebar-collapsed .collapse {
-                display: none !important;
-            }
-
-        .nav-section-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.6);
-            margin: 1.5rem 0 0.5rem 0.75rem;
-        }
-
-        .sidebar .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            font-weight: 400;
-            position: relative;
-        }
-
-            .sidebar .nav-link:hover {
-                color: white;
-                background: rgba(255,255,255,0.1);
-                transform: translateX(4px);
-            }
-
-            .sidebar .nav-link.active {
-                color: white;
-                background: rgba(255,255,255,0.2);
-                font-weight: 500;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            .sidebar .nav-link i {
-                width: 20px;
-                margin-right: 0.75rem;
-                font-size: 1rem;
-                transition: margin 0.3s ease;
-            }
-
-        .nav-link.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-            .nav-link.disabled:hover {
-                background: transparent;
-                transform: none;
-            }
-
-        /* Submenu Styles */
-        .submenu {
-            margin-left: 1.5rem;
-            border-left: 1px solid rgba(255,255,255,0.1);
-            padding-left: 0.5rem;
-        }
-
-        .submenu-link {
-            padding: 0.5rem 0.75rem !important;
-            font-size: 0.875rem;
-            margin: 0.125rem 0 !important;
-        }
-
-            .submenu-link i {
-                font-size: 0.8rem !important;
-                width: 16px !important;
-            }
-
-        .badge-notification {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.65rem;
-            padding: 0.25rem 0.5rem;
-        }
-
-        .sidebar-collapsed .badge-notification {
-            right: 0.25rem;
-            top: 0.5rem;
-            transform: none;
-        }
-
-        /* Collapse animation */
-        .collapse-menu {
-            transition: all 0.3s ease;
-        }
-
-            .collapse-menu.collapsing {
-                transition: height 0.3s ease;
-            }
-
-        /* Main Content Area */
-        .main-content {
-            margin-left: 280px;
-            padding: 1.5rem;
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
-
-        .content-collapsed {
-            margin-left: 70px;
-        }
-
-        /* Navbar Styles */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-left: 280px;
-            transition: all 0.3s ease;
-            z-index: 999;
-            position: sticky;
-            top: 0;
-        }
-
-        .navbar-collapsed {
-            margin-left: 70px;
-        }
-
-        .navbar-brand {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Toggle button animation */
-        .sidebar-toggle-icon {
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-collapsed .sidebar-toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        /* Scrollbar customization */
-        .sidebar-nav::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sidebar-nav::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-        }
-
-        .sidebar-nav::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-        }
-
-            .sidebar-nav::-webkit-scrollbar-thumb:hover {
-                background: rgba(255,255,255,0.5);
-            }
-
-        /* Mobile Responsive */
-        @@media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 280px;
-            }
-
-            .sidebar-mobile-open {
-                transform: translateX(0);
-            }
-
-            .sidebar-collapsed {
-                transform: translateX(-100%);
-            }
-
-            .main-content, .navbar {
-                margin-left: 0 !important;
-            }
-
-            .main-content {
-                padding: 1rem;
-            }
-
-            .navbar-brand {
-                font-size: 0.8rem;
-            }
-        }
-
-        @@media (max-width: 576px) {
-            .main-content {
-                padding: 0.75rem;
-            }
-
-            .card {
-                margin-bottom: 1rem;
-            }
-        }
-
-        /* Resto do CSS permanece igual... */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
-            transition: box-shadow 0.3s ease;
-        }
-
-            .card:hover {
-                box-shadow: var(--shadow-lg);
-            }
-
-        .card-header {
-            background: white;
-            border-bottom: 1px solid var(--gray-200);
-            font-weight: 600;
-            padding: 1rem 1.25rem;
-            border-radius: 12px 12px 0 0 !important;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            border: none;
-            border-radius: 8px;
-            padding: 0.625rem 1.25rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-            .btn-primary:hover {
-                background: var(--primary-dark);
-                transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(44, 90, 160, 0.3);
-            }
-
-        /* Loading State */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-    </style>
 
     <!-- Render additional styles from views -->
     @await RenderSectionAsync("Styles", required: false)
@@ -346,8 +22,11 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-brand">
-                <i class="fas fa-cash-register"></i>
-                <span>Fynanceo</span>
+                <div class="logo">F</div>
+                <div>
+                    <div class="fw-bold">Fynanceo</div>
+                    <small class="text-muted">Gestão Comercial</small>
+                </div>
             </div>
         </div>
 
@@ -355,7 +34,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
-                       href="/">
+                       asp-controller="Home" asp-action="Index">
                         <i class="fas fa-home"></i>
                         <span>Dashboard</span>
                     </a>
@@ -373,7 +52,7 @@
     <div class="collapse collapse-menu" id="cadastroCollapse">
         <div class="submenu">
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
-               href="/Clientes"><i class="fas fa-users"></i> Clientes</a>
+               asp-controller="Clientes" asp-action="Index"><i class="fas fa-users"></i> Clientes</a>
             
             <!-- Submenu Produtos -->
             <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroProduto"
@@ -385,9 +64,9 @@
                 <div class="submenu">
                    
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
-                       href="@Url.Action("Create", "Estoque")"><i class="fas fa-box"></i> Materiais</a>
+                       asp-controller="Estoque" asp-action="Create"><i class="fas fa-box"></i> Materiais</a>
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
-                       href="/Produtos"><i class="fas fa-pizza-slice"></i> Produtos</a>
+                       asp-controller="Produtos" asp-action="Index"><i class="fas fa-pizza-slice"></i> Produtos</a>
                     
                 </div>
             </div>
@@ -397,11 +76,11 @@
             
         
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
-               href="/Mesas"><i class="fas fa-chair"></i> Mesas</a>
+               asp-controller="Mesas" asp-action="Index"><i class="fas fa-chair"></i> Mesas</a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
-               href="/Funcionarios"><i class="fas fa-user-tie"></i> Funcionários</a>
+               asp-controller="Funcionarios" asp-action="Index"><i class="fas fa-user-tie"></i> Funcionários</a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-               href="/Fornecedores"><i class="fas fa-user-tie"></i>Fornecedores</a>
+               asp-controller="Fornecedores" asp-action="Index"><i class="fas fa-user-tie"></i>Fornecedores</a>
         </div>
     </div>
 </li>
@@ -417,11 +96,11 @@
     <div class="collapse collapse-menu" id="operacoesCollapse">
         <div class="submenu">
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
-               href="/Pedidos"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+               asp-controller="Pedidos" asp-action="Index"><i class="fas fa-shopping-cart"></i> Pedidos</a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
-               href="/Pedidos/Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
+               asp-controller="Pedidos" asp-action="Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
-               href="@Url.Action("Dashboard", "Entregas")"><i class="fas fa-motorcycle"></i> Delivery <span class="badge bg-success">Novo</span></a>
+               asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-motorcycle"></i> Delivery <span class="badge bg-success">Novo</span></a>
         </div>
     </div>
 </li>
@@ -437,9 +116,9 @@
     <div class="collapse collapse-menu" id="gestaoCollapse">
         <div class="submenu">
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
-               href="@Url.Action("Dashboard", "GestaoMesas")"><i class="fas fa-chair"></i> Gestão de Mesas <span class="badge bg-success">Novo</span></a>
+               asp-controller="GestaoMesas" asp-action="Dashboard"><i class="fas fa-chair"></i> Gestão de Mesas <span class="badge bg-success">Novo</span></a>
             <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-               href="@Url.Action("Dashboard", "Caixa")"><i class="fas fa-chart-line"></i> Financeiro <span class="badge bg-success">Novo</span></a>
+               asp-controller="Caixa" asp-action="Dashboard"><i class="fas fa-chart-line"></i> Financeiro <span class="badge bg-success">Novo</span></a>
             <!-- Submenu Estoque -->
             <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#estoqueCollapse"
                aria-expanded="false" aria-controls="estoqueCollapse">
@@ -449,15 +128,15 @@
             <div class="collapse collapse-menu" id="estoqueCollapse">
                 <div class="submenu">
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
-                       href="@Url.Action("Dashboard", "Estoque")"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                       asp-controller="Estoque" asp-action="Dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                       href="@Url.Action("Index", "Estoque")"><i class="fas fa-box"></i> Produtos</a>
+                       asp-controller="Estoque" asp-action="Index"><i class="fas fa-box"></i> Produtos</a>
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
-                       href="@Url.Action("Movimentacoes", "Estoque")"><i class="fas fa-exchange-alt"></i> Movimentações</a>
+                       asp-controller="Estoque" asp-action="Movimentacoes"><i class="fas fa-exchange-alt"></i> Movimentações</a>
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
-                       href="@Url.Action("Alertas", "Estoque")"><i class="fas fa-exclamation-triangle"></i> Alertas</a>
+                       asp-controller="Estoque" asp-action="Alertas"><i class="fas fa-exclamation-triangle"></i> Alertas</a>
                     <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
-                       href="@Url.Action("Inventario", "Estoque")"><i class="fas fa-clipboard-check"></i> Inventário</a>
+                       asp-controller="Estoque" asp-action="Inventario"><i class="fas fa-clipboard-check"></i> Inventário</a>
                 </div>
             </div>
         </div>
@@ -474,11 +153,15 @@
                 </li>
             </ul>
         </div>
-    </div>
+        <div class="p-3">
+            <div class="small text-muted">Versão</div>
+            <div class="fw-bold">1.0.0</div>
+        </div>
+     </div>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg" id="navbar">
-        <div class="container-fluid">
+        <div class="container-fluid" style="height: 25px;">
             <div class="d-flex align-items-center">
                 <button class="btn btn-outline-secondary me-3" id="sidebarToggle" type="button">
                     <i class="fas fa-bars sidebar-toggle-icon"></i>
@@ -527,11 +210,11 @@
         @RenderBody()
     </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/notificacoes.js"></script>
+    <!-- JavaScript Libraries (local) -->
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+     <script src="~/js/site.js" asp-append-version="true"></script>
+     <script src="~/js/notificacoes.js"></script>
 
     <script>
         // Sidebar State Management
@@ -658,7 +341,7 @@
 
             // Add loading state to links
             document.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function() {
                     if (this.getAttribute('href') !== '#' && !this.classList.contains('disabled')) {
                         document.body.classList.add('loading');
                     }
