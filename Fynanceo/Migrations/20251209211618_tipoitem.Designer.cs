@@ -3,6 +3,7 @@ using System;
 using Fynanceo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209211618_tipoitem")]
+    partial class tipoitem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,7 +287,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 12, 10, 1, 52, 1, 98, DateTimeKind.Utc).AddTicks(5982),
+                            DataAtualizacao = new DateTime(2025, 12, 9, 21, 16, 17, 894, DateTimeKind.Utc).AddTicks(9202),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -552,8 +555,7 @@ namespace Fynanceo.Migrations
 
                     b.Property<string>("TipoItem")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)");
+                        .HasColumnType("text");
 
                     b.Property<int>("UnidadeMedida")
                         .HasColumnType("integer");
@@ -862,9 +864,6 @@ namespace Fynanceo.Migrations
 
                     b.Property<bool>("Entregue")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("IdEstoque")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Observacoes")
                         .HasColumnType("text");

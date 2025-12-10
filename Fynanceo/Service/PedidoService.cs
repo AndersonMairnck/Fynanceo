@@ -8,6 +8,7 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.EstoquesModel;
 using Fynanceo.ViewModel.PedidosModel;
 using Fynanceo.ViewModel.FinanceirosModel;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 
 namespace Fynanceo.Service
@@ -151,17 +152,39 @@ namespace Fynanceo.Service
                 PrecoUnitario = produto.ValorVenda,
                 Observacoes = itemVm.Observacoes,
                 Personalizacoes = itemVm.Personalizacoes,
+               IdEstoque = produto.idEstoque,
 
 
                 //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
             };
-            if (pedido.TipoPedido == TipoPedido.Delivery && produto.TempoPreparoMinutos == 0)
+            // if (pedido.TipoPedido == TipoPedido.Delivery && produto.TempoPreparoMinutos == 0)
+            //     itemPedido.Status = PedidoStatus.Pronto;
+            // if (pedido.TipoPedido == TipoPedido.Balcao && produto.TempoPreparoMinutos == 0)
+            //     itemPedido.Status = PedidoStatus.Pronto;
+            
+            if (produto.TempoPreparoMinutos ==0)
                 itemPedido.Status = PedidoStatus.Pronto;
-            if (pedido.TipoPedido == TipoPedido.Balcao && produto.TempoPreparoMinutos == 0)
-                itemPedido.Status = PedidoStatus.Pronto;
+            
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();
 
+        if (produto.idEstoque>0 && itemPedido.Status == PedidoStatus.Pronto)
+         { 
+                    await _estoqueService.CriarMovimentacaoAsync(new MovimentacaoEstoqueViewModel
+                    {
+                        Tipo = TipoMovimentacaoEstoque.Saida,
+                        EstoqueId = produto.idEstoque,
+                        Quantidade = itemPedido.Quantidade,
+                        CustoUnitario = produto.CustoUnitario,
+                        Observacao = $"Material usado para o pedido {itemPedido.PedidoId}",
+                        Documento =  $"{pedido.TipoPedido}: P= {itemPedido.PedidoId}",
+                        FornecedorId = 0,
+                        PedidoId = itemPedido.PedidoId,
+                        UsuarioNome = "Sistema",
+                    });
+                }
+                      
+            
             // Recalcular totais
             await RecalcularTotais(pedidoId);
 
@@ -256,9 +279,14 @@ namespace Fynanceo.Service
 
                     // 🔹 Atualiza os itens no contexto
                     _context.ItensPedido.UpdateRange(itens);
-
+                    
                     // 🔹 Salva todas as alterações (pedido + itens)
                     await _context.SaveChangesAsync();
+                    
+                    
+                    
+               
+                    
 
                     // 🔹 Registra histórico
                     await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario);
@@ -783,6 +811,26 @@ namespace Fynanceo.Service
             item.DataEntrega = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+          // csharp
+          // if (item.IdEstoque > 0)
+          // {
+          //     var estoque = await _context.Estoques.FindAsync(item.IdEstoque);
+          //     if (estoque != null)
+          //     {
+          //         await _estoqueService.CriarMovimentacaoAsync(new MovimentacaoEstoqueViewModel
+          //         {
+          //             Tipo = TipoMovimentacaoEstoque.Saida,
+          //             EstoqueId = estoque.Id,                   // usar Id do estoque
+          //             Quantidade = item.Quantidade,             // usar quantidade do item do pedido
+          //             CustoUnitario = estoque.CustoUnitario,    // custo vindo do estoque
+          //             Observacao = $"Revenda usado para o pedido {item.PedidoId}",
+          //             Documento = $"Pedido {item.PedidoId}",
+          //             FornecedorId = estoque.FornecedorId,
+          //             PedidoId = item.PedidoId,
+          //             UsuarioNome = "Sistema",
+          //         });
+          //     }
+          // }
 
             // Atualiza status do pedido se necessário
             await AtualizarStatusPedidoAsync(item.PedidoId);

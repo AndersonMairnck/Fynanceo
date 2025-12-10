@@ -6,6 +6,8 @@ namespace Fynanceo.Models
     {
         [Key]
         public int Id { get; set; }
+        
+        public int idEstoque { get; set; }
 
         [Required(ErrorMessage = "Código é obrigatório")]
         public string Codigo { get; set; }
@@ -41,6 +43,7 @@ namespace Fynanceo.Models
 
 
         public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
+        
 
         // Navegação
         public virtual ICollection<ProdutoIngrediente>? ProdutoIngredientes { get; set; } = new List<ProdutoIngrediente>();
