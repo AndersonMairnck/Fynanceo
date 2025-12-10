@@ -52,6 +52,11 @@ namespace Fynanceo.Models
         // Auditoria
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public DateTime? DataAtualizacao { get; set; }
+        
+        [StringLength(1)]
+        [MinLength(1)]
+        public string TipoItem { get; set; }
+
 
         // Navegação
         public ICollection<MovimentacaoEstoque> Movimentacoes { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Fynanceo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209205752_produtoestoque")]
+    partial class produtoestoque
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,7 +287,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 12, 10, 1, 52, 1, 98, DateTimeKind.Utc).AddTicks(5982),
+                            DataAtualizacao = new DateTime(2025, 12, 9, 20, 57, 49, 429, DateTimeKind.Utc).AddTicks(3144),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -547,13 +550,11 @@ namespace Fynanceo.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<bool>("Revenda")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
-
-                    b.Property<string>("TipoItem")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("character varying(1)");
 
                     b.Property<int>("UnidadeMedida")
                         .HasColumnType("integer");
@@ -862,9 +863,6 @@ namespace Fynanceo.Migrations
 
                     b.Property<bool>("Entregue")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("IdEstoque")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Observacoes")
                         .HasColumnType("text");

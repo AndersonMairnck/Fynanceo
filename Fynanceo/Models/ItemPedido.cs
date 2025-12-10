@@ -44,5 +44,6 @@ namespace Fynanceo.Models
         public DateTime? DataInicioPreparo { get; set; }
         public DateTime? DataPronto { get; set; }
         public DateTime? DataEntrega { get; set; }
+        public int IdEstoque { get; set; }
     }
 }

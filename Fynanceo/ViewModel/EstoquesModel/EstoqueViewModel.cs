@@ -46,6 +46,10 @@ namespace Fynanceo.ViewModel.EstoquesModel
         [Display(Name = "Fornecedor")]
         public int? FornecedorId { get; set; }
         public string Categoria { get; set; }
+        
+        [StringLength(1)]
+        [MinLength(1)]
+        public string TipoItem { get; set; }
         // Para dropdowns
         public List<string> Categorias { get; set; }
         public List<Fornecedor> Fornecedores { get; set; }

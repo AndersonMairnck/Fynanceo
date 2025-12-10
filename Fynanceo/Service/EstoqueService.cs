@@ -63,6 +63,8 @@ namespace Fynanceo.Service
 
         public async Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var estoque = new Estoque
@@ -75,29 +77,48 @@ namespace Fynanceo.Service
                     EstoqueMaximo = model.EstoqueMaximo,
                     CustoUnitario = model.CustoUnitario,
                     UnidadeMedida = model.StatusUnidadeMedida,
-               
-
+                    TipoItem = model.TipoItem,
                     Status = model.Status,
                     Categorias = model.Categoria,
-             
                     FornecedorId = model.FornecedorId,
                     DataCriacao = DateTime.UtcNow
                 };
 
                 _context.Estoques.Add(estoque);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); // Gera o ID
 
-                _logger.LogInformation($"Estoque criado: {estoque.Nome} (ID: {estoque.Id})");
+                if (model.TipoItem == "R")
+                {
+                    var produto = new Produto
+                    {
+                        idEstoque = estoque.Id,
+                        Nome = estoque.Nome,
+                        Codigo = estoque.Codigo,
+                        Descricao = estoque.Descricao,
+                        CustoUnitario = estoque.CustoUnitario,
+                        ValorVenda = 0,
+                        Categoria = estoque.Categorias,
+                        TempoPreparoMinutos = 0,
+                        OpcoesPersonalizacao = "Nenhuma",
+                        DataCadastro = DateTime.UtcNow,
+                        Subcategoria = "Produtos do Estoque"
+                    };
+
+                    _context.Produtos.Add(produto);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
                 return estoque;
-
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                await transaction.RollbackAsync();
                 throw;
             }
-          
         }
+
 
         public async Task<Estoque> AtualizarEstoqueAsync(int id, EstoqueViewModel model)
         {
@@ -182,6 +203,7 @@ namespace Fynanceo.Service
                 var estoque = await _context.Estoques.FindAsync(model.EstoqueId);
                 if (estoque == null)
                     throw new ArgumentException("Produto não encontrado");
+              
 
                 var movimentacao = new MovimentacaoEstoque
                 {
@@ -192,7 +214,7 @@ namespace Fynanceo.Service
                     CustoTotal = model.Quantidade * model.CustoUnitario,
                     Documento = model.Documento,
                     Observacao = model.Observacao,
-                    FornecedorId = model.FornecedorId,
+                    FornecedorId = (model.FornecedorId ?? 0) == 0 ? estoque.FornecedorId : model.FornecedorId.Value,
                     PedidoId = model.PedidoId,
                     DataMovimentacao = DateTime.UtcNow,
                     Usuario = "Sistema" // TODO: Integrar com autenticação
