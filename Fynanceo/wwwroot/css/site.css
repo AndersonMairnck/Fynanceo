@@ -111,7 +111,16 @@ body {
 .content-collapsed { margin-left: 70px; }
 
 /* Navbar Styles */
-.navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-left: 280px; transition: all 0.3s ease; z-index: 999; position: sticky; top: 0; }
+.navbar {
+    background: linear-gradient(to right, #001f4d, #0066cc);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-left: 280px;
+    transition: all 0.3s ease;
+    z-index: 999;
+    position: sticky;
+    top: 0;
+}
+
 .navbar-collapsed { margin-left: 70px; }
 .navbar-brand { font-size: 0.9rem; font-weight: 500; }
 
@@ -195,6 +204,14 @@ footer { margin-top: auto; }
 }
 
 .sidebar .sidebar-brand { display:flex; align-items:center; gap:0.75rem; }
+.sidebar-header .sidebar-brand {
+    display: flex;
+    justify-content: center;   /* Centraliza horizontalmente */
+    align-items: center;       /* Centraliza verticalmente */
+    width: 100%;               /* Garante alinhamento total */
+    text-align: center;
+}
+
 .sidebar .sidebar-brand .logo {
     width:44px; height:44px; border-radius:0.6rem; display:grid; place-items:center; font-weight:700; color:white;
     background: linear-gradient(135deg, #3b82f6, #06b6d4);
