@@ -2,408 +2,415 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Fynanceo PDV</title>
-
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="~/img/logo.ico" />
     <!-- Local CSS Libraries (moved from CDN) -->
-    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 
     <!-- Render additional styles from views -->
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <div class="logo">F</div>
-                <div>
-                    <div class="fw-bold">Fynanceo</div>
-                    <small class="text-white-50">Gestão Comercial</small>
-                </div>
-            </div>
-        </div>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <img src="~/img/ChatGPT imgam melhorada.png" class="logo" style="width:100px; height:100px; border-radius:20%;">
 
-        <div class="sidebar-nav">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
-                       asp-controller="Home" asp-action="Index">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-
-                <!-- Módulo de Cadastros -->
-              <!-- Menu Cadastro -->
-<li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroCollapse"
-       aria-expanded="false" aria-controls="cadastroCollapse">
-        <i class="fas fa-address-book"></i>
-        <span>Cadastro</span>
-        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-    </a>
-    <div class="collapse collapse-menu" id="cadastroCollapse">
-        <div class="submenu">
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
-               asp-controller="Clientes" asp-action="Index"><i class="fas fa-users"></i> Clientes</a>
-            
-            <!-- Submenu Produtos -->
-            <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroProduto"
-               aria-expanded="false" aria-controls="cadastroProduto">
-                <i class="fas fa-boxes"></i> Produtos <span class="badge bg-success">Novo</span>
-                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-            </a>
-            <div class="collapse collapse-menu" id="cadastroProduto">
-                <div class="submenu">
-                   
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Create"><i class="fas fa-box"></i> Materiais</a>
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
-                       asp-controller="Produtos" asp-action="Index"><i class="fas fa-pizza-slice"></i> Produtos</a>
-                    
-                </div>
-            </div>
-            
-            
-            
-            
-        
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
-               asp-controller="Mesas" asp-action="Index"><i class="fas fa-chair"></i> Mesas</a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
-               asp-controller="Funcionarios" asp-action="Index"><i class="fas fa-user-tie"></i> Funcionários</a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-               asp-controller="Fornecedores" asp-action="Index"><i class="fas fa-user-tie"></i>Fornecedores</a>
+         
         </div>
     </div>
-</li>
 
-<!-- Menu Operações -->
-<li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#operacoesCollapse"
-       aria-expanded="false" aria-controls="operacoesCollapse">
-        <i class="fas fa-cogs"></i>
-        <span>Operações</span>
-        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-    </a>
-    <div class="collapse collapse-menu" id="operacoesCollapse">
-        <div class="submenu">
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
-               asp-controller="Pedidos" asp-action="Index"><i class="fas fa-shopping-cart"></i> Pedidos</a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
-               asp-controller="Pedidos" asp-action="Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
-               asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-motorcycle"></i> Delivery <span class="badge bg-success">Novo</span></a>
-        </div>
-    </div>
-</li>
+    <div class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
+                   asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-<!-- Menu Gestão -->
-<li class="nav-item">
-    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#gestaoCollapse"
-       aria-expanded="false" aria-controls="gestaoCollapse">
-        <i class="fas fa-briefcase"></i>
-        <span>Gestão</span>
-        <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-    </a>
-    <div class="collapse collapse-menu" id="gestaoCollapse">
-        <div class="submenu">
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
-               asp-controller="GestaoMesas" asp-action="Dashboard"><i class="fas fa-chair"></i> Gestão de Mesas <span class="badge bg-success">Novo</span></a>
-            <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-               asp-controller="Caixa" asp-action="Dashboard"><i class="fas fa-chart-line"></i> Financeiro <span class="badge bg-success">Novo</span></a>
-            <!-- Submenu Estoque -->
-            <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse" data-bs-target="#estoqueCollapse"
-               aria-expanded="false" aria-controls="estoqueCollapse">
-                <i class="fas fa-boxes"></i> Estoque <span class="badge bg-success">Novo</span>
-                <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-            </a>
-            <div class="collapse collapse-menu" id="estoqueCollapse">
-                <div class="submenu">
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Index"><i class="fas fa-box"></i> Produtos</a>
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Movimentacoes"><i class="fas fa-exchange-alt"></i> Movimentações</a>
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Alertas"><i class="fas fa-exclamation-triangle"></i> Alertas</a>
-                    <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
-                       asp-controller="Estoque" asp-action="Inventario"><i class="fas fa-clipboard-check"></i> Inventário</a>
+            <!-- Módulo de Cadastros -->
+            <!-- Menu Cadastro -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#cadastroCollapse"
+                   aria-expanded="false" aria-controls="cadastroCollapse">
+                    <i class="fas fa-address-book"></i>
+                    <span>Cadastro</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                </a>
+                <div class="collapse collapse-menu" id="cadastroCollapse">
+                    <div class="submenu">
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "active" : "")"
+                           asp-controller="Clientes" asp-action="Index"><i class="fas fa-users"></i> Clientes</a>
+
+                        <!-- Submenu Produtos -->
+                        <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse"
+                           data-bs-target="#cadastroProduto"
+                           aria-expanded="false" aria-controls="cadastroProduto">
+                            <i class="fas fa-boxes"></i> Produtos <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                        </a>
+                        <div class="collapse collapse-menu" id="cadastroProduto">
+                            <div class="submenu">
+
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Create"><i class="fas fa-box"></i> Materiais</a>
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Produtos" ? "active" : "")"
+                                   asp-controller="Produtos" asp-action="Index"><i class="fas fa-pizza-slice"></i>
+                                    Produtos</a>
+
+                            </div>
+                        </div>
+
+
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mesas" ? "active" : "")"
+                           asp-controller="Mesas" asp-action="Index"><i class="fas fa-chair"></i> Mesas</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Funcionarios" ? "active" : "")"
+                           asp-controller="Funcionarios" asp-action="Index"><i class="fas fa-user-tie"></i> Funcionários</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
+                           asp-controller="Fornecedores" asp-action="Index"><i class="fas fa-user-tie"></i>Fornecedores</a>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </li>
+
+            <!-- Menu Operações -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#operacoesCollapse"
+                   aria-expanded="false" aria-controls="operacoesCollapse">
+                    <i class="fas fa-cogs"></i>
+                    <span>Operações</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                </a>
+                <div class="collapse collapse-menu" id="operacoesCollapse">
+                    <div class="submenu">
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
+                           asp-controller="Pedidos" asp-action="Index"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
+                           asp-controller="Pedidos" asp-action="Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
+                           asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-motorcycle"></i> Delivery
+                            </a>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Menu Gestão -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#gestaoCollapse"
+                   aria-expanded="false" aria-controls="gestaoCollapse">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Gestão</span>
+                    <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                </a>
+                <div class="collapse collapse-menu" id="gestaoCollapse">
+                    <div class="submenu">
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
+                           asp-controller="GestaoMesas" asp-action="Dashboard"><i class="fas fa-chair"></i> Gestão de
+                            Mesas </a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
+                           asp-controller="Caixa" asp-action="Dashboard"><i class="fas fa-chart-line"></i> Financeiro
+                           </a>
+                        <!-- Submenu Estoque -->
+                        <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse"
+                           data-bs-target="#estoqueCollapse"
+                           aria-expanded="false" aria-controls="estoqueCollapse">
+                            <i class="fas fa-boxes"></i> Estoque 
+                            <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                        </a>
+                        <div class="collapse collapse-menu" id="estoqueCollapse">
+                            <div class="submenu">
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Dashboard"><i class="fas fa-tachometer-alt"></i>
+                                    Dashboard</a>
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Index"><i class="fas fa-box"></i> Produtos</a>
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Movimentacoes"><i
+                                        class="fas fa-exchange-alt"></i> Movimentações</a>
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Alertas"><i
+                                        class="fas fa-exclamation-triangle"></i> Alertas</a>
+                                <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
+                                   asp-controller="Estoque" asp-action="Inventario"><i
+                                        class="fas fa-clipboard-check"></i> Inventário</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+
+            <li class="nav-item">
+                <a class="nav-link text-muted disabled" href="#" title="Em desenvolvimento">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                    <span class="badge bg-warning badge-notification">Em breve</span>
+                </a>
+            </li>
+        </ul>
     </div>
-</li>
+    <div class="p-3">
+        <div class="small text-muted">Versão</div>
+        <div class="fw-bold">1.0.0</div>
+    </div>
+</div>
 
-
-                <li class="nav-item">
-                    <a class="nav-link text-muted disabled" href="#" title="Em desenvolvimento">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Relatórios</span>
-                        <span class="badge bg-warning badge-notification">Em breve</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="p-3">
-            <div class="small text-muted">Versão</div>
-            <div class="fw-bold">1.0.0</div>
-        </div>
-     </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg" id="navbar">
-        <div class="container-fluid" style="height: 25px;">
-            <div class="d-flex align-items-center">
-                <button class="btn btn-outline-secondary me-3" id="sidebarToggle" type="button">
-                    <i class="fas fa-bars sidebar-toggle-icon"></i>
-                </button>
-                <span class="navbar-brand">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg" id="navbar">
+    <div class="container-fluid" style="height: 25px;">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-outline-secondary me-3" id="sidebarToggle" type="button">
+                <i class="fas fa-bars sidebar-toggle-icon"></i>
+            </button>
+            <span class="navbar-brand">
                     @ViewData["Title"]
                 </span>
-            </div>
+        </div>
 
-            <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
                 <span class="me-3 text-muted d-none d-sm-block">
                     <i class="fas fa-calendar-day me-1"></i>
                     @DateTime.UtcNow.ToString("dd/MM/yyyy")
                 </span>
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle me-2"></i>
-                        <span class="d-none d-md-inline">Usuário</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user me-2"></i>Meu Perfil
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-cog me-2"></i>Configurações
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="#">
-                                <i class="fas fa-sign-out-alt me-2"></i>Sair
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user-circle me-2"></i>
+                    <span class="d-none d-md-inline">Usuário</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-user me-2"></i>Meu Perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="fas fa-cog me-2"></i>Configurações
+                        </a>
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#">
+                            <i class="fas fa-sign-out-alt me-2"></i>Sair
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        @RenderBody()
     </div>
+</nav>
 
-    <!-- JavaScript Libraries (local) -->
-    <script src="~/lib/jquery/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-     <script src="~/js/site.js" asp-append-version="true"></script>
-     <script src="~/js/notificacoes.js"></script>
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+    @RenderBody()
+</div>
 
-    <script>
-        // Sidebar State Management
-        let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+<!-- JavaScript Libraries (local) -->
+<script src="~/lib/jquery/jquery.min.js"></script>
+<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/js/notificacoes.js"></script>
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const navbar = document.getElementById('navbar');
-            const toggleIcon = document.querySelector('.sidebar-toggle-icon');
+<script>
+    // Sidebar State Management
+    let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
-            sidebarCollapsed = !sidebarCollapsed;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const navbar = document.getElementById('navbar');
+        const toggleIcon = document.querySelector('.sidebar-toggle-icon');
 
-            if (sidebarCollapsed) {
-                sidebar.classList.add('sidebar-collapsed');
-                mainContent.classList.add('content-collapsed');
-                navbar.classList.add('navbar-collapsed');
-                toggleIcon.classList.add('fa-chevron-right');
-                toggleIcon.classList.remove('fa-chevron-left');
-            } else {
-                sidebar.classList.remove('sidebar-collapsed');
-                mainContent.classList.remove('content-collapsed');
-                navbar.classList.remove('navbar-collapsed');
-                toggleIcon.classList.add('fa-chevron-left');
-                toggleIcon.classList.remove('fa-chevron-right');
-            }
+        sidebarCollapsed = !sidebarCollapsed;
 
-            // Save state to localStorage
-            localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+        if (sidebarCollapsed) {
+            sidebar.classList.add('sidebar-collapsed');
+            mainContent.classList.add('content-collapsed');
+            navbar.classList.add('navbar-collapsed');
+            toggleIcon.classList.add('fa-chevron-right');
+            toggleIcon.classList.remove('fa-chevron-left');
+        } else {
+            sidebar.classList.remove('sidebar-collapsed');
+            mainContent.classList.remove('content-collapsed');
+            navbar.classList.remove('navbar-collapsed');
+            toggleIcon.classList.add('fa-chevron-left');
+            toggleIcon.classList.remove('fa-chevron-right');
         }
 
-        function initializeSidebar() {
+        // Save state to localStorage
+        localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+    }
+
+    function initializeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const navbar = document.getElementById('navbar');
+        const toggleIcon = document.querySelector('.sidebar-toggle-icon');
+
+        // Apply saved state
+        if (sidebarCollapsed) {
+            sidebar.classList.add('sidebar-collapsed');
+            mainContent.classList.add('content-collapsed');
+            navbar.classList.add('navbar-collapsed');
+            toggleIcon.classList.add('fa-chevron-right');
+            toggleIcon.classList.remove('fa-chevron-left');
+        } else {
+            toggleIcon.classList.add('fa-chevron-left');
+        }
+
+        // Mobile behavior
+        if (window.innerWidth < 768) {
+            sidebar.classList.remove('sidebar-collapsed');
+            mainContent.classList.remove('content-collapsed');
+            navbar.classList.remove('navbar-collapsed');
+        }
+    }
+
+    // Event Listeners
+    document.getElementById('sidebarToggle').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        if (window.innerWidth < 768) {
+            // Mobile behavior - toggle slide
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const navbar = document.getElementById('navbar');
-            const toggleIcon = document.querySelector('.sidebar-toggle-icon');
+            sidebar.classList.toggle('sidebar-mobile-open');
+        } else {
+            // Desktop behavior - toggle collapse
+            toggleSidebar();
+        }
+    });
 
-            // Apply saved state
-            if (sidebarCollapsed) {
-                sidebar.classList.add('sidebar-collapsed');
-                mainContent.classList.add('content-collapsed');
-                navbar.classList.add('navbar-collapsed');
-                toggleIcon.classList.add('fa-chevron-right');
-                toggleIcon.classList.remove('fa-chevron-left');
-            } else {
-                toggleIcon.classList.add('fa-chevron-left');
-            }
-
-            // Mobile behavior
+    // Close mobile sidebar when clicking on a link
+    document.querySelectorAll('.sidebar .nav-link:not([data-bs-toggle="collapse"])').forEach(link => {
+        link.addEventListener('click', function () {
             if (window.innerWidth < 768) {
-                sidebar.classList.remove('sidebar-collapsed');
-                mainContent.classList.remove('content-collapsed');
-                navbar.classList.remove('navbar-collapsed');
+                document.getElementById('sidebar').classList.remove('sidebar-mobile-open');
             }
+        });
+    });
+
+    // Close mobile sidebar when clicking outside
+    document.addEventListener('click', function (e) {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+
+        if (window.innerWidth < 768 &&
+            !sidebar.contains(e.target) &&
+            !toggleBtn.contains(e.target) &&
+            sidebar.classList.contains('sidebar-mobile-open')) {
+            sidebar.classList.remove('sidebar-mobile-open');
         }
+    });
 
-        // Event Listeners
-        document.getElementById('sidebarToggle').addEventListener('click', function(e) {
-            e.preventDefault();
+    // Handle window resize
+    window.addEventListener('resize', function () {
+        const sidebar = document.getElementById('sidebar');
 
-            if (window.innerWidth < 768) {
-                // Mobile behavior - toggle slide
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('sidebar-mobile-open');
-            } else {
-                // Desktop behavior - toggle collapse
-                toggleSidebar();
-            }
-        });
-
-        // Close mobile sidebar when clicking on a link
-        document.querySelectorAll('.sidebar .nav-link:not([data-bs-toggle="collapse"])').forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth < 768) {
-                    document.getElementById('sidebar').classList.remove('sidebar-mobile-open');
-                }
-            });
-        });
-
-        // Close mobile sidebar when clicking outside
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('sidebarToggle');
-
-            if (window.innerWidth < 768 &&
-                !sidebar.contains(e.target) &&
-                !toggleBtn.contains(e.target) &&
-                sidebar.classList.contains('sidebar-mobile-open')) {
-                sidebar.classList.remove('sidebar-mobile-open');
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-
-            if (window.innerWidth >= 768) {
-                sidebar.classList.remove('sidebar-mobile-open');
-                initializeSidebar();
-            } else {
-                sidebar.classList.remove('sidebar-collapsed');
-                document.getElementById('mainContent').classList.remove('content-collapsed');
-                document.getElementById('navbar').classList.remove('navbar-collapsed');
-            }
-        });
-
-        // Auto-collapse submenus when sidebar is collapsed
-        function handleSubmenuCollapse() {
-            const sidebar = document.getElementById('sidebar');
-            const collapses = document.querySelectorAll('.collapse');
-
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                collapses.forEach(collapse => {
-                    if (collapse.classList.contains('show')) {
-                        bootstrap.Collapse.getInstance(collapse)?.hide();
-                    }
-                });
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.remove('sidebar-mobile-open');
             initializeSidebar();
+        } else {
+            sidebar.classList.remove('sidebar-collapsed');
+            document.getElementById('mainContent').classList.remove('content-collapsed');
+            document.getElementById('navbar').classList.remove('navbar-collapsed');
+        }
+    });
 
-            // Add loading state to links
-            document.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function() {
-                    if (this.getAttribute('href') !== '#' && !this.classList.contains('disabled')) {
-                        document.body.classList.add('loading');
-                    }
-                });
-            });
+    // Auto-collapse submenus when sidebar is collapsed
+    function handleSubmenuCollapse() {
+        const sidebar = document.getElementById('sidebar');
+        const collapses = document.querySelectorAll('.collapse');
 
-            // Watch for sidebar collapse to handle submenus
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'class') {
-                        handleSubmenuCollapse();
-                    }
-                });
-            });
-
-            observer.observe(document.getElementById('sidebar'), {
-                attributes: true,
-                attributeFilter: ['class']
-            });
-        });
-
-        // Remove loading state when page is fully loaded
-        window.addEventListener('load', function() {
-            document.body.classList.remove('loading');
-        });
-
-        // Ensure loading state is cleared when the page is restored from the Back/Forward cache
-        // or when navigating history (browser back/forward). Without this, a previously-added
-        // `.loading` class can remain and block interactions after using the browser Back button.
-        window.addEventListener('pageshow', function (event) {
-            // Clear loading regardless, but this is especially important when event.persisted === true
-            document.body.classList.remove('loading');
-        });
-
-        // Also clear on popstate which fires for some history navigations
-        window.addEventListener('popstate', function () {
-            document.body.classList.remove('loading');
-        });
-
-        // Simulate alert count for Estoque (substitua por chamada real à API)
-        function updateEstoqueAlertCount() {
-            const alertLink = document.querySelector('a[href*="Alertas"]');
-            if (alertLink) {
-                // Simular 3 alertas - substitua por chamada real ao serviço
-                const alertCount = 3;
-                if (alertCount > 0) {
-                    let badge = alertLink.querySelector('.alert-badge');
-                    if (!badge) {
-                        badge = document.createElement('span');
-                        badge.className = 'badge bg-danger badge-notification alert-badge';
-                        alertLink.appendChild(badge);
-                    }
-                    badge.textContent = alertCount;
+        if (sidebar.classList.contains('sidebar-collapsed')) {
+            collapses.forEach(collapse => {
+                if (collapse.classList.contains('show')) {
+                    bootstrap.Collapse.getInstance(collapse)?.hide();
                 }
+            });
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeSidebar();
+
+        // Add loading state to links
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function () {
+                if (this.getAttribute('href') !== '#' && !this.classList.contains('disabled')) {
+                    document.body.classList.add('loading');
+                }
+            });
+        });
+
+        // Watch for sidebar collapse to handle submenus
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'class') {
+                    handleSubmenuCollapse();
+                }
+            });
+        });
+
+        observer.observe(document.getElementById('sidebar'), {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    });
+
+    // Remove loading state when page is fully loaded
+    window.addEventListener('load', function () {
+        document.body.classList.remove('loading');
+    });
+
+    // Ensure loading state is cleared when the page is restored from the Back/Forward cache
+    // or when navigating history (browser back/forward). Without this, a previously-added
+    // `.loading` class can remain and block interactions after using the browser Back button.
+    window.addEventListener('pageshow', function (event) {
+        // Clear loading regardless, but this is especially important when event.persisted === true
+        document.body.classList.remove('loading');
+    });
+
+    // Also clear on popstate which fires for some history navigations
+    window.addEventListener('popstate', function () {
+        document.body.classList.remove('loading');
+    });
+
+    // Simulate alert count for Estoque (substitua por chamada real à API)
+    function updateEstoqueAlertCount() {
+        const alertLink = document.querySelector('a[href*="Alertas"]');
+        if (alertLink) {
+            // Simular 3 alertas - substitua por chamada real ao serviço
+            const alertCount = 3;
+            if (alertCount > 0) {
+                let badge = alertLink.querySelector('.alert-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'badge bg-danger badge-notification alert-badge';
+                    alertLink.appendChild(badge);
+                }
+                badge.textContent = alertCount;
             }
         }
+    }
 
-        // Inicializar contador de alertas
-        updateEstoqueAlertCount();
-    </script>
+    // Inicializar contador de alertas
+    updateEstoqueAlertCount();
+</script>
 
-    <script src="~/js/mascaras.js"></script>
-    <script src="~/js/maiuscula.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/mascaras.js"></script>
+<script src="~/js/maiuscula.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
