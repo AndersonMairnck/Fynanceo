@@ -9,10 +9,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text;
+using Fynanceo.Configuracao;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Fynanceo.Controllers
 {
+     [Authorize (Roles = "Administrador,Gerente,Estoquista")]
+    
+    
     public class EstoqueController : Controller
     {
         private readonly IEstoqueService _estoqueService;
@@ -28,7 +33,7 @@ namespace Fynanceo.Controllers
             _fornecedorService = fornecedorService;
             _pedidoService = pedidoService;
         }
-
+        
         // GET: Estoque/Dashboard
         public async Task<IActionResult> Dashboard()
         {

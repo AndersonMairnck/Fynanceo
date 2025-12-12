@@ -28,6 +28,7 @@ namespace Fynanceo.Models
         public bool Ativo { get; set; } = true;
         public string? JustificativaStatus { get; set; }
         public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
+        public string UsuarioNome { get; set; } // Usuário que cadastrou ou atualizou
 
         // Navegação
         public virtual ICollection<EnderecoCliente> Enderecos { get; set; } = new List<EnderecoCliente>();

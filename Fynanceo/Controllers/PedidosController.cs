@@ -5,12 +5,13 @@ using Fynanceo.Service.Interface;
 
 using Fynanceo.ViewModel.PedidosModel;
 using Microsoft.AspNetCore.Mvc;
-
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace Fynanceo.Controllers
 {
+    [Authorize (Roles = "Administrador, Gerente, Atendente, Cozinha, Entregador")]
     public class PedidosController : Controller
     {
       
@@ -20,6 +21,8 @@ namespace Fynanceo.Controllers
         private readonly IClienteService _clienteService;
         private readonly IConfigService _configService;
         private readonly IEntregaService _entregaService;
+  
+
 
 
         public PedidosController(IPedidoService pedidoService,  
@@ -27,6 +30,7 @@ namespace Fynanceo.Controllers
                                         IClienteService clienteService, 
                                             IConfigService configService,
                                                 IEntregaService entregaService)
+                                              
         {
 
             _pedidoService = pedidoService;
@@ -35,7 +39,9 @@ namespace Fynanceo.Controllers
             _clienteService = clienteService;
             _configService = configService;
             _entregaService = entregaService;
+    
         }
+    
 
         // GET: Pedidos
         public async Task<IActionResult> Index()
@@ -153,8 +159,9 @@ namespace Fynanceo.Controllers
         {
             try
             {
-                var usuario = "Usuário"; // Temporário - depois pegar do usuário logado
-                var pedido = await _pedidoService.AtualizarStatus(id, novoStatus, usuario);
+             
+       
+                var pedido = await _pedidoService.AtualizarStatus(id, novoStatus);
 
 
                 return Json(new { success = true, message = "Status atualizado com sucesso!" });

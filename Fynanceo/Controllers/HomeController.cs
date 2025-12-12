@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Fynanceo.Controllers
 { 
-    [Authorize]
+   
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -20,7 +20,7 @@ namespace Fynanceo.Controllers
             _logger = logger;
             _pedidoService = pedidoService;
         }
-        [Authorize(Policy = Politicas.GerenciarProdutos)]
+    
         public async Task<IActionResult> Index()
         {
             // Carrega pedidos do dia

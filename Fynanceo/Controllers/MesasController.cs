@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.MesasModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize (Roles = "Administrador, Gerente, Atendente")]
     public class MesasController : Controller
     {
         private readonly IMesaService _mesaService;

@@ -5,9 +5,11 @@ using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.PedidosModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente")]
     public class GestaoMesasController : Controller
     {
         private readonly IMesaService _mesaService;
@@ -207,7 +209,7 @@ namespace Fynanceo.Controllers
         {
             try
             {
-                var pedido = await _pedidoService.AtualizarStatus(pedidoId, "EnviadoCozinha", User.Identity.Name);
+                var pedido = await _pedidoService.AtualizarStatus(pedidoId, "EnviadoCozinha");
                 return Json(new { success = true, message = "Pedido enviado para cozinha!" });
             }
             catch (Exception ex)

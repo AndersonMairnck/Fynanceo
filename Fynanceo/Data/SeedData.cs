@@ -13,6 +13,8 @@ namespace Fynanceo.Data
 
             await CriarPerfisAsync(roleManager);
             await CriarUsuarioAdministradorAsync(userManager);
+            // OPCIONAL: Criar usuários de teste (apenas em desenvolvimento)
+             //await SeedData.CriarUsuariosTesteAsync(serviceProvider, criarUsuariosTeste: true);
         }
 
         private static async Task CriarPerfisAsync(RoleManager<IdentityRole> roleManager)
@@ -112,13 +114,13 @@ namespace Fynanceo.Data
             }
         }
 
-        // Método opcional para criar usuários de teste (usar apenas em desenvolvimento)
+        //Método opcional para criar usuários de teste (usar apenas em desenvolvimento)
         public static async Task CriarUsuariosTesteAsync(IServiceProvider serviceProvider, bool criarUsuariosTeste = false)
         {
             if (!criarUsuariosTeste) return;
-
+        
             var userManager = serviceProvider.GetRequiredService<UserManager<UsuarioAplicacao>>();
-
+        
             var usuariosTeste = new List<(string Nome, string Email, string Senha, string Cargo, string Perfil)>
             {
                 ("João Silva", "gerente@fynanceo.com", "Gerente@123", "Gerente de Operações", PerfisUsuario.Gerente),
@@ -127,13 +129,13 @@ namespace Fynanceo.Data
                 ("Ana Oliveira", "atendente@fynanceo.com", "Atendente@123", "Atendente", PerfisUsuario.Atendente),
                 ("Carlos Souza", "entregador@fynanceo.com", "Entregador@123", "Entregador", PerfisUsuario.Entregador)
             };
-
+        
             Console.WriteLine("\n--- Criando Usuários de Teste ---");
-
+        
             foreach (var (nome, email, senha, cargo, perfil) in usuariosTeste)
             {
                 var usuarioExistente = await userManager.FindByEmailAsync(email);
-
+        
                 if (usuarioExistente == null)
                 {
                     var novoUsuario = new UsuarioAplicacao
@@ -146,9 +148,9 @@ namespace Fynanceo.Data
                         Ativo = true,
                         DataCadastro = DateTime.UtcNow
                     };
-
+        
                     var resultado = await userManager.CreateAsync(novoUsuario, senha);
-
+        
                     if (resultado.Succeeded)
                     {
                         await userManager.AddToRoleAsync(novoUsuario, perfil);

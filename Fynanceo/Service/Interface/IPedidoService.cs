@@ -11,7 +11,7 @@ namespace Fynanceo.Service.Interface
         Task<Pedido> CriarPedido(PedidoViewModel viewModel);
         Task<Pedido> AdicionarItem(int pedidoId, ItemPedidoViewModel item);
         Task<bool> RemoverItem(int itemPedidoId);
-        Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus, string usuario);
+        Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus);
         Task<Pedido> ObterPedidoCompleto(int pedidoId);
         Task<List<Pedido>> ObterPedidosPorStatus(string status);
         Task<List<Pedido>> ObterPedidosDoDia();

@@ -8,7 +8,7 @@ namespace Fynanceo.Service.Interface
     {
         Task<Entrega> CriarEntrega(int pedidoId);
         Task<Entrega> AtribuirEntregador(int entregaId, int entregadorId);
-        Task<Entrega> AtualizarStatusEntrega(int entregaId, string novoStatus, string usuario, string? observacao = null);
+        Task<Entrega> AtualizarStatusEntrega(int entregaId, string novoStatus,  string? observacao = null);
         Task<List<Entrega>> ObterEntregasPorStatus(string status);
         Task<List<Entrega>> ObterEntregasDoDia();
         Task<List<Entregador>> ObterEntregadoresDisponiveis();

@@ -56,6 +56,8 @@ namespace Fynanceo.Models
         // Avaliação
         public int? Avaliacao { get; set; }
         public string? ComentarioAvaliacao { get; set; }
+        
+ 
 
         // Navigation Properties
         public ICollection<HistoricoEntrega> Historico { get; set; } = new List<HistoricoEntrega>();

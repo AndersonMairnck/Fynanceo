@@ -5,16 +5,22 @@ using Npgsql;
 using Fynanceo.Utils;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ClientesModel;
-
+using Microsoft.AspNetCore.Identity;
 namespace Fynanceo.Service
 {
     public class ClienteService : IClienteService
     {
         private readonly AppDbContext _context;
-
-        public ClienteService(AppDbContext context)
+        private readonly UserManager<UsuarioAplicacao> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        
+        public ClienteService(AppDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<UsuarioAplicacao> userManager)
         {
             _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<Cliente>> ObterTodosAsync()
@@ -34,6 +40,7 @@ namespace Fynanceo.Service
 
         public async Task<bool> AdicionarAsync(ClienteViewModel model)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             try
             {
                 var cliente = new Cliente
@@ -47,7 +54,8 @@ namespace Fynanceo.Service
                     Observacoes = model.Observacoes,
                     Ativo = model.Ativo,
                     JustificativaStatus = model.JustificativaStatus,
-                    DataCadastro = DateTime.UtcNow
+                    DataCadastro = DateTime.UtcNow,
+                    UsuarioNome = usuario.UserName,
                 };
 
                 // Adicionar endereço principal se informado
@@ -127,6 +135,7 @@ namespace Fynanceo.Service
 
         public async Task<bool> AtualizarAsync(int id, ClienteViewModel model)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             try
             {
                 var cliente = await _context.Clientes
@@ -144,7 +153,7 @@ namespace Fynanceo.Service
                 cliente.Observacoes = model.Observacoes;
                 cliente.Ativo = model.Ativo;
                 cliente.JustificativaStatus = model.JustificativaStatus;
-       
+                cliente.UsuarioNome = usuario.UserName;
                 // Processar coleção de endereços (sincronizar)
                 if (model.Enderecos != null)
                 {

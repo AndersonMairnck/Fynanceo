@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.FuncionariosModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente")]
     public class FuncionariosController : Controller
     {
         private readonly IFuncionarioService _funcionarioService;

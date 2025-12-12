@@ -8,6 +8,7 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.EstoquesModel;
 using Fynanceo.ViewModel.PedidosModel;
 using Fynanceo.ViewModel.FinanceirosModel;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 
@@ -19,22 +20,31 @@ namespace Fynanceo.Service
         private readonly IMesaService _mesaService;
         private readonly IEstoqueService _estoqueService;
    
-
         private readonly IServiceProvider _serviceProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<UsuarioAplicacao> _userManager;
 
-        public PedidoService(AppDbContext context, IMesaService mesaService, IServiceProvider serviceProvider,
-            IEstoqueService estoqueService)
+        public PedidoService(AppDbContext context, 
+                   IMesaService mesaService, 
+                           IServiceProvider serviceProvider,
+                                   IEstoqueService estoqueService,  
+                                            IHttpContextAccessor httpContextAccessor,
+                                                        UserManager<UsuarioAplicacao> userManager)
         {
             _context = context;
             _mesaService = mesaService;
             //  _entregaService = entregaService;
             _serviceProvider = serviceProvider;
             _estoqueService = estoqueService;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
            
         }
 
         public async Task<Pedido> FecharPedidoAsync(int pedidoId)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
                 .ThenInclude(i => i.Produto)
@@ -80,13 +90,14 @@ namespace Fynanceo.Service
             await _context.SaveChangesAsync();
 
             // Adiciona histórico
-            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Fechado", "Sistema");
+            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Fechado", usuario.UserName);
 
             return pedido;
         }
 
         public async Task<Pedido> CriarPedido(PedidoViewModel viewModel)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             try
             {
                 var pedido = new Pedido
@@ -101,7 +112,7 @@ namespace Fynanceo.Service
                     Observacoes = viewModel.Observacoes,
                     TaxaEntrega = viewModel.TaxaEntrega,
                     DataAbertura = DateTime.UtcNow,
-                    FuncionarioId = 1 // Temporário - depois pegar do usuário logado
+                    UsuarioNome = usuario.UserName, // Temporário - depois pegar do usuário logado
                 };
 
                 _context.Pedidos.Add(pedido);
@@ -119,7 +130,7 @@ namespace Fynanceo.Service
                 }
 
                 // Adicionar histórico
-                await AdicionarHistorico(pedido.Id, "Novo", pedido.Status.ToString(), "Sistema");
+                await AdicionarHistorico(pedido.Id, "Novo", pedido.Status.ToString(), usuario.UserName);
 
                 return pedido;
             }
@@ -133,6 +144,8 @@ namespace Fynanceo.Service
 
         public async Task<Pedido> AdicionarItem(int pedidoId, ItemPedidoViewModel itemVm)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
                 .FirstOrDefaultAsync(p => p.Id == pedidoId);
@@ -180,7 +193,7 @@ namespace Fynanceo.Service
                         Documento =  $"{pedido.TipoPedido}: P= {itemPedido.PedidoId}",
                         FornecedorId = 0,
                         PedidoId = itemPedido.PedidoId,
-                        UsuarioNome = "Sistema",
+                        UsuarioNome = usuario.UserName,
                     });
                 }
                       
@@ -203,12 +216,12 @@ namespace Fynanceo.Service
             return true;
         }
 
-        public async Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus, string usuario)
+        public async Task<Pedido> AtualizarStatus(int pedidoId, string novoStatus)
         {
-            if (usuario == null)
-                usuario = "nao tratado";
+       
 
-           
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+        
 
             try
             {
@@ -289,7 +302,7 @@ namespace Fynanceo.Service
                     
 
                     // 🔹 Registra histórico
-                    await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario);
+                    await AdicionarHistorico(pedidoId, statusAnterior, novoStatus, usuario.UserName);
 
                   
                 }
@@ -395,7 +408,7 @@ namespace Fynanceo.Service
                 PedidoId = pedidoId,
                 StatusAnterior = statusAnterior,
                 StatusNovo = statusNovo,
-                UsuarioId = 1, // Temporário
+                //UsuarioId = 1, // Temporário
                 UsuarioNome = usuario,
                 DataAlteracao = DateTime.UtcNow
             };
@@ -407,6 +420,7 @@ namespace Fynanceo.Service
         // 🔹 Iniciar preparo de um item específico
         public async Task<ItemPedido?> IniciarPreparoItemAsync(int itemId)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             // 1️⃣ Busca o item do pedido no banco
             var item = await _context.ItensPedido.FindAsync(itemId);
             if (item == null)
@@ -434,7 +448,7 @@ namespace Fynanceo.Service
                 if (pedido != null)
                 {
                     // AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
+                    await AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo));
                 }
             }
 
@@ -444,6 +458,7 @@ namespace Fynanceo.Service
         // 🔹 Marcar um item como pronto e atualizar o status do pedido se necessário
         public async Task<ItemPedido?> MarcarProntoItemAsync(int itemId)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -479,7 +494,7 @@ namespace Fynanceo.Service
                     Documento =  $"Pedido {item.PedidoId}",
                     FornecedorId = materiais.Estoque.FornecedorId,
                     PedidoId = item.PedidoId,
-                    UsuarioNome = "Sistema",
+                    UsuarioNome = usuario.UserName
                 });
             }
 
@@ -498,7 +513,7 @@ namespace Fynanceo.Service
                 {
                     // 🔥 SEM Wait() e sem bloquear thread!
                     // await AtualizarStatus(pedido.Id, PedidoStatus.Pronto.ToString(), "Sistema");
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.Pronto), "Sistema").Wait();
+                  await  AtualizarStatus(pedido.Id, nameof(PedidoStatus.Pronto));
 
                     await _context.Entry(pedido).ReloadAsync();
 
@@ -560,7 +575,7 @@ namespace Fynanceo.Service
                 if (pedido is { Status: PedidoStatus.EnviadoCozinha })
                 {
                     //  AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
+                    await   AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo));
                     //pedido.Status = PedidoStatus.EmPreparo;
                     //pedido.DataPreparo = DateTime.UtcNow;
                 }
@@ -615,7 +630,7 @@ namespace Fynanceo.Service
                 if (pedido is { Status: PedidoStatus.Pronto })
                 {
                     //AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
+                    await   AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo));
                     //pedido.Status = PedidoStatus.EmPreparo;
                     //pedido.DataPreparo = DateTime.UtcNow;
                 }
@@ -668,7 +683,7 @@ namespace Fynanceo.Service
                 if (pedido is { Status: PedidoStatus.EmPreparo })
                 {
                     //AtualizarStatus(pedido.Id, PedidoStatus.EmPreparo.ToString(), "Sistema").Wait();
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo), "Sistema").Wait();
+                    await AtualizarStatus(pedido.Id, nameof(PedidoStatus.EmPreparo));
                     //pedido.Status = PedidoStatus.EmPreparo;
                     //pedido.DataPreparo = DateTime.UtcNow;
                 }
@@ -720,7 +735,7 @@ namespace Fynanceo.Service
                 if (pedido != null)
                 {
                     // AtualizarStatus(pedido.Id, PedidoStatus.Entregue.ToString(), "Sistema").Wait();
-                    AtualizarStatus(pedido.Id, nameof(PedidoStatus.Entregue), "Sistema").Wait();
+                    await    AtualizarStatus(pedido.Id, nameof(PedidoStatus.Entregue));
                     //pedido.Status = PedidoStatus.EmPreparo; // Enum do pedido
                     //pedido.DataPreparo = DateTime.UtcNow;
                     //await _context.SaveChangesAsync();
@@ -811,26 +826,7 @@ namespace Fynanceo.Service
             item.DataEntrega = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-          // csharp
-          // if (item.IdEstoque > 0)
-          // {
-          //     var estoque = await _context.Estoques.FindAsync(item.IdEstoque);
-          //     if (estoque != null)
-          //     {
-          //         await _estoqueService.CriarMovimentacaoAsync(new MovimentacaoEstoqueViewModel
-          //         {
-          //             Tipo = TipoMovimentacaoEstoque.Saida,
-          //             EstoqueId = estoque.Id,                   // usar Id do estoque
-          //             Quantidade = item.Quantidade,             // usar quantidade do item do pedido
-          //             CustoUnitario = estoque.CustoUnitario,    // custo vindo do estoque
-          //             Observacao = $"Revenda usado para o pedido {item.PedidoId}",
-          //             Documento = $"Pedido {item.PedidoId}",
-          //             FornecedorId = estoque.FornecedorId,
-          //             PedidoId = item.PedidoId,
-          //             UsuarioNome = "Sistema",
-          //         });
-          //     }
-          // }
+          
 
             // Atualiza status do pedido se necessário
             await AtualizarStatusPedidoAsync(item.PedidoId);
@@ -906,6 +902,8 @@ namespace Fynanceo.Service
 
         public async Task<Pedido> CancelarPedidoAsync(int pedidoId)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
                 .Include(p => p.Mesa)
@@ -942,7 +940,7 @@ namespace Fynanceo.Service
             await _context.SaveChangesAsync();
 
             // Adiciona histórico
-            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Cancelado", "Sistema");
+            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Cancelado", usuario.UserName);
 
             return pedido;
         }

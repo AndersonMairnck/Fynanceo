@@ -6,9 +6,11 @@ using Fynanceo.Data;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.DeliveryModel;
 using Fynanceo.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente, Entregador")]
     public class EntregasController : Controller
     {
         private readonly AppDbContext _context;
@@ -151,8 +153,8 @@ namespace Fynanceo.Controllers
         {
             try
             {
-                var usuario = "Usuário"; // Temporário - depois pegar do usuário logado
-                var entrega = await _entregaService.AtualizarStatusEntrega(id, novoStatus, usuario, observacao);
+              
+                var entrega = await _entregaService.AtualizarStatusEntrega(id, novoStatus,  observacao);
 
                 return Json(new { success = true, message = "Status atualizado com sucesso!" });
             }

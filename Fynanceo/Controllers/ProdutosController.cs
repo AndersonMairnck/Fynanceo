@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ProdutosModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador,Gerente")]
     public class ProdutosController : Controller
     {
         private readonly IProdutoService _produtoService;

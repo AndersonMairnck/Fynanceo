@@ -221,11 +221,26 @@ namespace Fynanceo.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Perfis",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Perfis", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Produtos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    idEstoque = table.Column<int>(type: "integer", nullable: false),
                     Codigo = table.Column<string>(type: "text", nullable: false),
                     Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Descricao = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
@@ -242,6 +257,35 @@ namespace Fynanceo.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Produtos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Usuarios",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    NomeCompleto = table.Column<string>(type: "text", nullable: false),
+                    Cargo = table.Column<string>(type: "text", nullable: true),
+                    DataCadastro = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Ativo = table.Column<bool>(type: "boolean", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Usuarios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -291,6 +335,7 @@ namespace Fynanceo.Migrations
                     FornecedorId = table.Column<int>(type: "integer", nullable: true),
                     DataCriacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DataAtualizacao = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    TipoItem = table.Column<string>(type: "character varying(1)", maxLength: 1, nullable: false),
                     CategoriaEstoqueId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -310,6 +355,112 @@ namespace Fynanceo.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PerfilPermissoes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PerfilPermissoes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PerfilPermissoes_Perfis_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Perfis",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UsuarioLogins",
+                columns: table => new
+                {
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsuarioLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_UsuarioLogins_Usuarios_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UsuarioPerfis",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsuarioPerfis", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_UsuarioPerfis_Perfis_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Perfis",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UsuarioPerfis_Usuarios_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UsuarioPermissoes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsuarioPermissoes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UsuarioPermissoes_Usuarios_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UsuarioTokens",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UsuarioTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_UsuarioTokens_Usuarios_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Usuarios",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Pedidos",
                 columns: table => new
                 {
@@ -321,6 +472,7 @@ namespace Fynanceo.Migrations
                     Prioridade = table.Column<int>(type: "integer", nullable: false),
                     MesaId = table.Column<int>(type: "integer", nullable: true),
                     ClienteId = table.Column<int>(type: "integer", nullable: true),
+                    UsuarioNome = table.Column<string>(type: "text", nullable: false),
                     FuncionarioId = table.Column<int>(type: "integer", nullable: true),
                     EnderecoEntregaId = table.Column<int>(type: "integer", nullable: true),
                     TaxaEntrega = table.Column<decimal>(type: "numeric", nullable: false),
@@ -370,7 +522,7 @@ namespace Fynanceo.Migrations
                     QuantidadeSistema = table.Column<decimal>(type: "numeric", nullable: false),
                     QuantidadeFisica = table.Column<decimal>(type: "numeric", nullable: false),
                     CustoUnitario = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
-                    Observacao = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Observacao = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     Conferido = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -399,8 +551,8 @@ namespace Fynanceo.Migrations
                     ProdutoId = table.Column<int>(type: "integer", nullable: false),
                     EstoqueId = table.Column<int>(type: "integer", nullable: false),
                     Quantidade = table.Column<decimal>(type: "numeric", nullable: false),
-                    UnidadeMedida = table.Column<int>(type: "integer", maxLength: 50, nullable: false),
-                    Observacao = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
+                    UnidadeMedida = table.Column<int>(type: "integer", nullable: false),
+                    Observacao = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -550,7 +702,8 @@ namespace Fynanceo.Migrations
                     DataEnvioCozinha = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     DataInicioPreparo = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     DataPronto = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DataEntrega = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DataEntrega = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IdEstoque = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -715,7 +868,7 @@ namespace Fynanceo.Migrations
             migrationBuilder.InsertData(
                 table: "CozinhaConfigs",
                 columns: new[] { "Id", "DataAtualizacao", "IntervaloAtualizacaoSegundos", "TempoAlertaPreparoMinutos", "TempoAlertaProntoMinutos", "UsuarioAtualizacao" },
-                values: new object[] { 1, new DateTime(2025, 12, 1, 22, 52, 49, 413, DateTimeKind.Utc).AddTicks(8998), 30, 30, 10, null });
+                values: new object[] { 1, new DateTime(2025, 12, 12, 20, 0, 9, 954, DateTimeKind.Utc).AddTicks(3818), 30, 30, 10, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clientes_CpfCnpj",
@@ -866,6 +1019,17 @@ namespace Fynanceo.Migrations
                 column: "MesaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PerfilPermissoes_RoleId",
+                table: "PerfilPermissoes",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                table: "Perfis",
+                column: "NormalizedName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProdutoIngredientes_EstoqueId",
                 table: "ProdutoIngredientes",
                 column: "EstoqueId");
@@ -879,6 +1043,32 @@ namespace Fynanceo.Migrations
                 name: "IX_Produtos_Codigo",
                 table: "Produtos",
                 column: "Codigo",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsuarioLogins_UserId",
+                table: "UsuarioLogins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsuarioPerfis_RoleId",
+                table: "UsuarioPerfis",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UsuarioPermissoes_UserId",
+                table: "UsuarioPermissoes",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
+                table: "Usuarios",
+                column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "Usuarios",
+                column: "NormalizedUserName",
                 unique: true);
         }
 
@@ -913,7 +1103,22 @@ namespace Fynanceo.Migrations
                 name: "MovimentacoesEstoque");
 
             migrationBuilder.DropTable(
+                name: "PerfilPermissoes");
+
+            migrationBuilder.DropTable(
                 name: "ProdutoIngredientes");
+
+            migrationBuilder.DropTable(
+                name: "UsuarioLogins");
+
+            migrationBuilder.DropTable(
+                name: "UsuarioPerfis");
+
+            migrationBuilder.DropTable(
+                name: "UsuarioPermissoes");
+
+            migrationBuilder.DropTable(
+                name: "UsuarioTokens");
 
             migrationBuilder.DropTable(
                 name: "Inventarios");
@@ -932,6 +1137,12 @@ namespace Fynanceo.Migrations
 
             migrationBuilder.DropTable(
                 name: "Produtos");
+
+            migrationBuilder.DropTable(
+                name: "Perfis");
+
+            migrationBuilder.DropTable(
+                name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "Entregadores");
