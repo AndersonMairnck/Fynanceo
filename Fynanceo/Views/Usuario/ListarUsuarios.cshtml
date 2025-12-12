@@ -1,0 +1,203 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "Gerenciar Usuários";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-users-cog me-2"></i>Gerenciar Usuários</h2>
+                    <p class="text-muted">Visualize e gerencie todos os usuários do sistema</p>
+                </div>
+                <a asp-action="Registrar" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Cadastrar Novo Usuário
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Sucesso"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Erro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lista de Usuários (@Model.Count())</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th><i class="fas fa-user me-2"></i>Nome</th>
+                                    <th><i class="fas fa-envelope me-2"></i>E-mail</th>
+                                    <th><i class="fas fa-briefcase me-2"></i>Cargo</th>
+                                    <th><i class="fas fa-shield-alt me-2"></i>Perfil</th>
+                                    <th><i class="fas fa-calendar me-2"></i>Cadastro</th>
+                                    <th class="text-center"><i class="fas fa-toggle-on me-2"></i>Status</th>
+                                    <th class="text-center"><i class="fas fa-cog me-2"></i>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="fas fa-users fa-3x mb-3 d-block"></i>
+                                            Nenhum usuário cadastrado
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var usuario in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle me-2">
+                                                        @usuario.NomeCompleto.Substring(0, 1).ToUpper()
+                                                    </div>
+                                                    <strong>@usuario.NomeCompleto</strong>
+                                                </div>
+                                            </td>
+                                            <td>@usuario.Email</td>
+                                            <td>@(usuario.Cargo ?? "-")</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(usuario.Perfis))
+                                                {
+                                                    @foreach (var perfil in usuario.Perfis.Split(','))
+                                                    {
+                                                        var badgeClass = perfil.Trim() switch
+                                                        {
+                                                            "Administrador" => "bg-danger",
+                                                            "Gerente" => "bg-success",
+                                                            "Caixa" => "bg-info",
+                                                            "Cozinha" => "bg-warning",
+                                                            "Entregador" => "bg-primary",
+                                                            "Atendente" => "bg-secondary",
+                                                            _ => "bg-dark"
+                                                        };
+                                                        <span class="badge @badgeClass me-1">@perfil.Trim()</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Sem perfil</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">
+                                                    @usuario.DataCadastro.ToString("dd/MM/yyyy")
+                                                </small>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (usuario.Ativo)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check-circle me-1"></i>Ativo
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-ban me-1"></i>Inativo
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a asp-action="EditarUsuario" asp-route-id="@usuario.Id" 
+                                                       class="btn btn-outline-primary" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    
+                                                    @if (usuario.Ativo)
+                                                    {
+                                                        <button type="button" class="btn btn-outline-warning" 
+                                                                title="Desativar"
+                                                                onclick="confirmarDesativar('@usuario.Id', '@usuario.NomeCompleto')">
+                                                            <i class="fas fa-user-slash"></i>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-outline-success" 
+                                                                title="Ativar"
+                                                                onclick="confirmarAtivar('@usuario.Id', '@usuario.NomeCompleto')">
+                                                            <i class="fas fa-user-check"></i>
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulários ocultos para desativar/ativar -->
+<form id="formDesativar" asp-action="DesativarUsuario" method="post" style="display: none;">
+    <input type="hidden" id="idDesativar" name="id" />
+</form>
+
+<form id="formAtivar" asp-action="AtivarUsuario" method="post" style="display: none;">
+    <input type="hidden" id="idAtivar" name="id" />
+</form>
+
+@section Styles {
+    <style>
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function confirmarDesativar(id, nome) {
+            if (confirm(`Deseja realmente desativar o usuário "${nome}"?\n\nO usuário não poderá mais acessar o sistema.`)) {
+                document.getElementById('idDesativar').value = id;
+                document.getElementById('formDesativar').submit();
+            }
+        }
+
+        function confirmarAtivar(id, nome) {
+            if (confirm(`Deseja realmente ativar o usuário "${nome}"?`)) {
+                document.getElementById('idAtivar').value = id;
+                document.getElementById('formAtivar').submit();
+            }
+        }
+    </script>
+}

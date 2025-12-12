@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Utils;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ClientesModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    
     public class ClientesController : Controller
     {
         private readonly IClienteService _clienteService;
@@ -19,6 +21,12 @@ namespace Fynanceo.Controllers
         // GET: Clientes
         public async Task<IActionResult> Index(int page = 1, string search = "")
         {
+            
+            // DEBUG: Remova após testar
+            var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+            var userName = User.Identity?.Name ?? "Anônimo";
+            ViewBag.DebugAuth = $"Autenticado: {isAuthenticated} | Usuário: {userName}";
+            
             // CORREÇÃO: Usando tuple explicitamente
             var resultTuple = await _clienteService.ObterClientesPaginadosAsync(page, PageSize, search);
             var clientes = resultTuple.Clientes;
