@@ -1,0 +1,104 @@
+@model Fynanceo.ViewModel.IdentityModel.AlterarSenhaViewModel
+@{
+    ViewData["Title"] = "Alterar Senha";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-key me-2"></i>Alterar Senha</h2>
+                    <p class="text-muted">Atualize sua senha de acesso ao sistema</p>
+                </div>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Nova Senha</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AlterarSenha" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="SenhaAtual" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input asp-for="SenhaAtual" class="form-control" placeholder="Digite sua senha atual" />
+                            </div>
+                            <span asp-validation-for="SenhaAtual" class="text-danger small"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="mb-3">
+                            <label asp-for="NovaSenha" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input asp-for="NovaSenha" class="form-control" placeholder="Digite sua nova senha" />
+                            </div>
+                            <span asp-validation-for="NovaSenha" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmarNovaSenha" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                <input asp-for="ConfirmarNovaSenha" class="form-control" placeholder="Confirme sua nova senha" />
+                            </div>
+                            <span asp-validation-for="ConfirmarNovaSenha" class="text-danger small"></span>
+                        </div>
+
+                        <div class="alert alert-info d-flex align-items-start mt-4">
+                            <i class="fas fa-info-circle me-2 mt-1"></i>
+                            <div>
+                                <strong>Requisitos de Senha:</strong>
+                                <ul class="mb-0 mt-2 small">
+                                    <li>Mínimo de 8 caracteres</li>
+                                    <li>Pelo menos 1 letra maiúscula (A-Z)</li>
+                                    <li>Pelo menos 1 letra minúscula (a-z)</li>
+                                    <li>Pelo menos 1 número (0-9)</li>
+                                    <li>Pelo menos 1 caractere especial (@@, #, $, %, etc)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Alterar Senha
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm bg-light mt-3">
+                <div class="card-body">
+                    <h6 class="text-warning"><i class="fas fa-shield-alt me-2"></i>Dicas de Segurança</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Não compartilhe sua senha com ninguém</li>
+                        <li>Use uma senha única para cada sistema</li>
+                        <li>Evite usar informações pessoais óbvias</li>
+                        <li>Altere sua senha periodicamente</li>
+                        <li>Nunca anote sua senha em lugares visíveis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,8 @@
 ﻿<!-- Views/Shared/_Layout.cshtml -->
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Fynanceo.Models.UsuarioAplicacao> SignInManager
+@inject UserManager<Fynanceo.Models.UsuarioAplicacao> UserManager
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -176,37 +180,58 @@
         </div>
 
         <div class="d-flex align-items-center">
-                <span class="me-3 text-muted d-none d-sm-block">
-                    <i class="fas fa-calendar-day me-1"></i>
-                    @DateTime.UtcNow.ToString("dd/MM/yyyy")
-                </span>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user-circle me-2"></i>
-                    <span class="d-none d-md-inline">Usuário</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="fas fa-user me-2"></i>Meu Perfil
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#">
-                            <i class="fas fa-cog me-2"></i>Configurações
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <a class="dropdown-item text-danger" href="#">
-                            <i class="fas fa-sign-out-alt me-2"></i>Sair
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <span class="me-3 text-muted d-none d-sm-block">
+                <i class="fas fa-calendar-day me-1"></i>
+                @DateTime.UtcNow.ToString("dd/MM/yyyy")
+            </span>
+            <!-- Adicionar dentro da navbar, na área de ações do usuário -->
+            @if (SignInManager.IsSignedIn(User))
+            {
+                var usuario = await UserManager.GetUserAsync(User);
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle text-white text-decoration-none" type="button" 
+                            id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-2"></i>
+                        @usuario?.NomeCompleto
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><span class="dropdown-item-text text-muted small">@usuario?.Email</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" asp-controller="Usuario" asp-action="AlterarSenha">
+                            <i class="fas fa-key me-2"></i>Alterar Senha</a></li>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <li><a class="dropdown-item" asp-controller="Usuario" asp-action="ListarUsuarios">
+                                <i class="fas fa-users-cog me-2"></i>Gerenciar Usuários</a></li>
+                        }
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-controller="Usuario" asp-action="Sair" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Sair
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a class="btn btn-outline-light" asp-controller="Usuario" asp-action="Entrar">
+                    <i class="fas fa-sign-in-alt me-2"></i>Entrar
+                </a>
+            }
+            @if (User.IsInRole("Administrador"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Usuario" ? "active" : "")"
+                       asp-controller="Usuario" asp-action="ListarUsuarios">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Usuários</span>
+                    </a>
+                </li>
+            }
+            
         </div>
     </div>
 </nav>

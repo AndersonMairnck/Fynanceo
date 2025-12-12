@@ -1,12 +1,15 @@
 using System.Diagnostics;
+using Fynanceo.Configuracao;
 using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.DashboardModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fynanceo.Controllers
-{
+{ 
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -17,7 +20,7 @@ namespace Fynanceo.Controllers
             _logger = logger;
             _pedidoService = pedidoService;
         }
-
+        [Authorize(Policy = Politicas.GerenciarProdutos)]
         public async Task<IActionResult> Index()
         {
             // Carrega pedidos do dia

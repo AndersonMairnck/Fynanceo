@@ -1,12 +1,15 @@
 ﻿using Fynanceo.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System.Collections.Generic;
-using System.Reflection.Emit;
+
+using Microsoft.AspNetCore.Identity;
+
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace Fynanceo.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<UsuarioAplicacao, IdentityRole, string>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -108,7 +111,14 @@ namespace Fynanceo.Data
 
              base.OnModelCreating(modelBuilder);
 
-
+             // Renomear tabelas do Identity para português
+             modelBuilder.Entity<UsuarioAplicacao>(entity => entity.ToTable("Usuarios"));
+             modelBuilder.Entity<IdentityRole>(entity => entity.ToTable("Perfis"));
+             modelBuilder.Entity<IdentityUserRole<string>>(entity => entity.ToTable("UsuarioPerfis"));
+             modelBuilder.Entity<IdentityUserClaim<string>>(entity => entity.ToTable("UsuarioPermissoes"));
+             modelBuilder.Entity<IdentityUserLogin<string>>(entity => entity.ToTable("UsuarioLogins"));
+             modelBuilder.Entity<IdentityRoleClaim<string>>(entity => entity.ToTable("PerfilPermissoes"));
+             modelBuilder.Entity<IdentityUserToken<string>>(entity => entity.ToTable("UsuarioTokens"));
 
          
 

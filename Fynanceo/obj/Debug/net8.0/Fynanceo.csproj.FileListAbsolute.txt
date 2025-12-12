@@ -111,3 +111,8 @@ D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\refint\Fynan
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\Fynanceo.pdb
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\Fynanceo.genruntimeconfig.cache
 D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\obj\Debug\net8.0\ref\Fynanceo.dll
+D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
