@@ -5,7 +5,7 @@ using Fynanceo.Models;
 using Fynanceo.ViewModel.EstoquesModel;
 using Fynanceo.Service.Interface;
 using Fynanceo.Models.Enums;
-
+using Microsoft.AspNetCore.Identity;
 
 
 namespace Fynanceo.Service
@@ -14,11 +14,19 @@ namespace Fynanceo.Service
     {
         private readonly AppDbContext _context;
         private readonly ILogger<EstoqueService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<UsuarioAplicacao> _userManager;
 
-        public EstoqueService(AppDbContext context, ILogger<EstoqueService> logger)
+        
+        public EstoqueService(AppDbContext context, 
+            ILogger<EstoqueService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<UsuarioAplicacao> userManager)
         {
             _context = context;
             _logger = logger;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // ESTOQUE - CRUD
@@ -63,6 +71,7 @@ namespace Fynanceo.Service
 
         public async Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model)
         {
+         
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
@@ -196,7 +205,8 @@ namespace Fynanceo.Service
 
         public async Task<MovimentacaoEstoque> CriarMovimentacaoAsync(MovimentacaoEstoqueViewModel model)
         {
-           
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
 
             try
             {
@@ -217,7 +227,7 @@ namespace Fynanceo.Service
                     FornecedorId = (model.FornecedorId ?? 0) == 0 ? estoque.FornecedorId : model.FornecedorId.Value,
                     PedidoId = model.PedidoId,
                     DataMovimentacao = DateTime.UtcNow,
-                    Usuario = "Sistema" // TODO: Integrar com autenticação
+                    Usuario = usuario.UserName  
                 };
 
                 // Atualizar estoque atual
@@ -367,6 +377,8 @@ namespace Fynanceo.Service
 
         public async Task<Inventario> FecharInventarioAsync(int id)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                     
             var inventario = await _context.Inventarios
                 .Include(i => i.Itens)
                 .FirstOrDefaultAsync(i => i.Id == id);
@@ -388,7 +400,7 @@ namespace Fynanceo.Service
                         CustoUnitario = item.CustoUnitario,
                         Observacao = $"Ajuste de inventário #{inventario.Id}",
                         Documento =  $"Inventario= {inventario.Id}",
-                        UsuarioNome = "Sistema"
+                        UsuarioNome = usuario.UserName,
                     };
 
                     await CriarMovimentacaoAsync(ajuste);

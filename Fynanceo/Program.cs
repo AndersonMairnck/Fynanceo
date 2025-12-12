@@ -22,7 +22,7 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+// builder.Services.AddControllersWithViews();
 
 // Configurar DbContext					   
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -122,6 +122,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 // Registrar serviços
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
 builder.Services.AddScoped<IMesaService, MesaService>();
@@ -136,61 +137,27 @@ builder.Services.AddScoped<IConfigService, ConfigService>();
 
 builder.Services.AddMemoryCache();
 
+
 var app = builder.Build();
+
+// ✅ Criar banco e aplicar migrations automaticamente
+using (var scope = app.Services.CreateScope())
+{
+   
+}
 
 
 // ========================================
 // SEED DATA - Popular dados iniciais
 // ========================================
+// ✅ Criar banco e aplicar migrations automaticamente + Seed
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-																								
-    
-    try
-    {
-        Console.WriteLine("\n========================================");
-        Console.WriteLine("Inicializando dados do sistema...");
-        Console.WriteLine("========================================\n");
-							   
-								  
-								
-	  
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
 
-        // Executar SeedData
-        await SeedData.InicializarAsync(services);
-													   
-		 
-																	
-		 
-	 
+    await SeedData.InicializarAsync(scope.ServiceProvider);
 
-        // OPCIONAL: Criar usuários de teste (apenas em desenvolvimento)
-        // Descomente a linha abaixo se quiser criar usuários de teste
-        // await SeedData.CriarUsuariosTesteAsync(services, criarUsuariosTeste: app.Environment.IsDevelopment());
-
-        Console.WriteLine("\n========================================");
-        Console.WriteLine("Inicialização concluída!");
-        Console.WriteLine("========================================\n");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"\n✗ ERRO ao inicializar dados: {ex.Message}");
-        Console.WriteLine($"StackTrace: {ex.StackTrace}\n");
-								  
-							   
-													  
-									
-								  
-						
-		  
-        
-        // Em produção, você pode querer logar isso de forma mais robusta
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Erro ao popular dados iniciais do banco");
-																					 
-		 
-    }
 }
 
 // Configure the HTTP request pipeline.
@@ -203,7 +170,6 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

@@ -28,7 +28,7 @@ namespace Fynanceo.Models
         public int? ClienteId { get; set; }
         public Cliente? Cliente { get; set; }
 
-        public int? FuncionarioId { get; set; }
+        public string UsuarioNome { get; set; }
         public Funcionario? Funcionario { get; set; }
 
         // Delivery

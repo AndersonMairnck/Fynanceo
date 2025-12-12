@@ -7,9 +7,11 @@ using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.CaixaModel;
 using Fynanceo.ViewModel.FinanceirosModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente")]
     public class CaixaController : Controller
     {
         private readonly AppDbContext _context;

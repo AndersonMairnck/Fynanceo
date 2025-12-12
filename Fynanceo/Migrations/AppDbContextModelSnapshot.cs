@@ -138,6 +138,10 @@ namespace Fynanceo.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("UsuarioNome")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CpfCnpj")
@@ -284,7 +288,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 12, 12, 12, 33, 7, 892, DateTimeKind.Utc).AddTicks(4491),
+                            DataAtualizacao = new DateTime(2025, 12, 12, 21, 11, 16, 520, DateTimeKind.Utc).AddTicks(8562),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -1170,6 +1174,10 @@ namespace Fynanceo.Migrations
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UsuarioNome")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

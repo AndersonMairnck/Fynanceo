@@ -5,9 +5,11 @@ using Fynanceo.Data;
 using Fynanceo.Models;
 using Fynanceo.ViewModel.DeliveryModel;
 using Fynanceo.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente, Entregador")]
     public class EntregadoresController : Controller
     {
         private readonly AppDbContext _context;

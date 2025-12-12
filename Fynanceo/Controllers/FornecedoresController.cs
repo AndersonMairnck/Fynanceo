@@ -6,9 +6,11 @@ using Fynanceo.Models;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.FornecedorModel;
 using Fynanceo.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente")]
     public class FornecedoresController : Controller
     {
         private readonly AppDbContext _context;

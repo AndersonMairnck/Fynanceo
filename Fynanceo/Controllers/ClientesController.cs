@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize (Roles = "Administrador, Gerente, Atendente")]
     
     public class ClientesController : Controller
     {
+    
         private readonly IClienteService _clienteService;
         private const int PageSize = 15; // Itens por página
 
@@ -22,10 +24,10 @@ namespace Fynanceo.Controllers
         public async Task<IActionResult> Index(int page = 1, string search = "")
         {
             
-            // DEBUG: Remova após testar
-            var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
-            var userName = User.Identity?.Name ?? "Anônimo";
-            ViewBag.DebugAuth = $"Autenticado: {isAuthenticated} | Usuário: {userName}";
+            // // DEBUG: Remova após testar
+            // var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+            // var userName = User.Identity?.Name ?? "Anônimo";
+            // ViewBag.DebugAuth = $"Autenticado: {isAuthenticated} | Usuário: {userName}";
             
             // CORREÇÃO: Usando tuple explicitamente
             var resultTuple = await _clienteService.ObterClientesPaginadosAsync(page, PageSize, search);

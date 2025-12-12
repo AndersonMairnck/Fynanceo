@@ -6,9 +6,11 @@ using Fynanceo.Models;
 using Fynanceo.Models.Enums;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ContasModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Fynanceo.Controllers
 {
+    [Authorize(Roles = "Administrador, Gerente, Atendente")]
     public class ContasController : Controller
     {
         private readonly AppDbContext _context;

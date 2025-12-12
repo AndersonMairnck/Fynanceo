@@ -7,21 +7,30 @@ using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ContasModel;
 using Fynanceo.ViewModel.CaixaModel;
 using Fynanceo.ViewModel.FinanceirosModel;
+using Microsoft.AspNetCore.Identity;
 
 namespace Fynanceo.Service
 {
     public class FinanceiroService : IFinanceiroService
     {
         private readonly AppDbContext _context;
+ private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<UsuarioAplicacao> _userManager;
 
-        public FinanceiroService(AppDbContext context)
+        public FinanceiroService(AppDbContext context,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<UsuarioAplicacao> userManager)
         {
             _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         // CAIXA
         public async Task<Caixa> AbrirCaixa(CaixaViewModel viewModel)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             try
             {
 
@@ -37,8 +46,8 @@ namespace Fynanceo.Service
                     DataAbertura = DateTime.UtcNow,
                     SaldoInicial = viewModel.SaldoInicial,
 
-                    UsuarioAberturaId = 1, // Temporário
-                    UsuarioAberturaNome = "Sistema",
+                    UsuarioAberturaId = int.Parse(usuario.Id),
+                    UsuarioAberturaNome = usuario.UserName,
                     Observacoes = viewModel.Observacoes,
                     Fechado = false
                 };
@@ -57,6 +66,8 @@ namespace Fynanceo.Service
 
         public async Task<Caixa> FecharCaixa(FechamentoCaixaViewModel viewModel)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var caixa = await _context.Caixas
                 .Include(c => c.Movimentacoes)
                 .FirstOrDefaultAsync(c => c.Id == viewModel.CaixaId && !c.Fechado);
@@ -76,8 +87,8 @@ namespace Fynanceo.Service
             // 🔥 ATUALIZAR DADOS DE FECHAMENTO
             caixa.DataFechamento = DateTime.UtcNow;
             caixa.SaldoFisico = viewModel.SaldoFisico;
-            caixa.UsuarioFechamentoId = 1; // Temporário
-            caixa.UsuarioFechamentoNome = "Sistema";
+            caixa.UsuarioFechamentoId = int.Parse(usuario.Id); 
+            caixa.UsuarioFechamentoNome = usuario.UserName;
             caixa.Fechado = true;
 
             // 🔥 SALVAR APENAS AS PROPRIEDADES MAPEADAS
@@ -125,6 +136,8 @@ namespace Fynanceo.Service
         // MOVIMENTAÇÕES
         public async Task<MovimentacaoCaixa> AdicionarMovimentacao(MovimentacaoViewModel viewModel)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var caixa = await ObterCaixaAberto();
             if (caixa == null)
                 throw new InvalidOperationException("Nenhum caixa aberto encontrado");
@@ -141,8 +154,8 @@ namespace Fynanceo.Service
                 IsSangria = viewModel.IsSangria,
                 IsSuprimento = viewModel.IsSuprimento,
                 DataMovimentacao = DateTime.UtcNow,
-                UsuarioId = 1, // Temporário
-                UsuarioNome = "Sistema"
+                UsuarioId = int.Parse(usuario.Id),
+                UsuarioNome = usuario.UserName,
             };
 
             _context.MovimentacoesCaixa.Add(movimentacao);
@@ -197,6 +210,8 @@ namespace Fynanceo.Service
 
         public async Task<Conta> PagarConta(PagamentoContaViewModel viewModel)
         {
+            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var conta = await _context.Contas.FindAsync(viewModel.ContaId);
             if (conta == null)
                 throw new ArgumentException("Conta não encontrada");
@@ -224,8 +239,8 @@ namespace Fynanceo.Service
                     Observacoes = viewModel.Observacoes,
                     Id = conta.Id,
                     DataMovimentacao = DateTime.UtcNow,
-                    UsuarioId = 1,
-                    UsuarioNome = "Sistema"
+                    UsuarioId = int.Parse(usuario.Id),
+                    UsuarioNome = usuario.UserName,
                 };
 
                 _context.MovimentacoesCaixa.Add(movimentacao);
@@ -240,8 +255,8 @@ namespace Fynanceo.Service
                 ValorPago = viewModel.ValorPago,
                 DataPagamento = viewModel.DataPagamento,
                 Observacao = viewModel.Observacoes,
-                UsuarioId = 1,
-                UsuarioNome = "Sistema",
+                UsuarioId = int.Parse(usuario.Id),
+                UsuarioNome = usuario.UserName,
                 DataAlteracao = DateTime.UtcNow
             };
 

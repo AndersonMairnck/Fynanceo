@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Fynanceo.Migrations.Identity
+namespace Fynanceo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251211182259_idente")]
-    partial class idente
+    [Migration("20251212200010_inicial")]
+    partial class inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -287,7 +287,7 @@ namespace Fynanceo.Migrations.Identity
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 12, 11, 18, 22, 58, 214, DateTimeKind.Utc).AddTicks(2429),
+                            DataAtualizacao = new DateTime(2025, 12, 12, 20, 0, 9, 954, DateTimeKind.Utc).AddTicks(3818),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -1174,6 +1174,10 @@ namespace Fynanceo.Migrations.Identity
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("UsuarioNome")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
@@ -1282,7 +1286,7 @@ namespace Fynanceo.Migrations.Identity
                     b.ToTable("ProdutoIngredientes");
                 });
 
-            modelBuilder.Entity("Fynanceo.Models.Usuario", b =>
+            modelBuilder.Entity("Fynanceo.Models.UsuarioAplicacao", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -1293,17 +1297,14 @@ namespace Fynanceo.Migrations.Identity
                     b.Property<bool>("Ativo")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Cargo")
+                        .HasColumnType("text");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<string>("Cpf")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("DataCadastro")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DataNascimento")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -1312,9 +1313,6 @@ namespace Fynanceo.Migrations.Identity
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<int?>("FuncionarioId")
-                        .HasColumnType("integer");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -1362,7 +1360,7 @@ namespace Fynanceo.Migrations.Identity
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Usuarios", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1388,7 +1386,7 @@ namespace Fynanceo.Migrations.Identity
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Perfis", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1413,7 +1411,7 @@ namespace Fynanceo.Migrations.Identity
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("PerfilPermissoes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -1438,7 +1436,7 @@ namespace Fynanceo.Migrations.Identity
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("UsuarioPermissoes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -1460,7 +1458,7 @@ namespace Fynanceo.Migrations.Identity
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("UsuarioLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -1475,7 +1473,7 @@ namespace Fynanceo.Migrations.Identity
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("UsuarioPerfis", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -1494,7 +1492,7 @@ namespace Fynanceo.Migrations.Identity
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("UsuarioTokens", (string)null);
                 });
 
             modelBuilder.Entity("Fynanceo.Models.Conta", b =>
@@ -1744,7 +1742,7 @@ namespace Fynanceo.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Fynanceo.Models.Usuario", null)
+                    b.HasOne("Fynanceo.Models.UsuarioAplicacao", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1753,7 +1751,7 @@ namespace Fynanceo.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Fynanceo.Models.Usuario", null)
+                    b.HasOne("Fynanceo.Models.UsuarioAplicacao", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1768,7 +1766,7 @@ namespace Fynanceo.Migrations.Identity
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Fynanceo.Models.Usuario", null)
+                    b.HasOne("Fynanceo.Models.UsuarioAplicacao", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1777,7 +1775,7 @@ namespace Fynanceo.Migrations.Identity
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Fynanceo.Models.Usuario", null)
+                    b.HasOne("Fynanceo.Models.UsuarioAplicacao", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -6,50 +6,39 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Fynanceo.Migrations
 {
     /// <inheritdoc />
-    public partial class produtoestoque : Migration
+    public partial class usuarioNomecadastroCliente : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "idEstoque",
-                table: "Produtos",
-                type: "integer",
+            migrationBuilder.AddColumn<string>(
+                name: "UsuarioNome",
+                table: "Clientes",
+                type: "text",
                 nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "Revenda",
-                table: "Estoques",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+                defaultValue: "");
 
             migrationBuilder.UpdateData(
                 table: "CozinhaConfigs",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "DataAtualizacao",
-                value: new DateTime(2025, 12, 9, 20, 57, 49, 429, DateTimeKind.Utc).AddTicks(3144));
+                value: new DateTime(2025, 12, 12, 21, 11, 16, 520, DateTimeKind.Utc).AddTicks(8562));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "idEstoque",
-                table: "Produtos");
-
-            migrationBuilder.DropColumn(
-                name: "Revenda",
-                table: "Estoques");
+                name: "UsuarioNome",
+                table: "Clientes");
 
             migrationBuilder.UpdateData(
                 table: "CozinhaConfigs",
                 keyColumn: "Id",
                 keyValue: 1,
                 column: "DataAtualizacao",
-                value: new DateTime(2025, 12, 8, 10, 13, 48, 300, DateTimeKind.Utc).AddTicks(9532));
+                value: new DateTime(2025, 12, 12, 20, 0, 9, 954, DateTimeKind.Utc).AddTicks(3818));
         }
     }
 }
