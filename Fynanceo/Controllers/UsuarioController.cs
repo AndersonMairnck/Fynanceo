@@ -151,6 +151,59 @@ namespace Fynanceo.Controllers
         #endregion
 
         #region Registro (Apenas Admin pode registrar novos usuários)
+        
+        
+        
+        [HttpGet]
+        [Authorize(Policy = Politicas.GerenciarUsuarios)]
+        public async Task<IActionResult> GerenciarPermissoes(string id)
+        {
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null) return NotFound();
+    
+            var claimsAtuais = await _userManager.GetClaimsAsync(usuario);
+            var todasPermissoes = Permissoes.ObterTodasPorCategoria();
+    
+            ViewBag.Usuario = usuario;
+            ViewBag.PermissoesAtuais = claimsAtuais
+                .Where(c => c.Type == "Permissao")
+                .Select(c => c.Value)
+                .ToList();
+            ViewBag.TodasPermissoes = todasPermissoes;
+    
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = Politicas.GerenciarUsuarios)]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GerenciarPermissoes(string id, List<string> permissoesSelecionadas)
+        {
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario == null) return NotFound();
+    
+            // Remover todas as permissões atuais
+            var claimsAtuais = await _userManager.GetClaimsAsync(usuario);
+            var claimsPermissao = claimsAtuais.Where(c => c.Type == "Permissao").ToList();
+    
+            if (claimsPermissao.Any())
+            {
+                await _userManager.RemoveClaimsAsync(usuario, claimsPermissao);
+            }
+    
+            // Adicionar novas permissões selecionadas
+            if (permissoesSelecionadas != null && permissoesSelecionadas.Any())
+            {
+                var novosClaims = permissoesSelecionadas
+                    .Select(p => new System.Security.Claims.Claim("Permissao", p))
+                    .ToList();
+        
+                await _userManager.AddClaimsAsync(usuario, novosClaims);
+            }
+    
+            TempData["Sucesso"] = "Permissões atualizadas com sucesso!";
+            return RedirectToAction("ListarUsuarios");
+        }
 
         [HttpGet]
         [Authorize(Policy = Politicas.GerenciarUsuarios)]
