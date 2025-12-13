@@ -8,5 +8,9 @@ namespace Fynanceo.Models
         public string? Cargo { get; set; }
         public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
         public bool Ativo { get; set; } = true;
+     
+        // ✅ Propriedade para controlar sessão única
+        public string? CurrentSessionId { get; set; }
+        public DateTime? LastLoginDate { get; set; }
     }
 }

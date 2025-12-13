@@ -13,23 +13,31 @@ namespace Fynanceo.Controllers
         private readonly UserManager<UsuarioAplicacao> _userManager;
         private readonly SignInManager<UsuarioAplicacao> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<UsuarioController> _logger;
 
         public UsuarioController(
             UserManager<UsuarioAplicacao> userManager,
             SignInManager<UsuarioAplicacao> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ILogger<UsuarioController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _logger = logger;
         }
 
         #region Login/Logout
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Entrar(string? returnUrl = null)
+        public IActionResult Entrar(string? returnUrl = null, bool sessaoExpirada = false)
         {
+            if (sessaoExpirada)
+            {
+                ViewBag.MensagemAlerta = "Sua sessão expirou porque você fez login em outro dispositivo.";
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -54,47 +62,89 @@ namespace Fynanceo.Controllers
 
             if (!usuario.Ativo)
             {
-                ModelState.AddModelError(string.Empty, "Sua conta está desativada. Entre em contato com o administrador.");
+                ModelState.AddModelError(string.Empty, 
+                    "Sua conta está desativada. Entre em contato com o administrador.");
                 return View(model);
             }
 
+            // ✅ Fazer logout de qualquer sessão anterior do mesmo usuário
+            if (!string.IsNullOrEmpty(usuario.CurrentSessionId))
+            {
+                _logger.LogInformation(
+                    "Usuário {Email} já possui uma sessão ativa. A sessão anterior será encerrada.",
+                    usuario.Email);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(
-                usuario, 
-                model.Senha, 
-                model.LembrarMe, 
+                usuario,
+                model.Senha,
+                model.LembrarMe,
                 lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
+                // ✅ Gerar novo SessionId único
+                var sessionId = Guid.NewGuid().ToString();
+
+                // ✅ Salvar no banco de dados
+                usuario.CurrentSessionId = sessionId;
+                usuario.LastLoginDate = DateTime.UtcNow;
+                await _userManager.UpdateAsync(usuario);
+
+                // ✅ Salvar na sessão ASP.NET Core (compartilhada entre abas do mesmo navegador)
+                HttpContext.Session.SetString("SessionId", sessionId);
+
+                _logger.LogInformation(
+                    "Login bem-sucedido para {Email}. SessionId: {SessionId}",
+                    usuario.Email,
+                    sessionId);
+
                 return RedirectToLocal(returnUrl);
             }
 
             if (result.IsLockedOut)
             {
                 var lockoutEnd = await _userManager.GetLockoutEndDateAsync(usuario);
-                var tempoRestante = lockoutEnd.HasValue 
-                    ? (lockoutEnd.Value - DateTimeOffset.UtcNow).Minutes 
+                var tempoRestante = lockoutEnd.HasValue
+                    ? (lockoutEnd.Value - DateTimeOffset.UtcNow).Minutes
                     : 15;
-                ModelState.AddModelError(string.Empty, 
+
+                ModelState.AddModelError(string.Empty,
                     $"Conta bloqueada por excesso de tentativas. Tente novamente em {tempoRestante} minutos.");
                 return View(model);
             }
 
             if (result.IsNotAllowed)
             {
-                ModelState.AddModelError(string.Empty, "Login não permitido. Verifique se seu e-mail foi confirmado.");
+                ModelState.AddModelError(string.Empty, 
+                    "Login não permitido. Verifique se seu e-mail foi confirmado.");
                 return View(model);
             }
 
             ModelState.AddModelError(string.Empty, "E-mail ou senha inválidos.");
             return View(model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Sair()
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null)
+            {
+                // ✅ Limpar SessionId do banco
+                user.CurrentSessionId = null;
+                await _userManager.UpdateAsync(user);
+
+                _logger.LogInformation("Logout realizado para {Email}", user.Email);
+            }
+
+            // ✅ Limpar sessão
+            HttpContext.Session.Clear();
+
+            // ✅ Fazer logout
             await _signInManager.SignOutAsync();
+
             return RedirectToAction("Entrar");
         }
 

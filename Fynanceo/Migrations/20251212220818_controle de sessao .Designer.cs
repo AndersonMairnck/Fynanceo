@@ -3,6 +3,7 @@ using System;
 using Fynanceo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251212220818_controle de sessao ")]
+    partial class controledesessao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,7 +291,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2025, 12, 13, 10, 44, 40, 157, DateTimeKind.Utc).AddTicks(9553),
+                            DataAtualizacao = new DateTime(2025, 12, 12, 22, 8, 15, 837, DateTimeKind.Utc).AddTicks(8719),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -1306,6 +1309,7 @@ namespace Fynanceo.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CurrentSessionId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("DataCadastro")
@@ -1317,9 +1321,6 @@ namespace Fynanceo.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
