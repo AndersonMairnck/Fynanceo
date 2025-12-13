@@ -1,7 +1,7 @@
-﻿							
-using Fynanceo.Configuracao;
+﻿using Fynanceo.Configuracao;
 using Fynanceo.Data;
-using Fynanceo.Models;					  
+using Fynanceo.Middleware;
+using Fynanceo.Models;
 using Fynanceo.Service;
 using Fynanceo.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -12,23 +12,42 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ========================================
+// Autenticação Global
+// ========================================
 builder.Services.AddControllersWithViews(options =>
 {
-    // Requer autenticação globalmente em TODOS os controllers
+																
     var policy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 });
 
-// Add services to the container.
-// builder.Services.AddControllersWithViews();
+// ========================================
+											  
 
-// Configurar DbContext					   
+// Configurar DbContext
+// ========================================
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configurar Identity com mensagens em português
+// ========================================
+// Configurar Sessão (ANTES do Identity)
+// ========================================
+builder.Services.AddDistributedMemoryCache(); // ✅ Cache para sessão
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(8); // ✅ Tempo de expiração da sessão
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = "Fynanceo.Session";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
+// ========================================
+// Configurar Identity
+// ========================================
 builder.Services.AddIdentity<UsuarioAplicacao, IdentityRole>(options =>
 {
     // Configurações de Senha
@@ -49,14 +68,16 @@ builder.Services.AddIdentity<UsuarioAplicacao, IdentityRole>(options =>
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
     // Configurações de Sign In
-    options.SignIn.RequireConfirmedEmail = false; // Mudar para true se usar confirmação de email
+    options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders()
-.AddErrorDescriber<MensagensIdentityPortugues>(); // Mensagens em português
+.AddErrorDescriber<MensagensIdentityPortugues>();
 
+// ========================================
 // Configurar Cookie de Autenticação
+// ========================================
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Usuario/Entrar";
@@ -67,61 +88,73 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = "Fynanceo.Auth";
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    
+    // ✅ Importante: Eventos para controlar login/logout
+    options.Events.OnSigningIn = context =>
+    {
+        // O cookie será criado após o SignIn
+        return Task.CompletedTask;
+    };
 });
 
+// ========================================
 // Configurar Políticas de Autorização
+// ========================================
 builder.Services.AddAuthorization(options =>
 {
-    // Política Administrativa - Apenas Administrador
+													  
     options.AddPolicy(Politicas.AcessoAdministrativo, policy =>
         policy.RequireRole(PerfisUsuario.Administrador));
 
-    // Política Gerencial - Administrador ou Gerente
+													 
     options.AddPolicy(Politicas.AcessoGerencial, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente));
 
-    // Política de Caixa - Administrador, Gerente ou Caixa
+														   
     options.AddPolicy(Politicas.AcessoCaixa, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Caixa));
 
-    // Política de Cozinha - Administrador, Gerente ou Cozinha
+															   
     options.AddPolicy(Politicas.AcessoCozinha, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Cozinha));
 
-    // Política de Delivery - Administrador, Gerente ou Entregador
+																   
     options.AddPolicy(Politicas.AcessoDelivery, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Entregador));
 
-    // Política de Atendimento - Administrador, Gerente ou Atendente
+																	 
     options.AddPolicy(Politicas.AcessoAtendimento, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Atendente));
 
-    // Gerenciar Usuários - Apenas Administrador
+												 
     options.AddPolicy(Politicas.GerenciarUsuarios, policy =>
         policy.RequireRole(PerfisUsuario.Administrador));
 
-    // Gerenciar Produtos - Administrador ou Gerente
+													
     options.AddPolicy(Politicas.GerenciarProdutos, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente));
 
-    // Gerenciar Estoque - Administrador ou Gerente
+												   
     options.AddPolicy(Politicas.GerenciarEstoque, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente));
 
-    // Gerenciar Financeiro - Administrador ou Gerente
+													  
     options.AddPolicy(Politicas.GerenciarFinanceiro, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente));
 
-    // Visualizar Relatórios - Administrador ou Gerente
+														
     options.AddPolicy(Politicas.VisualizarRelatorios, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente));
 
-    // Realizar Vendas - Administrador, Gerente, Caixa ou Atendente
+																   
     options.AddPolicy(Politicas.RealizarVendas, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Caixa, PerfisUsuario.Atendente));
+									  
 });
 
-// Registrar serviços
+// ========================================
+// Registrar Serviços
+// ========================================
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IProdutoService, ProdutoService>();
@@ -136,31 +169,31 @@ builder.Services.AddScoped<IFornecedorService, FornecedorService>();
 builder.Services.AddScoped<IConfigService, ConfigService>();
 
 builder.Services.AddMemoryCache();
+							  
 
 
 var app = builder.Build();
+				 
 
-// ✅ Criar banco e aplicar migrations automaticamente
-using (var scope = app.Services.CreateScope())
-{
-   
-}
+
+													   
 
 
 // ========================================
-// SEED DATA - Popular dados iniciais
+// Seed Data
 // ========================================
-// ✅ Criar banco e aplicar migrations automaticamente + Seed
+															  
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 
     await SeedData.InicializarAsync(scope.ServiceProvider);
-
 }
 
-// Configure the HTTP request pipeline.
+// ========================================
+// Configure Pipeline
+// ========================================
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -170,13 +203,16 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// IMPORTANTE: Ordem correta - Authentication antes de Authorization
-app.UseAuthentication();																		
-app.UseAuthorization();
+// ✅ ORDEM CRÍTICA
+app.UseSession();              // 1️⃣ Session primeiro
+app.UseAuthentication();       // 2️⃣ Authentication
+app.UseMiddleware<SessionValidationMiddleware>(); // 3️⃣ Validação de sessão customizada
+app.UseAuthorization();        // 4️⃣ Authorization
 
 app.MapControllerRoute(
     name: "default",
