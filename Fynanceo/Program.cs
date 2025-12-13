@@ -150,6 +150,45 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Politicas.RealizarVendas, policy =>
         policy.RequireRole(PerfisUsuario.Administrador, PerfisUsuario.Gerente, PerfisUsuario.Caixa, PerfisUsuario.Atendente));
 									  
+      // ✅ NOVAS: Políticas baseadas em Claims (permissões específicas)
+    
+    // Clientes
+    options.AddPolicy("Permissao." + Permissoes.ClientesVisualizar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ClientesVisualizar));
+    options.AddPolicy("Permissao." + Permissoes.ClientesCriar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ClientesCriar));
+    options.AddPolicy("Permissao." + Permissoes.ClientesEditar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ClientesEditar));
+    options.AddPolicy("Permissao." + Permissoes.ClientesExcluir, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ClientesExcluir));
+    
+    // Produtos
+    options.AddPolicy("Permissao." + Permissoes.ProdutosVisualizar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ProdutosVisualizar));
+    options.AddPolicy("Permissao." + Permissoes.ProdutosCriar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ProdutosCriar));
+    options.AddPolicy("Permissao." + Permissoes.ProdutosEditar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ProdutosEditar));
+    options.AddPolicy("Permissao." + Permissoes.ProdutosExcluir, 
+        policy => policy.RequireClaim("Permissao", Permissoes.ProdutosExcluir));
+    
+    // Financeiro
+    options.AddPolicy("Permissao." + Permissoes.FinanceiroVisualizar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.FinanceiroVisualizar));
+    options.AddPolicy("Permissao." + Permissoes.FinanceiroEditar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.FinanceiroEditar));
+    options.AddPolicy("Permissao." + Permissoes.FinanceiroAprovar, 
+        policy => policy.RequireClaim("Permissao", Permissoes.FinanceiroAprovar));
+    
+    // Relatórios
+    options.AddPolicy("Permissao." + Permissoes.RelatoriosVendas, 
+        policy => policy.RequireClaim("Permissao", Permissoes.RelatoriosVendas));
+    options.AddPolicy("Permissao." + Permissoes.RelatoriosFinanceiro, 
+        policy => policy.RequireClaim("Permissao", Permissoes.RelatoriosFinanceiro));
+    options.AddPolicy("Permissao." + Permissoes.RelatoriosEstoque, 
+        policy => policy.RequireClaim("Permissao", Permissoes.RelatoriosEstoque));
+
+    
 });
 
 // ========================================

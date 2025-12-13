@@ -1,4 +1,6 @@
 ﻿// Controllers/ContasController.cs
+
+using Fynanceo.Configuracao;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
@@ -21,7 +23,7 @@ namespace Fynanceo.Controllers
             _context = context;
             _financeiroService = financeiroService;
         }
-
+       
         // GET: Contas
         public async Task<IActionResult> Index()
         {

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3207c8a356492fac5f10e80830fda8c9f16f0635")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e1198bf1af4a94ceee54a6984efc4e9ecf0592c1")]
 [assembly: System.Reflection.AssemblyProductAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Fynanceo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
