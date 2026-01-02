@@ -65,7 +65,7 @@ namespace Fynanceo.Controllers
         }
 
         public async Task<IActionResult> Balcao()
-        {
+        {//teste
             var viewModel = new PedidoViewModel
             {
                 TipoPedido = TipoPedido.Balcao,
