@@ -1,4 +1,0 @@
-D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Release\net8.0\publish\appsettings.Development.json
-D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Release\net8.0\publish\appsettings.json
-D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Release\net8.0\publish\Fynanceo.pdb
-D:\Mairinck\1- Projetos\Fynanceo\Fynanceo\Fynanceo\bin\Release\net8.0\publish\Fynanceo.exe
