@@ -64,6 +64,49 @@ namespace Fynanceo.Controllers
             return View(viewModel);
         }
 
+        public async Task<IActionResult> Balcao()
+        {
+            var viewModel = new PedidoViewModel
+            {
+                TipoPedido = TipoPedido.Balcao,
+                Clientes = await _clienteService.ObterTodosAsync(),
+                ProdutosDisponiveis = await _produtoService.ObterProdutosPopularesAsync(10),
+                CategoriasDisponiveis = await _produtoService.ObterCategoriasAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Balcao(PedidoViewModel viewModel)
+        {
+            viewModel.TipoPedido = TipoPedido.Balcao;
+            return await Create(viewModel);
+        }
+
+        public async Task<IActionResult> Delivery()
+        {
+            var viewModel = new PedidoViewModel
+            {
+                TipoPedido = TipoPedido.Delivery,
+                TaxaEntrega = 0,
+                Clientes = await _clienteService.ObterTodosAsync(),
+                ProdutosDisponiveis = await _produtoService.ObterProdutosPopularesAsync(10),
+                CategoriasDisponiveis = await _produtoService.ObterCategoriasAsync()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delivery(PedidoViewModel viewModel)
+        {
+            viewModel.TipoPedido = TipoPedido.Delivery;
+            return await Create(viewModel);
+        }
+
 
         // POST: Pedidos/Create
         [HttpPost]
@@ -90,8 +133,15 @@ namespace Fynanceo.Controllers
             //Recarregar dados se houver erro
            // viewModel.MesasDisponiveis = await _mesaService.ObterPorStatusAsync("Livre");
             viewModel.Clientes = await _clienteService.ObterTodosAsync();
+            viewModel.ProdutosDisponiveis = await _produtoService.ObterProdutosPopularesAsync(10);
+            viewModel.CategoriasDisponiveis = await _produtoService.ObterCategoriasAsync();
 
-            viewModel.ProdutosDisponiveis = await _produtoService.ObterTodosAsync();
+            // Retorna para a view específica se originado de Balcao ou Delivery
+            if (viewModel.TipoPedido == TipoPedido.Balcao)
+                return View("Balcao", viewModel);
+            
+            if (viewModel.TipoPedido == TipoPedido.Delivery)
+                return View("Delivery", viewModel);
 
             return View(viewModel);
         }

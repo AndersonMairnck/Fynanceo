@@ -95,13 +95,16 @@
                 </a>
                 <div class="collapse collapse-menu" id="operacoesCollapse">
                     <div class="submenu">
-                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() != "Cozinha" ? "active" : "")"
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pedidos" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
                            asp-controller="Pedidos" asp-action="Index"><i class="fas fa-shopping-cart"></i> Pedidos</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Balcao" ? "active" : "")"
+                           asp-controller="Pedidos" asp-action="Balcao"><i class="fas fa-cash-register"></i> Balcão</a>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Delivery" ? "active" : "")"
+                           asp-controller="Pedidos" asp-action="Delivery"><i class="fas fa-motorcycle"></i> Delivery</a>
                         <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
                            asp-controller="Pedidos" asp-action="Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
                         <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
-                           asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-motorcycle"></i> Delivery
-                            </a>
+                           asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-shipping-fast"></i> Gestão Delivery</a>
                     </div>
                 </div>
             </li>
