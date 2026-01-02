@@ -1,0 +1,13 @@
+# .NET
+bin/
+obj/
+publish/
+*.exe
+*.dll
+*.pdb
+
+# Rider / VS
+.idea/
+.vs/
+*.user
+*.suo
