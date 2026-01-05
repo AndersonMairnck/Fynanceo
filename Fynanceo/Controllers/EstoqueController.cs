@@ -1,4 +1,4 @@
-﻿﻿// Controllers/EstoqueController.cs
+﻿// Controllers/EstoqueController.cs
 
 using Fynanceo.Data;
 using Fynanceo.Models;
@@ -113,8 +113,6 @@ namespace Fynanceo.Controllers
             var model = new EstoqueViewModel
             {
                 Categorias = await _estoqueService.SomenteCategoriasAsync(),
-
-                Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
                 Status = StatusEstoque.Ativo
             };
 
@@ -140,8 +138,13 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-            //  model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
-            model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
+            model.Categorias = await _estoqueService.SomenteCategoriasAsync();
+
+            if (model.FornecedorId.HasValue)
+            {
+                var fornecedor = await _fornecedorService.obterFornecedorPorId(model.FornecedorId.Value);
+                ViewBag.FornecedorSelecionadoNome = fornecedor?.Nome;
+            }
 
             return View(model);
         }
@@ -170,8 +173,13 @@ namespace Fynanceo.Controllers
                 // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
                 FornecedorId = estoque.FornecedorId,
                 Categorias = await _estoqueService.SomenteCategoriasAsync(),
-                Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync(),
             };
+
+            if (model.FornecedorId.HasValue)
+            {
+                var fornecedor = await _fornecedorService.obterFornecedorPorId(model.FornecedorId.Value);
+                ViewBag.FornecedorSelecionadoNome = fornecedor?.Nome;
+            }
 
             return View(model);
         }
@@ -201,8 +209,13 @@ namespace Fynanceo.Controllers
             }
 
             // Recarregar dropdowns em caso de erro
-            //   model.Categorias = await _context.CategoriasEstoque.Where(c => c.Status == StatusEstoque.Ativo).ToListAsync();
-            model.Fornecedores = await _fornecedorService.ObterFornecedoresAtivosAsync();
+            model.Categorias = await _estoqueService.SomenteCategoriasAsync();
+
+            if (model.FornecedorId.HasValue)
+            {
+                var fornecedor = await _fornecedorService.obterFornecedorPorId(model.FornecedorId.Value);
+                ViewBag.FornecedorSelecionadoNome = fornecedor?.Nome;
+            }
 
             return View(model);
         }

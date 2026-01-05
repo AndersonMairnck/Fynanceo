@@ -191,14 +191,11 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="FornecedorId" class="form-label">Fornecedor</label>
                                     <div class="input-group">
-                                        <select asp-for="FornecedorId" class="form-select select2" id="fornecedorSelect">
+                                        <select asp-for="FornecedorId" class="form-select" id="fornecedorSelect">
                                             <option value="">Selecione um fornecedor...</option>
-                                            @if (Model.Fornecedores != null)
+                                            @if (Model.FornecedorId.HasValue && ViewBag.FornecedorSelecionadoNome != null)
                                             {
-                                                @foreach (var fornecedor in Model.Fornecedores)
-                                                {
-                                                    <option value="@fornecedor.Id">@fornecedor.Nome</option>
-                                                }
+                                                <option value="@Model.FornecedorId" selected>@ViewBag.FornecedorSelecionadoNome</option>
                                             }
                                         </select>
                                         <a href="/Fornecedores/Create" class="btn btn-outline-primary" title="Cadastrar Novo Fornecedor">
@@ -294,7 +291,30 @@
                     theme: 'bootstrap-5',
                     width: '100%',
                     placeholder: 'Selecione um fornecedor...',
-                    allowClear: true
+                    allowClear: true,
+                    minimumInputLength: 4,
+                    ajax: {
+                        url: '/Fornecedores/BuscarSelect2',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                term: params.term,
+                                page: params.page || 1,
+                                pageSize: 20
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination && data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    }
                 });
             }
 

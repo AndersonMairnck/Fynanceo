@@ -1,4 +1,4 @@
-﻿// Controllers/FornecedoresController.cs
+// Controllers/FornecedoresController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
@@ -140,6 +140,19 @@ namespace Fynanceo.Controllers
         }
 
         
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarSelect2(string term, int page = 1, int pageSize = 20)
+        {
+            var (itens, total) = await _fornecedorService.BuscarFornecedoresPaginadosAsync(term, page, pageSize);
+            var more = (page * Math.Min(Math.Max(pageSize, 1), 50)) < total;
+
+            return Json(new
+            {
+                results = itens.Select(f => new { id = f.Id, text = f.Nome }),
+                pagination = new { more }
+            });
+        }
 
         private bool FornecedorExists(int id)
         {

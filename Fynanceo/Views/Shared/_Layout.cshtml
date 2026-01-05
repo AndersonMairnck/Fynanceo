@@ -1,4 +1,4 @@
-﻿<!-- Views/Shared/_Layout.cshtml -->
+<!-- Views/Shared/_Layout.cshtml -->
 
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<Fynanceo.Models.UsuarioAplicacao> SignInManager
@@ -14,6 +14,8 @@
     <!-- Local CSS Libraries (moved from CDN) -->
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
 
@@ -246,6 +248,7 @@
 
 <!-- JavaScript Libraries (local) -->
 <script src="~/lib/jquery/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 <script src="~/js/notificacoes.js"></script>

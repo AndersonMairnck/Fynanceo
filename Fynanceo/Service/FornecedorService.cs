@@ -1,4 +1,4 @@
-﻿﻿// Services/FornecedorService.cs
+// Services/FornecedorService.cs
 
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
@@ -149,6 +149,38 @@ namespace Fynanceo.Service
                 .Select(f => new Fornecedor { Id = f.Id, Nome = f.Nome })
                 .Take(max)
                 .ToListAsync();
+        }
+
+        public async Task<(List<Fornecedor> Itens, int Total)> BuscarFornecedoresPaginadosAsync(string searchTerm, int page, int pageSize = 20)
+        {
+            if (page < 1) page = 1;
+            var size = Math.Min(Math.Max(pageSize, 1), 50);
+
+            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm.Trim().Length < 3)
+                return (new List<Fornecedor>(), 0);
+
+            var term = searchTerm.Trim();
+
+            var query = _context.Fornecedores
+                .AsNoTracking()
+                .Where(f => f.Status == StatusFornecedor.Ativo)
+                .Where(f => f.Nome != null && EF.Functions.ILike(f.Nome, $"%{term}%"))
+                .Select(f => new Fornecedor
+                {
+                    Id = f.Id,
+                    Nome = f.Nome
+                });;
+
+            var total = await query.CountAsync();
+
+            var itens = await query
+                .OrderBy(f => f.Nome)
+                .Skip((page - 1) * size)
+                .Take(size)
+                .Select(f => new Fornecedor { Id = f.Id, Nome = f.Nome })
+                .ToListAsync();
+
+            return (itens, total);
         }
     }
 }
