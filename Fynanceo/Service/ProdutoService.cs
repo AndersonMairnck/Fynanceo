@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using System.Text;
 using Fynanceo.Models.Enums;
+using Fynanceo.Utils;
 
 namespace Fynanceo.Service
 {
@@ -59,6 +60,7 @@ namespace Fynanceo.Service
                     TempoExtraPico = model.TempoExtraPico,
                     OpcoesPersonalizacao = model.OpcoesPersonalizacao,
                     Disponivel = model.Disponivel,
+                    IdEstoque = model.IdEstoque,
 
                     DataCadastro = DateTime.UtcNow,
 
@@ -115,6 +117,7 @@ namespace Fynanceo.Service
                 produto.TempoExtraPico = model.TempoExtraPico;
                 produto.OpcoesPersonalizacao = model.OpcoesPersonalizacao;
                 produto.Disponivel = model.Disponivel;
+                produto.IdEstoque = model.IdEstoque;
           
 
                 // Atualizar ingredientes
@@ -279,40 +282,15 @@ namespace Fynanceo.Service
             }
 
             // Filtra no lado do cliente (case-insensitive e sem acentos)
-            termo = termo.ToLower().Trim();
-            var termoSemAcentos = RemoverAcentos(termo);
+            termo = termo.Trim();
+            var termoSemAcentos = StringUtils.RemoverAcentosELower(termo);
 
             var produtosFiltrados = produtos.Where(p =>
-                p.Nome.ToLower().Contains(termo) ||
-                RemoverAcentos(p.Nome.ToLower()).Contains(termoSemAcentos) ||
-                (p.Descricao != null && (
-                    p.Descricao.ToLower().Contains(termo) ||
-                    RemoverAcentos(p.Descricao.ToLower()).Contains(termoSemAcentos)
-                ))
+                StringUtils.RemoverAcentosELower(p.Nome).Contains(termoSemAcentos) ||
+                (p.Descricao != null && StringUtils.RemoverAcentosELower(p.Descricao).Contains(termoSemAcentos))
             ).Take(50).ToList();
 
             return produtosFiltrados;
-        }
-
-        // Método otimizado para remover acentos
-        private static string RemoverAcentos(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString)
-            {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC).ToLower();
         }
 
     }

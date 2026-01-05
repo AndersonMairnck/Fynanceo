@@ -7,7 +7,7 @@ namespace Fynanceo.Models
         [Key]
         public int Id { get; set; }
         
-        public int idEstoque { get; set; }
+        public int IdEstoque { get; set; }
 
         [Required(ErrorMessage = "Código é obrigatório")]
         public string Codigo { get; set; }

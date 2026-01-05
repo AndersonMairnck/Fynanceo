@@ -8,6 +8,8 @@ namespace Fynanceo.ViewModel.ProdutosModel
     {
         public int Id { get; set; }
 
+        public int IdEstoque { get; set; }
+
         [Required(ErrorMessage = "Código é obrigatório")]
         [Display(Name = "Código do Produto")]
         public string Codigo { get; set; }

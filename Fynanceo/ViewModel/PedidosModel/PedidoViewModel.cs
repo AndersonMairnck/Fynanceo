@@ -46,12 +46,13 @@ namespace Fynanceo.ViewModel.PedidosModel
 
     public class ItemPedidoViewModel
     {
+        public int PedidoId { get; set; }
         public int ProdutoId { get; set; }
         public string ProdutoNome { get; set; }
         public decimal PrecoUnitario { get; set; }
 
         [Range(0.01, 100, ErrorMessage = "Quantidade deve ser entre 0.01 e 100")]
-        public int Quantidade { get; set; }
+        public decimal Quantidade { get; set; }
         public string? Observacoes { get; set; }
         public string? Personalizacoes { get; set; }
     }

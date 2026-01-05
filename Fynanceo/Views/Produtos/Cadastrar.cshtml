@@ -355,7 +355,7 @@ ViewData["Title"] = "Cadastrar Produto";
 
             if (id) {
                 // Remover do array
-                ingredientesSelecionados = ingredientesSelecionados.filter(i => i.idEstoque != id);
+                ingredientesSelecionados = ingredientesSelecionados.filter(i => i.IdEstoque != id);
 
                 // Remover da tabela
                 tr.remove();
@@ -604,10 +604,10 @@ ViewData["Title"] = "Cadastrar Produto";
 
         materiaisSelecionadosModal.forEach(material => {
             // Verificar se já não foi adicionado (segurança adicional)
-            if (!ingredientesSelecionados.some(i => i.idEstoque == material.id)) {
+            if (!ingredientesSelecionados.some(i => i.IdEstoque == material.id)) {
                 // Adicionar ao array global
                 ingredientesSelecionados.push({
-                    idEstoque: material.id,
+                    IdEstoque: material.id,
                     nome: material.nome,
                     unidadeMedida:  material.unidade.toString(),
                     quantidade: 0.1, // Quantidade inicial

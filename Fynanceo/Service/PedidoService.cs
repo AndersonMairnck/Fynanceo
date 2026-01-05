@@ -41,9 +41,53 @@ namespace Fynanceo.Service
            
         }
 
+        private async Task<string> GetCurrentUserNameAsync()
+        {
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            return user?.UserName ?? "Sistema";
+        }
+
+        private async Task<(bool Disponivel, string Mensagem)> ValidarEstoqueProdutoAsync(int produtoId, decimal quantidadeSolicitada)
+        {
+            var produto = await _context.Produtos
+                .Include(p => p.ProdutoIngredientes)
+                .ThenInclude(pi => pi.Estoque)
+                .FirstOrDefaultAsync(p => p.Id == produtoId);
+
+            if (produto == null) return (false, "Produto não encontrado.");
+
+            // 1. Verificar estoque direto
+            if (produto.IdEstoque > 0)
+            {
+                var estoque = await _context.Estoques.FindAsync(produto.IdEstoque);
+                if (estoque != null && estoque.EstoqueAtual < quantidadeSolicitada)
+                {
+                    return (false, $"Estoque insuficiente para o produto {produto.Nome}. Disponível: {estoque.EstoqueAtual:N3}, Solicitado: {quantidadeSolicitada:N3}");
+                }
+            }
+
+            // 2. Verificar ingredientes
+            if (produto.ProdutoIngredientes != null && produto.ProdutoIngredientes.Any())
+            {
+                foreach (var ingrediente in produto.ProdutoIngredientes)
+                {
+                    var qtdNecessaria = ingrediente.Quantidade * quantidadeSolicitada;
+                    var estoqueIngrediente = await _context.Estoques.FindAsync(ingrediente.EstoqueId);
+
+                    if (estoqueIngrediente != null && estoqueIngrediente.EstoqueAtual < qtdNecessaria)
+                    {
+                        var qtdPossivel = ingrediente.Quantidade > 0 ? estoqueIngrediente.EstoqueAtual / ingrediente.Quantidade : 0;
+                        return (false, $"Estoque insuficiente do ingrediente {estoqueIngrediente.Nome} para o produto {produto.Nome}. Disponível: {estoqueIngrediente.EstoqueAtual:N3}, Necessário: {qtdNecessaria:N3}. Máximo possível: {qtdPossivel:N3}");
+                    }
+                }
+            }
+
+            return (true, string.Empty);
+        }
+
         public async Task<Pedido> FecharPedidoAsync(int pedidoId)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
 
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
@@ -90,16 +134,29 @@ namespace Fynanceo.Service
             await _context.SaveChangesAsync();
 
             // Adiciona histórico
-            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Fechado", usuario.UserName);
+            await AdicionarHistorico(pedidoId, pedido.Status.ToString(), "Fechado", usuarioNome);
 
             return pedido;
         }
 
         public async Task<Pedido> CriarPedido(PedidoViewModel viewModel)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
             try
             {
+                // Validar estoque para todos os itens antes de criar o pedido
+                if (viewModel.Itens != null && viewModel.Itens.Any())
+                {
+                    foreach (var item in viewModel.Itens)
+                    {
+                        var (disponivel, mensagem) = await ValidarEstoqueProdutoAsync(item.ProdutoId, item.Quantidade);
+                        if (!disponivel)
+                        {
+                            throw new InvalidOperationException(mensagem);
+                        }
+                    }
+                }
+
                 var pedido = new Pedido
                 {
                     NumeroPedido = viewModel.TipoPedido.ToString().Substring(0, 1).ToUpper() +
@@ -112,7 +169,7 @@ namespace Fynanceo.Service
                     Observacoes = viewModel.Observacoes,
                     TaxaEntrega = viewModel.TaxaEntrega,
                     DataAbertura = DateTime.UtcNow,
-                    UsuarioNome = usuario.UserName, // Temporário - depois pegar do usuário logado
+                    UsuarioNome = usuarioNome, 
                 };
 
                 _context.Pedidos.Add(pedido);
@@ -130,7 +187,7 @@ namespace Fynanceo.Service
                 }
 
                 // Adicionar histórico
-                await AdicionarHistorico(pedido.Id, "Novo", pedido.Status.ToString(), usuario.UserName);
+                await AdicionarHistorico(pedido.Id, "Novo", pedido.Status.ToString(), usuarioNome);
 
                 return pedido;
             }
@@ -144,8 +201,14 @@ namespace Fynanceo.Service
 
         public async Task<Pedido> AdicionarItem(int pedidoId, ItemPedidoViewModel itemVm)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
             
+            var (disponivel, mensagem) = await ValidarEstoqueProdutoAsync(itemVm.ProdutoId, itemVm.Quantidade);
+            if (!disponivel)
+            {
+                throw new InvalidOperationException(mensagem);
+            }
+
             var pedido = await _context.Pedidos
                 .Include(p => p.Itens)
                 .FirstOrDefaultAsync(p => p.Id == pedidoId);
@@ -165,7 +228,7 @@ namespace Fynanceo.Service
                 PrecoUnitario = produto.ValorVenda,
                 Observacoes = itemVm.Observacoes,
                 Personalizacoes = itemVm.Personalizacoes,
-               IdEstoque = produto.idEstoque,
+                IdEstoque = produto.IdEstoque,
 
 
                 //Total = itemVm.Quantidade * produto.ValorVenda // Calcula o total do item
@@ -175,25 +238,25 @@ namespace Fynanceo.Service
             // if (pedido.TipoPedido == TipoPedido.Balcao && produto.TempoPreparoMinutos == 0)
             //     itemPedido.Status = PedidoStatus.Pronto;
             
-            if (produto.TempoPreparoMinutos ==0)
+            if (produto.TempoPreparoMinutos == 0)
                 itemPedido.Status = PedidoStatus.Pronto;
             
             _context.ItensPedido.Add(itemPedido);
             await _context.SaveChangesAsync();
 
-        if (produto.idEstoque>0 && itemPedido.Status == PedidoStatus.Pronto)
-         { 
+            if (produto.IdEstoque > 0 && itemPedido.Status == PedidoStatus.Pronto)
+            { 
                     await _estoqueService.CriarMovimentacaoAsync(new MovimentacaoEstoqueViewModel
                     {
                         Tipo = TipoMovimentacaoEstoque.Saida,
-                        EstoqueId = produto.idEstoque,
+                        EstoqueId = produto.IdEstoque,
                         Quantidade = itemPedido.Quantidade,
                         CustoUnitario = produto.CustoUnitario,
                         Observacao = $"Material usado para o pedido {itemPedido.PedidoId}",
                         Documento =  $"{pedido.TipoPedido}: P= {itemPedido.PedidoId}",
                         FornecedorId = 0,
                         PedidoId = itemPedido.PedidoId,
-                        UsuarioNome = usuario.UserName,
+                        UsuarioNome = usuarioNome,
                     });
                 }
                       

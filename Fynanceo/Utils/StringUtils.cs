@@ -7,6 +7,34 @@ namespace Fynanceo.Utils
     public static class StringUtils
     {
         /// <summary>
+        /// Remove acentos de uma string.
+        /// </summary>
+        public static string RemoverAcentos(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        public static string RemoverAcentosELower(string text)
+        {
+            return RemoverAcentos(text)?.ToLower();
+        }
+
+        /// <summary>
         /// Remove acentos e caracteres especiais de uma string.
         /// </summary>
         public static string RemoverCaracteresEspeciais(string input)
@@ -15,18 +43,7 @@ namespace Fynanceo.Utils
                 return string.Empty;
 
             // Remove acentos
-            string normalized = input.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
-            foreach (var c in normalized)
-            {
-                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
-                {
-                    sb.Append(c);
-                }
-            }
-
-            string semAcentos = sb.ToString().Normalize(NormalizationForm.FormC);
+            string semAcentos = RemoverAcentos(input);
 
             // Remove caracteres que não sejam letras, números ou espaço
             string resultado = Regex.Replace(semAcentos, @"[^0-9a-zA-Z\s]", string.Empty);

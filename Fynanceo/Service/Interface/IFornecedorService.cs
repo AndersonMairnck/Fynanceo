@@ -1,4 +1,4 @@
-﻿// Services/IFornecedorService.cs
+﻿﻿// Services/IFornecedorService.cs
 
 // Services/IFornecedorService.cs
 using Fynanceo.Models;
@@ -10,6 +10,8 @@ namespace Fynanceo.Service.Interface
         Task<List<Fornecedor>> ObterFornecedoresAtivosAsync();
         Task<List<Fornecedor>> ObterFornecedoresPorStatusAsync(StatusFornecedor status);
         Task<List<Fornecedor>> ObterTodosFornecedoresAsync(); // ADICIONADO ESTE MÉTODO
+        // Busca fornecedores por texto (usado por autocomplete). Retorna lista limitada.
+        Task<List<Fornecedor>> BuscarFornecedoresAsync(string query, int limit = 20);
         Task<bool> AlterarStatusFornecedorAsync(int fornecedorId, StatusFornecedor novoStatus);
         Task<Fornecedor> obterFornecedorPorId(int fornecedorId);
         Task<bool> AdicionarAsync(FornecerdorViewModel fornecedor);

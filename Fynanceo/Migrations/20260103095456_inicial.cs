@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     /// <inheritdoc />
-    public partial class inicio : Migration
+    public partial class inicial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -241,7 +241,7 @@ namespace Fynanceo.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    idEstoque = table.Column<int>(type: "integer", nullable: false),
+                    IdEstoque = table.Column<int>(type: "integer", nullable: false),
                     Codigo = table.Column<string>(type: "text", nullable: false),
                     Nome = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Descricao = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
@@ -871,7 +871,7 @@ namespace Fynanceo.Migrations
             migrationBuilder.InsertData(
                 table: "CozinhaConfigs",
                 columns: new[] { "Id", "DataAtualizacao", "IntervaloAtualizacaoSegundos", "TempoAlertaPreparoMinutos", "TempoAlertaProntoMinutos", "UsuarioAtualizacao" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 11, 19, 29, 331, DateTimeKind.Utc).AddTicks(3491), 30, 30, 10, null });
+                values: new object[] { 1, new DateTime(2026, 1, 3, 9, 54, 53, 28, DateTimeKind.Utc).AddTicks(917), 30, 30, 10, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clientes_CpfCnpj",

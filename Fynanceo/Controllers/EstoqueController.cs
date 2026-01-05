@@ -1,4 +1,4 @@
-﻿// Controllers/EstoqueController.cs
+﻿﻿// Controllers/EstoqueController.cs
 
 using Fynanceo.Data;
 using Fynanceo.Models;
@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Text;
 using Fynanceo.Configuracao;
 using Microsoft.AspNetCore.Authorization;
+using Fynanceo.Utils;
 
 
 namespace Fynanceo.Controllers
@@ -50,9 +51,10 @@ namespace Fynanceo.Controllers
             // Aplicar filtros em memória
             if (!string.IsNullOrEmpty(search))
             {
+                var searchNormalized = StringUtils.RemoverAcentosELower(search);
                 estoquesLista = estoquesLista
-                    .Where(e => (e.Nome != null && e.Nome.Contains(search)) ||
-                                (e.Codigo != null && e.Codigo.Contains(search)))
+                    .Where(e => (e.Nome != null && StringUtils.RemoverAcentosELower(e.Nome).Contains(searchNormalized)) ||
+                                (e.Codigo != null && StringUtils.RemoverAcentosELower(e.Codigo).Contains(searchNormalized)))
                     .ToList();
             }
 
@@ -475,5 +477,36 @@ namespace Fynanceo.Controllers
 
             return RedirectToAction(nameof(Inventario));
         }
+
+        // GET: Estoque/SearchFornecedores?q=abc&limit=20
+        [HttpGet]
+        public async Task<IActionResult> SearchFornecedores(string q, int limit = 20)
+        {
+            if (string.IsNullOrWhiteSpace(q) || q.Trim().Length < 3)
+            {
+                // Return empty list when query is too short
+                return Ok(new List<object>());
+            }
+
+            var fornecedores = await _fornecedor_service_Bridge(q, limit);
+
+            // shape results for Select2: { id, text }
+            var results = fornecedores.Select(f => new { id = f.Id, text = f.Nome });
+            return Ok(results);
+        }
+
+        // small bridge to call service method - keeps calling code in one place and handles errors
+        private async Task<List<Fynanceo.Models.Fornecedor>> _fornecedor_service_Bridge(string q, int limit)
+        {
+            try
+            {
+                return await _fornecedorService.BuscarFornecedoresAsync(q, limit);
+            }
+            catch
+            {
+                return new List<Fynanceo.Models.Fornecedor>();
+            }
+        }
     }
 }
+

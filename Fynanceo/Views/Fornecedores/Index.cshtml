@@ -54,13 +54,35 @@
     </div>
 </div>
 
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
+                           placeholder="Digite o nome, documento ou e-mail do fornecedor para buscar..."
+                           autocomplete="off">
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                <small class="text-muted" id="searchCount">
+                    Exibindo todos os @Model.Count() fornecedores
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">Todos os Fornecedores</h5>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="fornecedoresTable">
                 <thead>
                     <tr>
                         <th>Nome</th>
@@ -76,7 +98,7 @@
                 <tbody>
                     @foreach (var fornecedor in Model)
                     {
-                        <tr>
+                        <tr class="fornecedor-row">
                             <td>
                                 <strong>@fornecedor.Nome</strong>
                                 @if (!string.IsNullOrEmpty(fornecedor.Contato))
@@ -214,6 +236,33 @@
 
 @section Scripts {
     <script>
+        $(document).ready(function () {
+            $("#searchInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+                var visibleCount = 0;
+
+                $(".fornecedor-row").filter(function () {
+                    var text = $(this).text().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+                    var match = text.indexOf(value) > -1;
+                    $(this).toggle(match);
+                    if (match) visibleCount++;
+                });
+
+                updateSearchCount(visibleCount);
+            });
+
+            function updateSearchCount(count) {
+                var total = $(".fornecedor-row").length;
+                var text = "";
+                if (count === total) {
+                    text = "Exibindo todos os " + total + " fornecedores";
+                } else {
+                    text = "Encontrado(s) " + count + " de " + total + " fornecedores";
+                }
+                $("#searchCount").text(text);
+            }
+        });
+
         let fornecedorIdParaExcluir = null;
 
         function excluirFornecedor(id, nome) {

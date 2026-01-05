@@ -388,7 +388,7 @@ ViewData["Title"] = "Editar Produto";
         {
         <text>
         ingredientesSelecionados.push({
-            idEstoque: @ing.IdEstoque,
+            IdEstoque: @ing.IdEstoque,
             nome: "@ing.Nome",
             unidadeMedida: "@ing.UnidadeMedida",
             quantidade: @ing.Quantidade,
@@ -410,7 +410,7 @@ ViewData["Title"] = "Editar Produto";
 
             if (id) {
                 // Remover do array
-                ingredientesSelecionados = ingredientesSelecionados.filter(i => i.idEstoque != id);
+                ingredientesSelecionados = ingredientesSelecionados.filter(i => i.IdEstoque != id);
 
                 // Remover da tabela
                 tr.remove();
@@ -500,7 +500,7 @@ ViewData["Title"] = "Editar Produto";
                 // Renderizar os materiais
                 data.materiais.forEach(material => {
                     // Verificar se o material já foi adicionado pelo usuário
-                    const jaSelecionado = ingredientesSelecionados.some(i => i.idEstoque == material.id);
+                    const jaSelecionado = ingredientesSelecionados.some(i => i.IdEstoque == material.id);
 
                     console.log(`Material ${material.id} (${material.nome}) - já selecionado? ${jaSelecionado}`);
 
@@ -659,10 +659,10 @@ ViewData["Title"] = "Editar Produto";
 
         materiaisSelecionadosModal.forEach(material => {
             // Verificar se já não foi adicionado (segurança adicional)
-            if (!ingredientesSelecionados.some(i => i.idEstoque == material.id)) {
+            if (!ingredientesSelecionados.some(i => i.IdEstoque == material.id)) {
                 // Adicionar ao array global
                 ingredientesSelecionados.push({
-                    idEstoque: material.id,
+                    IdEstoque: material.id,
                     nome: material.nome,
                     unidadeMedida:  material.unidadeMedida.toString(),
                     quantidade: 0.1, // Quantidade inicial

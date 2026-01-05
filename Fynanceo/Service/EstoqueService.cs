@@ -69,6 +69,12 @@ namespace Fynanceo.Service
          
         }
 
+        private async Task<string> GetCurrentUserNameAsync()
+        {
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            return user?.UserName ?? "Sistema";
+        }
+
         public async Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model)
         {
          
@@ -100,7 +106,7 @@ namespace Fynanceo.Service
                 {
                     var produto = new Produto
                     {
-                        idEstoque = estoque.Id,
+                        IdEstoque = estoque.Id,
                         Nome = estoque.Nome,
                         Codigo = estoque.Codigo,
                         Descricao = estoque.Descricao,

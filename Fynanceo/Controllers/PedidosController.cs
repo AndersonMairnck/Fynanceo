@@ -244,7 +244,12 @@ namespace Fynanceo.Controllers
         {
             try
             {
-                var pedido = await _pedidoService.AdicionarItem(itemVm.ProdutoId, itemVm);
+                if (itemVm.PedidoId <= 0)
+                {
+                    return Json(new { success = false, message = "Pedido não identificado." });
+                }
+
+                var pedido = await _pedidoService.AdicionarItem(itemVm.PedidoId, itemVm);
                 return Json(new { success = true, message = "Item adicionado com sucesso!" });
             }
             catch (Exception ex)

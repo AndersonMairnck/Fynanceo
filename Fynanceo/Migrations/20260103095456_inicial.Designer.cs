@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Fynanceo.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260101111932_inicio")]
-    partial class inicio
+    [Migration("20260103095456_inicial")]
+    partial class inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -291,7 +291,7 @@ namespace Fynanceo.Migrations
                         new
                         {
                             Id = 1,
-                            DataAtualizacao = new DateTime(2026, 1, 1, 11, 19, 29, 331, DateTimeKind.Utc).AddTicks(3491),
+                            DataAtualizacao = new DateTime(2026, 1, 3, 9, 54, 53, 28, DateTimeKind.Utc).AddTicks(917),
                             IntervaloAtualizacaoSegundos = 30,
                             TempoAlertaPreparoMinutos = 30,
                             TempoAlertaProntoMinutos = 10
@@ -1224,6 +1224,9 @@ namespace Fynanceo.Migrations
                     b.Property<bool>("Disponivel")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("IdEstoque")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Nome")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1245,9 +1248,6 @@ namespace Fynanceo.Migrations
 
                     b.Property<decimal>("ValorVenda")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("idEstoque")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

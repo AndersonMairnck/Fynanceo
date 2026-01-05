@@ -31,9 +31,15 @@ namespace Fynanceo.Service
 
         }
 
+        private async Task<string> GetCurrentUserNameAsync()
+        {
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            return user?.UserName ?? "Sistema";
+        }
+
         public async Task<Entrega> CriarEntrega(int pedidoId)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
 
             try
             {
@@ -70,7 +76,7 @@ namespace Fynanceo.Service
             await _context.SaveChangesAsync();
 
             // Adicionar ao histórico
-            await AdicionarHistoricoEntrega(entrega.Id, "Nova", entrega.Status.ToString(), usuario.UserName);
+            await AdicionarHistoricoEntrega(entrega.Id, "Nova", entrega.Status.ToString(), usuarioNome);
 
             return entrega;
             }
@@ -83,7 +89,7 @@ namespace Fynanceo.Service
 
         public async Task<Entrega> AtribuirEntregador(int entregaId, int entregadorId)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
 
             var entrega = await _context.Entregas.FindAsync(entregaId);
             var entregador = await _context.Entregadores.FindAsync(entregadorId);
@@ -105,7 +111,7 @@ namespace Fynanceo.Service
 
             await _context.SaveChangesAsync();
 
-            await AdicionarHistoricoEntrega(entregaId, statusAnterior, entrega.Status.ToString(), usuario.UserName,
+            await AdicionarHistoricoEntrega(entregaId, statusAnterior, entrega.Status.ToString(), usuarioNome,
                 $"Entregador: {entregador.Nome}");
 
             return await ObterEntregaCompleta(entregaId);
@@ -113,7 +119,7 @@ namespace Fynanceo.Service
 
         public async Task<Entrega> AtualizarStatusEntrega(int entregaId, string novoStatus, string? observacao = null)
         {
-            var usuario = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var usuarioNome = await GetCurrentUserNameAsync();
 
             var entrega = await _context.Entregas.FindAsync(entregaId);
             if (entrega == null)
@@ -170,7 +176,7 @@ namespace Fynanceo.Service
                         }
                         break;
                 }
-
+               
               
                 // --- Atualizar pedido ----------------------
                 if (entrega.PedidoId > 0)
@@ -183,7 +189,7 @@ namespace Fynanceo.Service
                   await  _pedidoService.EntregaTodosCozinha(entrega.PedidoId);
                 }
                 await _context.SaveChangesAsync();
-                await AdicionarHistoricoEntrega(entregaId, statusAnterior, novoStatus, usuario.UserName, observacao);
+                await AdicionarHistoricoEntrega(entregaId, statusAnterior, novoStatus, usuarioNome, observacao);
             }
 
             return await ObterEntregaCompleta(entregaId);

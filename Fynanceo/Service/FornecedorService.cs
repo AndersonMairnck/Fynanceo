@@ -1,4 +1,4 @@
-﻿// Services/FornecedorService.cs
+﻿﻿// Services/FornecedorService.cs
 
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
@@ -133,12 +133,22 @@ namespace Fynanceo.Service
             }
         }
 
-      
+        // Busca fornecedores por nome (autocomplete). Case-insensitive, usa AsNoTracking e limita resultados.
+        public async Task<List<Fornecedor>> BuscarFornecedoresAsync(string query, int limit = 20)
+        {
+            if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 1)
+                return new List<Fornecedor>();
 
-          
+            var q = query.Trim().ToLower();
+            var max = Math.Min(Math.Max(limit, 1), 50); // cap between 1 and 50
 
-           
-        
-
+            return await _context.Fornecedores
+                .AsNoTracking()
+                .Where(f => f.Nome != null && f.Nome.ToLower().Contains(q))
+                .OrderBy(f => f.Nome)
+                .Select(f => new Fornecedor { Id = f.Id, Nome = f.Nome })
+                .Take(max)
+                .ToListAsync();
         }
     }
+}

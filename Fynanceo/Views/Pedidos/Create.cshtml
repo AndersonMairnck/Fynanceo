@@ -24,6 +24,7 @@
             </div>
             <div class="card-body">
                 <form asp-action="Create" id="pedidoForm">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -262,6 +263,31 @@
         let hasMore = true;
         let currentSearch = '';
         let currentCategoria = '';
+
+        $(document).ready(function() {
+            // Inicializar seletor de tipo de pedido (para mostrar campos se voltar com erro)
+            $('#tipoPedidoSelect').trigger('change');
+
+            // Carregar itens se o Model.Itens tiver dados (retorno de erro de validação)
+            @if (Model.Itens != null && Model.Itens.Any())
+            {
+                foreach (var item in Model.Itens)
+                {
+                    <text>
+                    itensPedido.push({
+                        produtoId: @item.ProdutoId,
+                        produtoNome: "@item.ProdutoNome",
+                        precoUnitario: @item.PrecoUnitario.ToString().Replace(",", "."),
+                        quantidade: @item.Quantidade.ToString().Replace(",", "."),
+                        observacoes: "@(item.Observacoes ?? "")",
+                        personalizacoes: "@(item.Personalizacoes ?? "")",
+                        total: @((item.Quantidade * item.PrecoUnitario).ToString().Replace(",", "."))
+                    });
+                    </text>
+                }
+                <text>atualizarListaItens();</text>
+            }
+        });
 
         // ===== Tipo de pedido (exibe campos) =====
         $('#tipoPedidoSelect').change(function() {

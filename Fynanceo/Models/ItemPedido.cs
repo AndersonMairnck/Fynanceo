@@ -23,7 +23,7 @@ namespace Fynanceo.Models
         [Required(ErrorMessage = "Quantidade é obrigatória")]
         [Range(0.01, 100, ErrorMessage = "Quantidade deve ser entre 0.01 e 100")]
         [Column(TypeName = "decimal(18,3)")]
-        public int Quantidade { get; set; }
+        public decimal Quantidade { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
