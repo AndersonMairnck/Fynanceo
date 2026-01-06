@@ -1,4 +1,4 @@
-﻿@using Fynanceo.ViewModel.ProdutosModel
+@using Fynanceo.ViewModel.ProdutosModel
 @using Fynanceo.Models.Enums
 @model ProdutoViewModel
 
@@ -445,18 +445,30 @@ ViewData["Title"] = "Cadastrar Produto";
                 // Renderizar os materiais
                 data.materiais.forEach(material => {
                     // Verificar se o material já foi adicionado pelo usuário
-                    const jaSelecionado = ingredientesSelecionados.some(i => i.idEstoque == material.id);
+                    const jaSelecionado = ingredientesSelecionados.some(i => i.IdEstoque == material.id);
+
+                    const tipoItem = (material.tipoItem || '').toString().toUpperCase();
+                    const cardClasses = tipoItem === 'N'
+                        ? 'border border-success bg-success bg-opacity-10'
+                        : tipoItem === 'R'
+                            ? 'border border-warning bg-warning bg-opacity-10'
+                            : 'border';
+
+                    const tipoItemLabel = tipoItem === 'R'
+                        ? 'Produto de revenda'
+                        : 'Materiais/insumos';
 
                     console.log(`Material ${material.id} (${material.nome}) - já selecionado? ${jaSelecionado}`);
 
                     const materialHtml = `
                             <div class="col-md-6 mb-3">
-                                <div class="card h-100">
+                                <div class="card h-100 ${cardClasses}">
                                     <div class="card-body">
                                         <div class="form-check">
                                             <input class="form-check-input material-checkbox" 
                                                    type="checkbox" 
                                                    value="${material.id}" 
+                                                   data-tipoitem="${material.tipoItem}"
                                                    id="material_${material.id}"
                                                    data-nome="${material.nome}"
                                                    data-unidade="${material.unidadeMedida.toString()}"
@@ -464,6 +476,9 @@ ViewData["Title"] = "Cadastrar Produto";
                                                    ${jaSelecionado ? 'disabled' : ''}>
                                             <label class="form-check-label w-100" for="material_${material.id}" style="cursor: pointer;">
                                                 <h6 class="card-title mb-1">${material.nome}</h6>
+<p class="card-text text-muted small mb-1">
+                                                    <strong>Tipo:</strong> ${tipoItemLabel}
+                                                </p>
                                                 <p class="card-text text-muted small mb-1">
                                                     <strong>Código:</strong> ${material.codigo || 'N/A'}
                                                 </p>
@@ -573,6 +588,7 @@ ViewData["Title"] = "Cadastrar Produto";
         const nome = $(this).data('nome');
         const unidade = $(this).data('unidade');
         const codigo = $(this).data('codigo');
+        const tipoItem = $(this).data('tipoitem');
 
         if ($(this).is(':checked')) {
             // Adicionar ao array de selecionados no modal
@@ -580,9 +596,8 @@ ViewData["Title"] = "Cadastrar Produto";
                 id: materialId,
                 nome: nome,
                 unidade: unidade,
-                codigo: codigo
-                
-                
+                codigo: codigo,
+                tipoItem: tipoItem
             });
         } else {
             // Remover do array de selecionados no modal
@@ -608,6 +623,7 @@ ViewData["Title"] = "Cadastrar Produto";
                 // Adicionar ao array global
                 ingredientesSelecionados.push({
                     IdEstoque: material.id,
+                    TipoItem: material.tipoItem,
                     nome: material.nome,
                     unidadeMedida:  material.unidade.toString(),
                     quantidade: 0.1, // Quantidade inicial
@@ -621,6 +637,7 @@ ViewData["Title"] = "Cadastrar Produto";
                         <tr data-ingrediente-id="${material.id}">
                             <td>
                                 <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].IdEstoque" class="ingrediente-id" value="${material.id}" />
+                                <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].TipoItem" class="ingrediente-tipoitem" value="${material.tipoItem || ''}" />
                                 <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].Nome" class="ingrediente-nome" value="${material.nome}" />
                                 <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].UnidadeMedida" class="ingrediente-unidade" value="${material.unidade}" />
                                 <input type="hidden" name="Ingredientes[${ingredientesSelecionados.length - 1}].Codigo" class="ingrediente-codigo" value="${material.codigo || ''}" />

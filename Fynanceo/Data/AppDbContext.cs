@@ -35,7 +35,7 @@ namespace Fynanceo.Data
         // Módulo Estoque
         public DbSet<Estoque> Estoques { get; set; }
         public DbSet<MovimentacaoEstoque> MovimentacoesEstoque { get; set; }
-        public DbSet<CategoriaEstoque> CategoriasEstoque { get; set; }
+        // public DbSet<CategoriaEstoque> CategoriasEstoque { get; set; }
         public DbSet<Inventario> Inventarios { get; set; }
         public DbSet<ItemInventario> ItensInventario { get; set; }
         public DbSet<ProdutoIngrediente> ProdutoIngredientes { get; set; }

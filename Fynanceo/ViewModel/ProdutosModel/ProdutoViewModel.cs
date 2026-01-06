@@ -75,6 +75,7 @@ namespace Fynanceo.ViewModel.ProdutosModel
 
     public class MateriaisProdutoViewModel
     {
+         public string TipoItem { get; set; }
         public int IdEstoque { get; set; }
 
        // [Required(ErrorMessage = "Nome do ingrediente é obrigatório")]

@@ -40,8 +40,8 @@ namespace Fynanceo.ViewModel.EstoquesModel
         [Required]
         public StatusEstoque Status { get; set; }
 
-        [Display(Name = "Categoria")]
-        public int? CategoriaEstoqueId { get; set; }
+        // [Display(Name = "Categoria")]
+        // public int? CategoriaEstoqueId { get; set; }
 
         [Display(Name = "Fornecedor")]
         public int? FornecedorId { get; set; }
@@ -180,8 +180,8 @@ namespace Fynanceo.ViewModel.EstoquesModel
         [Required]
         public StatusEstoque Status { get; set; }
 
-        [Display(Name = "Categoria")]
-        public int? CategoriaEstoqueId { get; set; }
+        // [Display(Name = "Categoria")]
+        // public int? CategoriaEstoqueId { get; set; }
 
         [Display(Name = "Fornecedor")]
         public int? FornecedorId { get; set; }

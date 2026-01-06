@@ -10,7 +10,8 @@ namespace Fynanceo.Service.Interface
         Task<List<Estoque>> ObterTodosEstoquesAsync();
         Task<List<string>> SomenteCategoriasAsync();
         Task<Estoque> ObterEstoquePorIdAsync(int id);
-        Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model);
+        // Returns the created Estoque and optionally the created Produto Id (when TipoItem == "R")
+        Task<(Estoque estoque, int? produtoId)> CriarEstoqueAsync(EstoqueViewModel model);
         Task<Estoque> AtualizarEstoqueAsync(int id, EstoqueViewModel model);
         Task<bool> ExcluirEstoqueAsync(int id);
      

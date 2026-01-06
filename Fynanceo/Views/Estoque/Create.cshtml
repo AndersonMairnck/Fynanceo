@@ -293,6 +293,27 @@
                     placeholder: 'Selecione um fornecedor...',
                     allowClear: true,
                     minimumInputLength: 4,
+                    language: {
+                        inputTooShort: function (args) {
+                            var remaining = args.minimum - args.input.length;
+                            return 'Digite ' + remaining + ' ou mais caracteres.';
+                        },
+                        searching: function () {
+                            return 'Buscando...';
+                        },
+                        noResults: function () {
+                            return 'Nenhum resultado encontrado';
+                        },
+                        errorLoading: function () {
+                            return 'Não foi possível carregar os resultados.';
+                        },
+                        loadingMore: function () {
+                            return 'Carregando mais resultados...';
+                        },
+                        maximumSelected: function (args) {
+                            return 'Você só pode selecionar ' + args.maximum + ' item(s).';
+                        }
+                    },
                     ajax: {
                         url: '/Fornecedores/BuscarSelect2',
                         dataType: 'json',

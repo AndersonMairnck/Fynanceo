@@ -1,4 +1,4 @@
-﻿using Fynanceo.Models.Enums;
+using Fynanceo.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Fynanceo.Service.Interface;
 using Fynanceo.ViewModel.ProdutosModel;
@@ -42,6 +42,7 @@ namespace Fynanceo.Controllers
                 Ingredientes = (await _estoqueService.ObterTodosEstoquesAsync())
                     .Select(e => new MateriaisProdutoViewModel
                     {
+                        TipoItem = e.TipoItem,
                         IdEstoque = e.Id,
                         Nome = e.Nome,
                         Quantidade = 0,
@@ -200,8 +201,11 @@ namespace Fynanceo.Controllers
                         .ToList();
                 }
         
-                // Ordenar por nome
-                estoques = estoques.OrderBy(e => e.Nome).ToList();
+                // Ordenar por TipoItem (N primeiro, depois R, depois demais) e então por nome
+                estoques = estoques
+                    .OrderBy(e => (e.TipoItem ?? "") == "N" ? 0 : (e.TipoItem ?? "") == "R" ? 1 : 2)
+                    .ThenBy(e => e.Nome)
+                    .ToList();
         
                 // Paginação
                 var totalCount = estoques.Count;
@@ -212,6 +216,7 @@ namespace Fynanceo.Controllers
                     {
                         id = e.Id,
                         nome = e.Nome,
+                        tipoItem = e.TipoItem,
                         codigo = e.Codigo,
                         unidadeMedida = e.UnidadeMedida.ToString(),
                         quantidadeDisponivel = e.EstoqueAtual,

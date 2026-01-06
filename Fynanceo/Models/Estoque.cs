@@ -106,25 +106,25 @@ namespace Fynanceo.Models
         public string Usuario { get; set; }
     }
 
-    // Models/Estoque/CategoriaEstoque.cs
-    public class CategoriaEstoque
-    {
-        [Key]
-        public int Id { get; set; }
-
-        [Required(ErrorMessage = "O nome da categoria é obrigatório")]
-        [StringLength(50, ErrorMessage = "O nome deve ter até 50 caracteres")]
-        public string Nome { get; set; }
-
-        [StringLength(200)]
-        public string Descricao { get; set; }
-
-
-        public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
-
-        // Navegação
-        public ICollection<Estoque> Estoques { get; set; }
-    }
+    // // Models/Estoque/CategoriaEstoque.cs
+    // public class CategoriaEstoque
+    // {
+    //     [Key]
+    //     public int Id { get; set; }
+    //
+    //     [Required(ErrorMessage = "O nome da categoria é obrigatório")]
+    //     [StringLength(50, ErrorMessage = "O nome deve ter até 50 caracteres")]
+    //     public string Nome { get; set; }
+    //
+    //     [StringLength(200)]
+    //     public string Descricao { get; set; }
+    //
+    //
+    //     public StatusEstoque Status { get; set; } = StatusEstoque.Ativo;
+    //
+    //     // Navegação
+    //     public ICollection<Estoque> Estoques { get; set; }
+    // }
 
     // Models/Estoque/Inventario.cs
     public class Inventario

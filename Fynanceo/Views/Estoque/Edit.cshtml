@@ -122,33 +122,38 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label asp-for="CategoriaEstoqueId" class="form-label">Categoria</label>
-                                    <select asp-for="CategoriaEstoqueId" class="form-select">
-                                        <option value="">Selecione uma categoria...</option>
+                                    <label asp-for="Categoria" class="form-label">Categoria</label>
+                                    <input asp-for="Categoria" class="form-control" list="Categorias" />
+                                    <datalist id="Categorias">
                                         @if (Model.Categorias != null)
                                         {
-                                            @foreach (var categoria in Model.Categorias)
+                                            foreach (var c in Model.Categorias)
                                             {
-                                               // <option value="@categoria.Id">@categoria.Nome</option>
+                                                if (!string.IsNullOrWhiteSpace(c))
+                                                {
+                                                    <option value="@c"></option>
+                                                }
                                             }
                                         }
-                                    </select>
-                                    <span asp-validation-for="CategoriaEstoqueId" class="text-danger"></span>
+                                    </datalist>
+                                    <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label asp-for="FornecedorId" class="form-label">Fornecedor</label>
-                                    <select asp-for="FornecedorId" class="form-select">
-                                        <option value="">Selecione um fornecedor...</option>
-                                        @if (Model.Fornecedores != null)
-                                        {
-                                            @foreach (var fornecedor in Model.Fornecedores)
+                                    <div class="input-group">
+                                        <select asp-for="FornecedorId" class="form-select" id="fornecedorSelect">
+                                            <option value="">Selecione um fornecedor...</option>
+                                            @if (Model.FornecedorId.HasValue && ViewBag.FornecedorSelecionadoNome != null)
                                             {
-                                                <option value="@fornecedor.Id">@fornecedor.Nome</option>
+                                                <option value="@Model.FornecedorId" selected>@ViewBag.FornecedorSelecionadoNome</option>
                                             }
-                                        }
-                                    </select>
+                                        </select>
+                                        <a href="/Fornecedores/Create" class="btn btn-outline-primary" title="Cadastrar Novo Fornecedor">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    </div>
                                     <span asp-validation-for="FornecedorId" class="text-danger"></span>
                                 </div>
                             </div>
@@ -203,6 +208,59 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            if ($.fn.select2) {
+                $('#fornecedorSelect').select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Selecione um fornecedor...',
+                    allowClear: true,
+                    minimumInputLength: 4,
+                    language: {
+                        inputTooShort: function (args) {
+                            var remaining = args.minimum - args.input.length;
+                            return 'Digite ' + remaining + ' ou mais caracteres.';
+                        },
+                        searching: function () {
+                            return 'Buscando...';
+                        },
+                        noResults: function () {
+                            return 'Nenhum resultado encontrado';
+                        },
+                        errorLoading: function () {
+                            return 'Não foi possível carregar os resultados.';
+                        },
+                        loadingMore: function () {
+                            return 'Carregando mais resultados...';
+                        },
+                        maximumSelected: function (args) {
+                            return 'Você só pode selecionar ' + args.maximum + ' item(s).';
+                        }
+                    },
+                    ajax: {
+                        url: '/Fornecedores/BuscarSelect2',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                term: params.term,
+                                page: params.page || 1,
+                                pageSize: 20
+                            };
+                        },
+                        processResults: function (data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination && data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    }
+                });
+            }
+
             // Validações similares à view Create
             $('#produtoForm').on('submit', function(e) {
                 // Validações aqui (similar ao Create)

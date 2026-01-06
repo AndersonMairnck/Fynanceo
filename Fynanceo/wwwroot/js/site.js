@@ -1,4 +1,4 @@
-﻿// Funções globais do sistema Fynanceo
+// Funções globais do sistema Fynanceo
 
 // Inicialização quando o documento estiver pronto
 document.addEventListener('DOMContentLoaded', function () {
@@ -89,3 +89,43 @@ window.Fynanceo = {
     validarEmail,
     mostrarLoading
 };
+
+function aplicarMensagensJqueryValidatePtBr() {
+    if (!window.jQuery) return false;
+    if (!window.jQuery.validator) return false;
+    if (!window.jQuery.validator.messages) return false;
+
+    window.jQuery.extend(window.jQuery.validator.messages, {
+        required: 'Este campo é obrigatório.',
+        remote: 'Por favor, corrija este campo.',
+        email: 'Por favor, forneça um endereço de email válido.',
+        url: 'Por favor, forneça uma URL válida.',
+        date: 'Por favor, forneça uma data válida.',
+        dateISO: 'Por favor, forneça uma data válida (ISO).',
+        number: 'Por favor, forneça um número válido.',
+        digits: 'Por favor, forneça somente dígitos.',
+        creditcard: 'Por favor, forneça um cartão de crédito válido.',
+        equalTo: 'Por favor, forneça o mesmo valor novamente.',
+        accept: 'Por favor, forneça um valor com uma extensão válida.',
+        maxlength: window.jQuery.validator.format('Por favor, não forneça mais que {0} caracteres.'),
+        minlength: window.jQuery.validator.format('Por favor, forneça ao menos {0} caracteres.'),
+        rangelength: window.jQuery.validator.format('Por favor, forneça um valor entre {0} e {1} caracteres.'),
+        range: window.jQuery.validator.format('Por favor, forneça um valor entre {0} e {1}.'),
+        max: window.jQuery.validator.format('Por favor, forneça um valor menor ou igual a {0}.'),
+        min: window.jQuery.validator.format('Por favor, forneça um valor maior ou igual a {0}.')
+    });
+
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (aplicarMensagensJqueryValidatePtBr()) return;
+
+    var tentativas = 0;
+    var timer = setInterval(function () {
+        tentativas++;
+        if (aplicarMensagensJqueryValidatePtBr() || tentativas >= 20) {
+            clearInterval(timer);
+        }
+    }, 250);
+});

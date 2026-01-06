@@ -1,4 +1,4 @@
-﻿// Services/Estoque/EstoqueService.cs
+// Services/Estoque/EstoqueService.cs
 using Microsoft.EntityFrameworkCore;
 using Fynanceo.Data;
 using Fynanceo.Models;
@@ -29,7 +29,7 @@ namespace Fynanceo.Service
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // ESTOQUE - CRUD
+     
         public async Task<List<Estoque>> ObterTodosEstoquesAsync()
         {
             return await _context.Estoques
@@ -75,7 +75,7 @@ namespace Fynanceo.Service
             return user?.UserName ?? "Sistema";
         }
 
-        public async Task<Estoque> CriarEstoqueAsync(EstoqueViewModel model)
+        public async Task<(Estoque estoque, int? produtoId)> CriarEstoqueAsync(EstoqueViewModel model)
         {
          
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -102,6 +102,7 @@ namespace Fynanceo.Service
                 _context.Estoques.Add(estoque);
                 await _context.SaveChangesAsync(); // Gera o ID
 
+                int? produtoId = null;
                 if (model.TipoItem == "R")
                 {
                     var produto = new Produto
@@ -121,11 +122,12 @@ namespace Fynanceo.Service
 
                     _context.Produtos.Add(produto);
                     await _context.SaveChangesAsync();
+                    produtoId = produto.Id;
                 }
 
                 await transaction.CommitAsync();
 
-                return estoque;
+                return (estoque, produtoId);
             }
             catch (Exception ex)
             {
@@ -149,6 +151,8 @@ namespace Fynanceo.Service
             estoque.CustoUnitario = model.CustoUnitario;
             estoque.UnidadeMedida = model.StatusUnidadeMedida;
             estoque.Status = model.Status;
+            estoque.TipoItem = model.TipoItem;
+            estoque.Categorias = model.Categoria;
          
             estoque.FornecedorId = model.FornecedorId;
             estoque.DataAtualizacao = DateTime.UtcNow;
@@ -612,3 +616,4 @@ namespace Fynanceo.Service
         }
     }
 }
+

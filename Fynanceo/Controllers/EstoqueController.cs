@@ -1,4 +1,4 @@
-﻿// Controllers/EstoqueController.cs
+// Controllers/EstoqueController.cs
 
 using Fynanceo.Data;
 using Fynanceo.Models;
@@ -43,7 +43,7 @@ namespace Fynanceo.Controllers
         }
 
         // GET: Estoque/Index
-        public async Task<IActionResult> Index(string search, int? categoriaId, StatusEstoque? status)
+        public async Task<IActionResult> Index(string search, string categoria, StatusEstoque? status)
         {
             // Carregar todos os estoques pela service (lista em memória)
             var estoquesLista = await _estoqueService.ObterTodosEstoquesAsync();
@@ -63,6 +63,13 @@ namespace Fynanceo.Controllers
             {
                 estoquesLista = estoquesLista
                     .Where(e => e.Status == status.Value)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoria))
+            {
+                estoquesLista = estoquesLista
+                    .Where(e => e.Categorias != null && e.Categorias.Contains(categoria, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
@@ -127,8 +134,24 @@ namespace Fynanceo.Controllers
             {
                 try
                 {
-                    await _estoqueService.CriarEstoqueAsync(model);
+                    var (estoque, produtoId) = await _estoqueService.CriarEstoqueAsync(model);
                     TempData["Success"] = "Produto cadastrado com sucesso!";
+
+                    // Se um produto relacionado foi criado (TipoItem == "R"), redirecionar para edição do produto
+                    if (produtoId.HasValue)
+                    {
+                        // Só redireciona diretamente para a edição se o usuário atual tiver permissão
+                        if (User.IsInRole("Administrador") || User.IsInRole("Gerente"))
+                        {
+                            return RedirectToAction("Editar", "Produtos", new { id = produtoId.Value });
+                        }
+
+                        // Usuário não tem permissão para editar produtos: guardar link para que um administrador possa editar depois
+                        var editUrl = Url.Action("Editar", "Produtos", new { id = produtoId.Value });
+                        TempData["Info"] = "Produto criado. Um administrador pode completar os detalhes: " + editUrl;
+                        return RedirectToAction(nameof(Index));
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -170,7 +193,7 @@ namespace Fynanceo.Controllers
                 CustoUnitario = estoque.CustoUnitario,
                 StatusUnidadeMedida = estoque.UnidadeMedida,
                 Status = estoque.Status,
-                // CategoriaEstoqueId = estoque.CategoriaEstoqueId,
+                Categoria = estoque.Categorias,
                 FornecedorId = estoque.FornecedorId,
                 Categorias = await _estoqueService.SomenteCategoriasAsync(),
             };
