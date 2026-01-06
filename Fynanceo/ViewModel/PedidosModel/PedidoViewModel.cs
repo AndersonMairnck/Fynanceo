@@ -51,7 +51,7 @@ namespace Fynanceo.ViewModel.PedidosModel
         public string ProdutoNome { get; set; }
         public decimal PrecoUnitario { get; set; }
 
-        [Range(0.01, 100, ErrorMessage = "Quantidade deve ser entre 0.01 e 100")]
+        [Range(1, 100, ErrorMessage = "Quantidade deve ser entre 1 e 100")]
         public decimal Quantidade { get; set; }
         public string? Observacoes { get; set; }
         public string? Personalizacoes { get; set; }

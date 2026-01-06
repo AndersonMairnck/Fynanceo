@@ -117,7 +117,7 @@
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label asp-for="EstoqueAtual" class="form-label">Estoque Inicial *</label>
-                                    <input asp-for="EstoqueAtual" type="number" step="0.001" class="form-control" 
+                                    <input asp-for="EstoqueAtual" type="number"  class="form-control" 
                                            required min="0" value="0">
                                     <span asp-validation-for="EstoqueAtual" class="text-danger"></span>
                                 </div>
@@ -125,7 +125,7 @@
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label asp-for="EstoqueMinimo" class="form-label">Estoque Mínimo *</label>
-                                    <input asp-for="EstoqueMinimo" type="number" step="0.001" class="form-control" 
+                                    <input asp-for="EstoqueMinimo" type="number"  class="form-control" 
                                            required min="0" value="0">
                                     <span asp-validation-for="EstoqueMinimo" class="text-danger"></span>
                                 </div>
@@ -133,7 +133,7 @@
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label asp-for="EstoqueMaximo" class="form-label">Estoque Máximo</label>
-                                    <input asp-for="EstoqueMaximo" type="number" step="0.001" class="form-control" 
+                                    <input asp-for="EstoqueMaximo" type="number"  class="form-control" 
                                            min="0" value="0">
                                     <span asp-validation-for="EstoqueMaximo" class="text-danger"></span>
                                 </div>
@@ -244,11 +244,27 @@
                     <div class="mb-3">
                         <strong>Custo Unitário:</strong> Preço de custo por unidade de medida.
                     </div>
+                    <div class="mb-3">
+                        <strong>Produtos por peso:</strong> Devem ser informados sempre em gramas (g).<br>
+                       👉 Exemplo: 100 g, 250 g, 1000 g
+                    </div>
+                    <div class="mb-3">
+                        <strong>Produtos por volume :</strong> Devem ser informados sempre em mililitros (ml) <br>
+                       👉 Exemplo: 100 ml, 500 ml, 1000 ml
+                    </div>
+                    <div class="mb-3" align="center">
+                        <strong>⚠️ Importante:</strong>
+                        <p>Quando a unidade kg ou L for utilizada, não é permitido valor fracionado</p>
+                        👉 Exemplo válido: 1 kg, 1 L<br>
+                        ❌ Exemplo inválido: 0,5 kg, 1,25 kg
+                    </div>
+                    
                     <hr>
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Campos obrigatórios</strong> estão marcados com *
                     </div>
+                    
                 </div>
             </div>
 

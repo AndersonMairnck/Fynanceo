@@ -106,7 +106,7 @@
 
                 <div class="card-footer bg-light border-0 p-3">
                     <form asp-action="Balcao" id="pedidoForm">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                        <div asp-validation-summary="ModelOnly" class="border border-danger bg-light text-danger p-2 small rounded" ></div>
                         <input type="hidden" asp-for="TipoPedido" value="@((int)TipoPedido.Balcao)" />
                         
                         <div class="mb-3">

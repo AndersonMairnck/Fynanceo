@@ -105,9 +105,7 @@
                            asp-controller="Pedidos" asp-action="Delivery"><i class="fas fa-motorcycle"></i> Delivery</a>
                         <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Cozinha" ? "active" : "")"
                            asp-controller="Pedidos" asp-action="Cozinha"><i class="fas fa-utensils"></i> Cozinha</a>
-                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
-                           asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-shipping-fast"></i> Gestão Delivery</a>
-                    </div>
+                         </div>
                 </div>
             </li>
 
@@ -121,17 +119,17 @@
                 </a>
                 <div class="collapse collapse-menu" id="gestaoCollapse">
                     <div class="submenu">
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Entregadores" ? "active" : "")"
+                           asp-controller="Entregas" asp-action="Dashboard"><i class="fas fa-shipping-fast"></i> Gestão Delivery</a>
+
                         <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "GestaoMesas" ? "active" : "")"
                            asp-controller="GestaoMesas" asp-action="Dashboard"><i class="fas fa-chair"></i> Gestão de
                             Mesas </a>
-                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
-                           asp-controller="Caixa" asp-action="Dashboard"><i class="fas fa-chart-line"></i> Financeiro
-                           </a>
-                        <!-- Submenu Estoque -->
+                          <!-- Submenu Estoque -->
                         <a class="nav-link collapsed submenu-link" href="#" data-bs-toggle="collapse"
                            data-bs-target="#estoqueCollapse"
                            aria-expanded="false" aria-controls="estoqueCollapse">
-                            <i class="fas fa-boxes"></i> Estoque 
+                            <i class="fas fa-boxes"></i> Estoque
                             <i class="fas fa-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
                         </a>
                         <div class="collapse collapse-menu" id="estoqueCollapse">
@@ -142,16 +140,23 @@
                                 <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
                                    asp-controller="Estoque" asp-action="Index"><i class="fas fa-box"></i> Produtos</a>
                                 <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Movimentacoes" ? "active" : "")"
-                                   asp-controller="Estoque" asp-action="Movimentacoes"><i
+                                   asp-controller="Estoque" asp-action="Movimentacoes">
+                                    <i
                                         class="fas fa-exchange-alt"></i> Movimentações</a>
                                 <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Alertas" ? "active" : "")"
-                                   asp-controller="Estoque" asp-action="Alertas"><i
+                                   asp-controller="Estoque" asp-action="Alertas">
+                                    <i
                                         class="fas fa-exclamation-triangle"></i> Alertas</a>
                                 <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Inventario" ? "active" : "")"
-                                   asp-controller="Estoque" asp-action="Inventario"><i
+                                   asp-controller="Estoque" asp-action="Inventario">
+                                    <i
                                         class="fas fa-clipboard-check"></i> Inventário</a>
                             </div>
                         </div>
+                        <a class="nav-link submenu-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Caixa" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Contas" || ViewContext.RouteData.Values["Controller"]?.ToString() == "Fornecedores" ? "active" : "")"
+                           asp-controller="Caixa" asp-action="Dashboard"><i class="fas fa-chart-line"></i> Financeiro
+                        </a>
+                      
                     </div>
                 </div>
             </li>
@@ -418,26 +423,26 @@
         document.body.classList.remove('loading');
     });
 
-    // Simulate alert count for Estoque (substitua por chamada real à API)
-    function updateEstoqueAlertCount() {
-        const alertLink = document.querySelector('a[href*="Alertas"]');
-        if (alertLink) {
-            // Simular 3 alertas - substitua por chamada real ao serviço
-            const alertCount = 3;
-            if (alertCount > 0) {
-                let badge = alertLink.querySelector('.alert-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'badge bg-danger badge-notification alert-badge';
-                    alertLink.appendChild(badge);
-                }
-                badge.textContent = alertCount;
-            }
-        }
-    }
-
-    // Inicializar contador de alertas
-    updateEstoqueAlertCount();
+    // // Simulate alert count for Estoque (substitua por chamada real à API)
+    // function updateEstoqueAlertCount() {
+    //     const alertLink = document.querySelector('a[href*="Alertas"]');
+    //     if (alertLink) {
+    //         // Simular 3 alertas - substitua por chamada real ao serviço
+    //         const alertCount = 2;
+    //         if (alertCount > 0) {
+    //             let badge = alertLink.querySelector('.alert-badge');
+    //             if (!badge) {
+    //                 badge = document.createElement('span');
+    //                 badge.className = 'badge bg-danger badge-notification alert-badge';
+    //                 alertLink.appendChild(badge);
+    //             }
+    //             badge.textContent = alertCount;
+    //         }
+    //     }
+    // }
+    //
+    // // Inicializar contador de alertas
+    // updateEstoqueAlertCount();
 </script>
 
 <script src="~/js/mascaras.js"></script>

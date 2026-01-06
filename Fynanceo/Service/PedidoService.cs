@@ -62,7 +62,7 @@ namespace Fynanceo.Service
                 var estoque = await _context.Estoques.FindAsync(produto.IdEstoque);
                 if (estoque != null && estoque.EstoqueAtual < quantidadeSolicitada)
                 {
-                    return (false, $"Estoque insuficiente para o produto {produto.Nome}. Disponível: {estoque.EstoqueAtual:N3}, Solicitado: {quantidadeSolicitada:N3}");
+                    return (false, $"Estoque insuficiente para o produto {produto.Nome}. Disponível: {estoque.EstoqueAtual}, Solicitado: {quantidadeSolicitada}");
                 }
             }
 
@@ -77,7 +77,7 @@ namespace Fynanceo.Service
                     if (estoqueIngrediente != null && estoqueIngrediente.EstoqueAtual < qtdNecessaria)
                     {
                         var qtdPossivel = ingrediente.Quantidade > 0 ? estoqueIngrediente.EstoqueAtual / ingrediente.Quantidade : 0;
-                        return (false, $"Estoque insuficiente do ingrediente {estoqueIngrediente.Nome} para o produto {produto.Nome}. Disponível: {estoqueIngrediente.EstoqueAtual:N3}, Necessário: {qtdNecessaria:N3}. Máximo possível: {qtdPossivel:N3}");
+                        return (false, $"Estoque insuficiente do ingrediente {estoqueIngrediente.Nome} para o produto {produto.Nome}. Disponível: {estoqueIngrediente.EstoqueAtual}, Necessário: {qtdNecessaria}. Máximo possível: {qtdPossivel}");
                     }
                 }
             }
